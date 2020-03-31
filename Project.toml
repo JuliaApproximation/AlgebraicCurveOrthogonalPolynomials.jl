@@ -1,0 +1,12 @@
+name = "OrthogonalPolynomialsAlgebraicCurves"
+uuid = "b2d6dd58-be48-4100-8375-7f7d22241ed8"
+authors = ["Sheehan Olver <solver@mac.com>"]
+version = "0.1.0"
+
+[deps]
+BlockArrays = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
+BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
+FastGaussQuadrature = "442a2c76-b920-505d-bb47-c5924d526838"
+GaussQuadrature = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
