@@ -2,30 +2,30 @@
 
 [[ArrayLayouts]]
 deps = ["FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "bc779df8d73be70e4e05a63727d3a4dfb4c52b1f"
+git-tree-sha1 = "f8904599065b57f51715faf6278126f853aef6fc"
 uuid = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
-version = "0.1.5"
+version = "0.2.4"
 
 [[BandedMatrices]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra", "Random", "SparseArrays"]
-git-tree-sha1 = "03b21fb83f9e0b13f99c407810cd3b6cac293a1d"
+git-tree-sha1 = "8fa895a61113e49044239c3bc3f240d05109b2e8"
 uuid = "aae01518-5342-5314-be14-df237901396f"
-version = "0.14.3"
+version = "0.15.2"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
 [[BlockArrays]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "b9e7e450038d9f1277723ff34a6731d559972576"
+deps = ["ArrayLayouts", "LinearAlgebra"]
+git-tree-sha1 = "539b7e2e7d56f18d36c7ffbba73708bf7d759e98"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "0.11.2"
+version = "0.12.0"
 
 [[BlockBandedMatrices]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "Distributed", "FillArrays", "LinearAlgebra", "MatrixFactorizations", "Pkg", "Random", "SharedArrays", "SparseArrays", "Statistics", "Test"]
-git-tree-sha1 = "2b84884305fdeff67836a3b84200297af7822222"
+git-tree-sha1 = "db7112e0d420863c410172ce823fc15e7ae4da46"
 uuid = "ffab5731-97b5-5995-9138-79e8c1846df0"
-version = "0.7.2"
+version = "0.8.0"
 
 [[CodeTracking]]
 deps = ["InteractiveUtils", "UUIDs"]
@@ -58,15 +58,15 @@ uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[FillArrays]]
 deps = ["LinearAlgebra", "Random", "SparseArrays"]
-git-tree-sha1 = "3eb5253af6186eada40de3df524a1c10f0c6bfa2"
+git-tree-sha1 = "51cc2f9bc4eb9c6c0e81ec2f779d1085583cc956"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.8.6"
+version = "0.8.7"
 
 [[GaussQuadrature]]
-deps = ["LinearAlgebra", "Printf", "SpecialFunctions", "Test"]
-git-tree-sha1 = "3113b28de0e25576348c06731327f3df8de6ad90"
+deps = ["SpecialFunctions"]
+git-tree-sha1 = "ff30c61ad1ff425d0d8bac6b77833216741c2e68"
 uuid = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
-version = "0.5.0"
+version = "0.5.4"
 
 [[InteractiveUtils]]
 deps = ["Markdown"]
@@ -104,9 +104,9 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 
 [[MatrixFactorizations]]
 deps = ["ArrayLayouts", "LinearAlgebra", "Random"]
-git-tree-sha1 = "0367f2735e27536aea9c485574bc3b3ff91641c3"
+git-tree-sha1 = "26ba6b066b1796854ed7257ce767b763d52bc70d"
 uuid = "a3b82374-2e81-5b9e-98ce-41277c0e4c87"
-version = "0.3.0"
+version = "0.3.1"
 
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
