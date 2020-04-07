@@ -10,3 +10,7 @@ X,Y = quarticjacobi(30)
 K = 25; σ1 = svdvals(Float64.(X[Block(K,K+1)]))
 K = 26; σ2 = svdvals(Float64.(X[Block(K,K+1)]))
 @test σ1 ≈ σ2 rtol=1E-2
+
+K = 25; σ1 = svdvals(Float64.(Y[Block(K,K+1)]))
+K = 26; σ2 = svdvals(Float64.(Y[Block(K,K+1)]))
+@test σ1 ≈ σ2 rtol=1E-2
