@@ -19,7 +19,7 @@ uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 deps = ["ArrayLayouts", "LinearAlgebra"]
 git-tree-sha1 = "539b7e2e7d56f18d36c7ffbba73708bf7d759e98"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
-version = "0.12.0"
+version = "0.11.2"
 
 [[BlockBandedMatrices]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "Distributed", "FillArrays", "LinearAlgebra", "MatrixFactorizations", "Pkg", "Random", "SharedArrays", "SparseArrays", "Statistics", "Test"]
