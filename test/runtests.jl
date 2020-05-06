@@ -1,10 +1,12 @@
 using OrthogonalPolynomialsAlgebraicCurves, LinearAlgebra, BlockBandedMatrices, BlockArrays, FillArrays, Test
 
+include("test_semicircle.jl")
+
 @testset "Quartic" begin
     @testset "Commutating properties" begin
         X,Y = quarticjacobi(10)
         @test (X*Y)[Block.(1:11), Block.(1:11)] ≈ (Y*X)[Block.(1:11), Block.(1:11)]
-        @test (X^4 + Y^4)[Block.(1:10), Block.(1:10)] ≈ Eye(34)
+        @test (X^4 + Y^4)[Block.(1:10), Block.(1:10)] ≈ I(34)
     end
 
     @testset "Toeplitz SVD" begin
@@ -42,5 +44,8 @@ using OrthogonalPolynomialsAlgebraicCurves, LinearAlgebra, BlockBandedMatrices, 
         yz = By'/z+Ay+By*z
         @test xz*yz ≈ yz*xz rtol = 1E-2
         @test xz^4+yz^4≈I rtol=1E-2
+
+        @test norm(Ax*Ay-Ay*Ax + Bx*By'-By'*Bx + Bx'*By - By*Bx') ≤ 0.005
+        
     end
 end
