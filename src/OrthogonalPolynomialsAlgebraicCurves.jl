@@ -1,7 +1,62 @@
 module OrthogonalPolynomialsAlgebraicCurves
-using GaussQuadrature, FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices
+using GaussQuadrature, FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays
 
-export quarticjacobi
+export quarticjacobi, blocksymtricirculant, unroll
+
+
+"""
+    blocksymtricirculant(A,B, N)
+
+Creates a Block N x N  Symmetric-Tridiagonal-Circulant matrix with diagonal
+blocks A and off-diagonal block B.
+"""
+function blocksymtricirculant(A, B, N)
+    M = size(A,1)
+    ret = BlockMatrix(zeros(eltype(A),M*N,M*N), Fill(M,N), Fill(M,N))
+    for K = 1:N 
+        ret[Block(K,K)] = A 
+    end
+    for K = 1:N-1 
+        ret[Block(K,K+1)] = B
+        ret[Block(K+1,K)] = B' 
+    end
+    ret[Block(1,N)] = B'
+    ret[Block(N,1)] = B
+    ret
+end
+
+# a holds the non-symmetric entries of A
+function _unroll(a, b)
+    n = isqrt(length(b))
+    B = reshape(b,n,n)
+    @assert length(a) == sum(1:n)
+    A = similar(a, n, n)
+    k̃ = 1
+    for j = 1:n, k = 1:j
+        A[k,j] = A[j,k] = a[k̃]
+        k̃ += 1
+    end
+    A,B
+end
+
+# split into a and b terms
+function _unroll(x)
+    N = length(x)
+    n = (isqrt(1 + 24N)-1) ÷ 6
+    m = sum(1:n)
+    _unroll(x[1:m], x[m+1:end])
+end
+
+"""
+unroll variables into Symmetric Ax and non-symmetric Bx
+"""
+function unroll(x)
+    @assert iseven(length(x))
+    N = length(x) ÷ 2
+    Ax,Bx = _unroll(x[1:N])
+    Ay,By = _unroll(x[N+1:end])
+    Ax,Bx,Ay,By
+end
 
 function quarticjacobi(::Type{T},nmax) where T
     N = 1+2+3+4*(nmax-1)+max(0,1-nmax)

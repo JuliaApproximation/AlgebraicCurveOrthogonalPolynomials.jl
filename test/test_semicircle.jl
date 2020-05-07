@@ -1,50 +1,5 @@
 using OrthogonalPolynomialsAlgebraicCurves, BandedMatrices, BlockBandedMatrices, BlockArrays
-
 using ForwardDiff, StaticArrays
-
-function f(v)
-    x,y,z = v
-    SVector(x,y,x^2-z+y)
-end
-
-@time ForwardDiff.jacobian(f,SVector(0.1,0.2,0.3))
-
-function blocksymtricirculant(A, B, N)
-    M = size(A,1)
-    ret = BlockMatrix(zeros(eltype(A),M*N,M*N), Fill(M,N), Fill(M,N))
-    for K = 1:N 
-        ret[Block(K,K)] = A 
-    end
-    for K = 1:N-1 
-        ret[Block(K,K+1)] = B
-        ret[Block(K+1,K)] = B' 
-    end
-    ret[Block(1,N)] = B'
-    ret[Block(N,1)] = B
-    ret
-end
-
-unroll(a₁₁,a₁₂,a₂₂,b₁₁,b₂₁,b₁₂,b₂₂) = ([a₁₁ a₁₂; a₁₂ a₂₂], [b₁₁ b₁₂; b₂₁ b₂₂])
-function unroll2(x)
-    @assert length(x) == 14
-    xd = x[1:7]
-    yd = x[8:end]
-    Ax,Bx = unroll(xd...)
-    Ay,By = unroll(yd...)
-    Ax,Bx,Ay,By
-end
-
-function FF(x)
-    Ax,Bx,Ay,By = unroll2(x)
-    N = 5
-    X = blocksymtricirculant(Ax, Bx, N)
-    Y = blocksymtricirculant(Ay, By, N)
-    E = mortar([zeros(2,2), [1 0; 0 1], Fill(zeros(2,2),N-2)...]')'
-    Σ = mortar(Fill([1 0; 0 1], N)')
-    Ω = mortar(((-1).^(1:N) .* Fill([1 0; 0 1], N))')
-
-    vcat(map(vec,[Σ*X*E - I, Σ*Y*E, Ω*X*E, Ω*Y*E - [0 -1; -1 0],  X*Y - Y*X, X^2 + Y^2 - I])...)
-end
 
 
 
@@ -105,19 +60,59 @@ end
     # end
 end
 
+
+# Ax = [0 0.0; 0.0 0]; Bx = [0.5 0; 0 0.5]
+# Ay = [0 0.0; 0.0 0]; By = [0 0.5; -0.5 0]
+function F_circle(x)
+    Ax,Bx,Ay,By = unroll(x)
+    N = 5
+    X = blocksymtricirculant(Ax, Bx, N)
+    Y = blocksymtricirculant(Ay, By, N)
+    E = mortar([zeros(2,2), [1 0; 0 1], Fill(zeros(2,2),N-2)...]')'
+    Σ = mortar(Fill([1 0; 0 1], N)')
+    Ω = mortar(((-1).^(1:N) .* Fill([1 0; 0 1], N))')
+
+    vcat(map(vec,[Σ*X*E - I, Σ*Y*E, Ω*X*E + I, Ω*Y*E,  X*Y - Y*X, X^2 + Y^2 - I])...)
+    # vcat(map(vec,[Σ*X*E - I, Ω*X*E + I,  X*Y - Y*X, X^2 + Y^2 - I])...)
+end
+
+function F_semicircle(x)
+    Ax,Bx,Ay,By = unroll(x)
+    N = 5
+    X = blocksymtricirculant(Ax, Bx, N)
+    Y = blocksymtricirculant(Ay, By, N)
+    E = mortar([zeros(2,2), [1 0; 0 1], Fill(zeros(2,2),N-2)...]')'
+    Σ = mortar(Fill([1 0; 0 1], N)')
+    Ω = mortar(((-1).^(1:N) .* Fill([1 0; 0 1], N))')
+
+    vcat(map(vec,[Σ*X*E - I, Σ*Y*E, Ω*X*E, Ω*Y*E - [0 -1; -1 0],  X*Y - Y*X, X^2 + Y^2 - I])...)
+end
+
 @testset "Newton" begin
-    x0 = randn(14)
-    for _ = 1:10
-        global x0
-        J = ForwardDiff.jacobian(FF,x0); x0 = x0 - (J \ FF(x0))
+    @testset "circle" begin
+        p = randn(14)
+        for _ = 1:10
+            J = ForwardDiff.jacobian(F_circle,p); p = p - (J \ F_circle(p))
+        end
+        Ax,Bx,Ay,By = unroll(p)
+        @test norm(Ax) ≤ 10eps()
+        @test Bx ≈ [0.5 0; 0 0.5]
+        @test norm(Ay) ≤ 10eps()
+        @test By ≈ [0 -0.5; 0.5 0]
     end
-    Ax,Bx,Ay,By = unroll2(x0)
-    @test Ax ≈ Matrix(0.5I,2,2)
-    @test Bx ≈ Matrix(0.25I,2,2)
-    a₁₂ = (1 + sqrt(2))/4
-    a₂₁ = (1 - sqrt(2))/4
-    @test Ay ≈ [0 -0.5; -0.5 0]
-    @test By ≈ [0 a₁₂; a₂₁ 0]
+    @testset "semicircle" begin
+        x0 = randn(14)
+        for _ = 1:10
+            J = ForwardDiff.jacobian(F_semicircle,x0); x0 = x0 - (J \ F_semicircle(x0))
+        end
+        Ax,Bx,Ay,By = unroll(x0)
+        @test Ax ≈ Matrix(0.5I,2,2)
+        @test Bx ≈ Matrix(0.25I,2,2)
+        a₁₂ = (1 + sqrt(2))/4
+        a₂₁ = (1 - sqrt(2))/4
+        @test Ay ≈ [0 -0.5; -0.5 0]
+        @test By ≈ [0 a₁₂; a₂₁ 0]
+    end
 end
 
 @testset "Jacobi" begin
@@ -144,3 +139,66 @@ end
     @test X*Y ≈ Y*X
     @test X^2 + Y^2 ≈ Eye(N)
 end
+
+
+# function FF2(x)
+#     Ax,Bx,Ay,By = unroll2(x)
+#     N = 5
+#     X = blocksymtricirculant(Ax, Bx, N)
+#     Y = blocksymtricirculant(Ay, By, N)
+#     E = mortar([zeros(2,2), [1 0; 0 1], Fill(zeros(2,2),N-2)...]')'
+#     Σ = mortar(Fill([1 0; 0 1], N)')
+#     Ω = mortar(((-1).^(1:N) .* Fill([1 0; 0 1], N))')
+
+#     vcat(map(vec,[X*Y - Y*X, X^2 + Y^2 - I])...)
+# end
+
+# x0 = randn(14)
+# J = ForwardDiff.jacobian(FF2,x0); x0 = x0 - (J \ FF2(x0))
+# Ax,Bx,Ay,By = unroll2(x0)
+
+# x = z -> Ax + (Bx/z + Bx'*z)
+# y = z -> Ay + (By/z + By'*z)
+
+# NN = 20; Z = Matrix{ComplexF64}(undef,2,NN)
+# for (j,θ) in enumerate(range(0,2π; length=NN))
+#     z = exp(θ*im)
+#     _,Q = eigen(x(z))
+#     Z[:,j] = (diag(real(Q'x(z)*Q)) + im*diag(real(Q'y(z)*Q)))
+# end
+
+# scatter(Z)
+
+
+function F_circle(x)
+    Bx = reshape(x,2,4)[:,1:2]
+    By = reshape(x,2,4)[:,3:end]
+    N = 5
+    Z = zeros(eltype(x),2,2)
+    X = blocksymtricirculant(Z, Bx, N)
+    Y = blocksymtricirculant(Z, By, N)
+
+    vcat(map(vec,[X*Y - Y*X, X^2 + Y^2 - I])...)
+end
+
+p = randn(8)
+J = ForwardDiff.jacobian(F_circle,p); p = p - (J \ F_circle(p)); norm(F_circle(p))
+
+Bx = reshape(p,2,4)[:,1:2]
+By = reshape(p,2,4)[:,3:end]
+
+
+
+
+x = z -> (Bx/z + Bx'*z)
+y = z -> (By/z + By'*z)
+NN = 20; Z = Matrix{ComplexF64}(undef,size(Bx,1),NN)
+for (j,θ) in enumerate(range(0,2π; length=NN))
+    z = exp(θ*im)
+    λ,Q = eigen(x(z))
+    Z[:,j] = λ  .+ im*real(diag(Q'*y(z)*Q))
+end
+
+@test real(Z).^2 + imag(Z).^2 ≈ Ones(2,NN)
+
+scatter(vec(Z))
