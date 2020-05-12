@@ -341,6 +341,12 @@ git-tree-sha1 = "1133e493747c207d99d0e3fe7827ae2bf5ed19dc"
 uuid = "4858937d-0d70-526a-a4dd-2d5cb5dd786c"
 version = "0.7.0"
 
+[[InfiniteLinearAlgebra]]
+deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "FillArrays", "InfiniteArrays", "LazyArrays", "LazyBandedMatrices", "LinearAlgebra", "MatrixFactorizations", "SemiseparableMatrices"]
+git-tree-sha1 = "991c3f299b47f41b966e19d73749ae304b2e0c61"
+uuid = "cde9dba0-b1de-11e9-2c62-0bab9446c55c"
+version = "0.3.3"
+
 [[IntelOpenMP_jll]]
 deps = ["Libdl", "Pkg"]
 git-tree-sha1 = "fb8e1c7a5594ba56f9011310790e03b5384998d6"
@@ -402,6 +408,12 @@ deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra", "MacroTools", "MatrixFact
 git-tree-sha1 = "95d9fd25f6e8a4d6b4b2c63627822eb2b73c1312"
 uuid = "5078a376-72f3-5289-bfd5-ec5146d43c02"
 version = "0.16.9"
+
+[[LazyBandedMatrices]]
+deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "FillArrays", "LazyArrays", "LinearAlgebra", "MatrixFactorizations", "SparseArrays"]
+git-tree-sha1 = "fe4012007c6b00fbc102b8616fafc8c94aa5457d"
+uuid = "d7e5e226-e90b-4449-9968-0f923699bf6f"
+version = "0.2.9"
 
 [[LibGit2]]
 deps = ["Printf"]
@@ -617,6 +629,12 @@ version = "2.6.6"
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
+
+[[SemiseparableMatrices]]
+deps = ["ArrayLayouts", "BandedMatrices", "BlockBandedMatrices", "LazyArrays", "LazyBandedMatrices", "LinearAlgebra", "MatrixFactorizations"]
+git-tree-sha1 = "5b037634828ad9eaa6173262b2a690be2600b7dc"
+uuid = "f8ebbe35-cbfb-4060-bf7f-b10e4670cf57"
+version = "0.1.0"
 
 [[Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"

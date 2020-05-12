@@ -202,3 +202,8 @@ end
 @test real(Z).^2 + imag(Z).^2 ≈ Ones(2,NN)
 
 scatter(vec(Z))
+
+using BlockArrays
+import BlockBandedMatrices: _BlockBandedMatrix
+
+_BlockBandedMatrix(Vcat(0,mortar(Fill([1,0,0,1],∞))), [1; Fill(2,∞)], [1; Fill(2,∞)], (0,0))

@@ -127,22 +127,62 @@ end
 
 J = jacobian(f,zeros(n))
 K = nullspace(J)
-Bʸ = V * Diagonal(K*randn(2)) * inv(V)
+Bʸ = V * Diagonal(K*[1,2]) * inv(V)
+
+V * Diagonal(K*[1,2]) * inv(V) + V * Diagonal(K*[3,7]) * inv(V)
+
+V * Diagonal(K*[4,9]) * inv(V) 
 
 
 x = z -> Bˣ/z + z*Bˣ'
 y = z -> Bʸ/z + z*Bʸ'
 
 z = exp(0.1im)
-@test X(z)Y(z) ≈ Y(z)X(z)
-
-λ,Q = eigen(Hermitian(X(z)))
-λ .+ im*real(diag(Q'Y(z)*Q))
-
-NN = 20; Z = Matrix{ComplexF64}(undef,n,NN)
+@test x(z)y(z) ≈ y(z)x(z)
+n
+NN = 60; Z = Matrix{ComplexF64}(undef,n,NN)
 for (j,θ) in enumerate(range(0,2π; length=NN))
     z = exp(θ*im)
     λ,Q = eigen(x(z))
     Z[:,j] = λ  .+ im*real(diag(Q'*y(z)*Q))
 end
 scatter(vec(Z))
+
+
+
+##
+# x^4 + y^4 = 1 ?
+##
+
+V = randn(n,n)
+Λˣ = Diagonal(randn(n))
+Bˣ = V * Λˣ * inv(V)
+
+z = exp(0.1*im)
+
+b = randn(n^2)
+z
+g = 
+
+g = z -> function(b)
+    n = isqrt(length(b))
+    B = reshape(b, n, n)
+    [vec(real(B/z + z*B')); vec(imag(B/z + z*B'))]
+end
+
+X = z -> Matrix(0.5I, n, n) * (z + 1/z)
+g = z -> function(b)
+    n = isqrt(length(b))
+    B = reshape(b, n, n)
+    ret = (B/z + z*B')^4 + Matrix(real(z)^4*I,n,n) - I
+    [real(vec(ret)); imag(vec(ret))]
+end
+g(z)(randn(n^2))
+
+Jz = jacobian(g(z), randn(n^2))
+
+
+for (j,θ) in enumerate(range(0,2π; length=NN))[
+    z = exp(θ*im)
+    Z[:,j] = real(λ)  .+ im*real(diag(Q'*y(z)*Q))
+end
