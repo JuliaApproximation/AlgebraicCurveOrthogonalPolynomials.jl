@@ -141,6 +141,12 @@ git-tree-sha1 = "7c4f882c41faa72118841185afc58a2eb00ef612"
 uuid = "e66e0078-7015-5450-92f7-15fbd957f2ae"
 version = "0.3.3+0"
 
+[[ContinuumArrays]]
+deps = ["ArrayLayouts", "BandedMatrices", "FillArrays", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays"]
+git-tree-sha1 = "667b53b8923dcf9fbf0c94ff92f5be11f24ee35f"
+uuid = "7ae1f121-cc2c-504b-ac30-9b923412ae5c"
+version = "0.2.3"
+
 [[Contour]]
 deps = ["StaticArrays"]
 git-tree-sha1 = "0b17db36e7e03f8437e0d1f55aea3e4a60c74353"
@@ -546,6 +552,12 @@ git-tree-sha1 = "12ce190210d278e12644bcadf5b21cbdcf225cd3"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 version = "1.2.0"
 
+[[OrthogonalPolynomialsQuasi]]
+deps = ["BandedMatrices", "BlockBandedMatrices", "ContinuumArrays", "DomainSets", "FastTransforms", "FillArrays", "InfiniteArrays", "InfiniteLinearAlgebra", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays"]
+git-tree-sha1 = "a45f78bb3f4b6a31ecee0ee858be26a6923c6538"
+uuid = "aa41a628-2c43-45df-899b-83ab96621781"
+version = "0.1.2"
+
 [[Parsers]]
 deps = ["Dates", "Test"]
 git-tree-sha1 = "72c3451932513427caffbd8bab15643ad693804b"
@@ -589,6 +601,12 @@ version = "0.5.3"
 [[Printf]]
 deps = ["Unicode"]
 uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[QuasiArrays]]
+deps = ["ArrayLayouts", "LazyArrays", "LinearAlgebra"]
+git-tree-sha1 = "ad96ca351b541afbcd083e39bdc1f6028061bae2"
+uuid = "c4ea9172-b204-11e9-377d-29865faadc5c"
+version = "0.2.1"
 
 [[REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets"]
@@ -745,9 +763,9 @@ version = "2.9.9+4"
 
 [[Zlib_jll]]
 deps = ["Libdl", "Pkg"]
-git-tree-sha1 = "2f6c3e15e20e036ee0a0965879b31442b7ec50fa"
+git-tree-sha1 = "a2e0d558f6031002e380a90613b199e37a8565bf"
 uuid = "83775a58-1f1d-513f-b197-d71354ab007a"
-version = "1.2.11+9"
+version = "1.2.11+10"
 
 [[libass_jll]]
 deps = ["Bzip2_jll", "FreeType2_jll", "FriBidi_jll", "Libdl", "Pkg", "Zlib_jll"]
