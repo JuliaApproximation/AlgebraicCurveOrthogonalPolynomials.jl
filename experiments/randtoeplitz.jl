@@ -77,68 +77,67 @@ Bʸ = Q * Λʸ * Q'
 
 
 
+
+
+
 @test Bˣ * Bʸ' + Bˣ' * Bʸ ≈ Bʸ * Bˣ' + Bʸ' * Bˣ
 
 
-
-n = 3
-V = randn(n,n)
-Λˣ = Diagonal(randn(n))
-Bˣ = V * Λˣ * inv(V)
-
-function f(λ)
-    Bʸ = V * Diagonal(λ) * inv(V)
-    Bˣ * Bʸ' + Bˣ' * Bʸ - Bʸ * Bˣ' - Bʸ' * Bˣ
-end
-
-J = jacobian(f,[0.1,0.2,0.3])
-K = nullspace(J)
-Bʸ = V * Diagonal(K*randn(2)) * inv(V)
-
-
-x = z -> Bˣ/z + z*Bˣ'
-y = z -> Bʸ/z + z*Bʸ'
-
+X,Y = randspeccurve(3)
 z = exp(0.1im)
 @test X(z)Y(z) ≈ Y(z)X(z)
 
+scatter(vec(specgrid(X, Y)))
+
+X,Y = randspeccurve(2)
+
+@test X(z)Y(z) ≈ Y(z)X(z)
+
+N = 2
+
+evalmonbasis(N, x, y) = mortar([[x^k * y^(n-k) for k=0:n] for n=0:N])
+
+function vandermonde(N, x, y)
+    @assert length(x) == length(y)
+    ret = Matrix{Float64}(undef, length(x), sum(1:N+1))
+    for k in axes(ret,1)
+        ret[k,:] .= evalmonbasis(N, x[k], y[k])
+    end
+    ret
+end
+
+vandermonde(N, z) = vandermonde(N, real(z), imag(z))
+
+N = 3; 
+X,Y = randspeccurve(N)
+nullspace(vandermonde(N, vec(specgrid(X,Y))))
+
+N = 4; 
+X,Y = randspeccurve(N)
+nullspace(vandermonde(N, vec(specgrid(X,Y))))
+
+
+
+
+
+
 λ,Q = eigen(Hermitian(X(z)))
+
+
 λ .+ im*real(diag(Q'Y(z)*Q))
 
-NN = 20; Z = Matrix{ComplexF64}(undef,n,NN)
-for (j,θ) in enumerate(range(0,2π; length=NN))
-    z = exp(θ*im)
-    λ,Q = eigen(x(z))
-    Z[:,j] = λ  .+ im*real(diag(Q'*y(z)*Q))
-end
+
 scatter(vec(Z))
 
 
 
-n = 6
-V = randn(n,n)
-Λˣ = Diagonal(randn(n))
-Bˣ = V * Λˣ * inv(V)
-
-function f(λ)
-    Bʸ = V * Diagonal(λ) * inv(V)
-    Bˣ * Bʸ' + Bˣ' * Bʸ - Bʸ * Bˣ' - Bʸ' * Bˣ
-end
-
-J = jacobian(f,zeros(n))
-K = nullspace(J)
-Bʸ = V * Diagonal(K*[1,2]) * inv(V)
-
-V * Diagonal(K*[1,2]) * inv(V) + V * Diagonal(K*[3,7]) * inv(V)
-
-V * Diagonal(K*[4,9]) * inv(V) 
 
 
-x = z -> Bˣ/z + z*Bˣ'
-y = z -> Bʸ/z + z*Bʸ'
-
+X,Y = randspeccurve(6)
 z = exp(0.1im)
 @test x(z)y(z) ≈ y(z)x(z)
+
+
 n
 NN = 60; Z = Matrix{ComplexF64}(undef,n,NN)
 for (j,θ) in enumerate(range(0,2π; length=NN))

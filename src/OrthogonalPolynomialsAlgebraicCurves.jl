@@ -1,7 +1,7 @@
 module OrthogonalPolynomialsAlgebraicCurves
 using GaussQuadrature, FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays
 
-export quarticjacobi, blocksymtricirculant, unroll
+export quarticjacobi, blocksymtricirculant, unroll, randspeccurve
 
 
 """
@@ -265,5 +265,6 @@ end;
 
 quarticjacobi(N) = quarticjacobi(BigFloat, N)
 
+include("algcurvapprox.jl")
 
 end # module
