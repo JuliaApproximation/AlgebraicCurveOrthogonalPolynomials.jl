@@ -96,6 +96,7 @@ X,Y = randspeccurve(2)
 N = 2
 
 evalmonbasis(N, x, y) = mortar([[x^k * y^(n-k) for k=0:n] for n=0:N])
+evalmonbasis(N, z) = evalmonbasis(N, reim(z)...)
 
 function vandermonde(N, x, y)
     @assert length(x) == length(y)
@@ -107,6 +108,23 @@ function vandermonde(N, x, y)
 end
 
 vandermonde(N, z) = vandermonde(N, real(z), imag(z))
+
+N = 2; 
+X,Y = randspeccurve(N)
+Z = vec(specgrid(X,Y))
+scatter(Z)
+
+
+Z = vec(specgrid(X,Y))
+c = vec(nullspace(vandermonde(N, Z)))
+
+p = z -> evalmonbasis(N, z)'*c
+x = y = range(-5,5; length=50)
+contourf(x, y, p.(x' .+ im*y); nlevels=100, linewidth=0)
+scatter!(Z)
+
+norm(p.(Z))
+
 
 N = 3; 
 X,Y = randspeccurve(N)

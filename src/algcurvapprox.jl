@@ -1,22 +1,22 @@
 """
-Create random spectral curve
+Create a spectral curve from parameters
 """
-function randspeccurve(n)
-    V = randn(n,n)
-    Λˣ = Diagonal(randn(n))
-    Bˣ = V * Λˣ * inv(V)
+function speccurve(V, λˣ, c)
+    n = length(λˣ)
+    @assert size(V) == (n,n)
+    @assert length(c) == 2
 
+    Bˣ = V * Diagonal(λˣ) * inv(V)
     if n == 2 # commuting is enough
-        Bʸ = V * Diagonal(randn(n)) * inv(V)
+        Bʸ = V * Diagonal(c) * inv(V)
     else
         function f(λ)
             Bʸ = V * Diagonal(λ) * inv(V)
-            Bˣ * Bʸ' + Bˣ' * Bʸ - Bʸ * Bˣ' - Bʸ' * Bˣ
+            Bˣ * Bʸ'  + Bˣ' * Bʸ - Bʸ * Bˣ' - Bʸ' * Bˣ
         end
-        
         J = jacobian(f,zeros(n))
         K = nullspace(J)
-        Bʸ = V * Diagonal(K*randn(2)) * inv(V)
+        Bʸ = V * Diagonal(K*c) * inv(V)
     end
 
     X = z -> Bˣ/z + z*Bˣ'
@@ -24,6 +24,11 @@ function randspeccurve(n)
 
     X,Y
 end
+
+"""
+Create random spectral curve
+"""
+randspeccurve(n) = speccurve(randn(n,n), randn(n), randn(2))
 
 
 """
