@@ -1,7 +1,9 @@
 module OrthogonalPolynomialsAlgebraicCurves
-using GaussQuadrature, FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays
+using GaussQuadrature, FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, ForwardDiff
 
-export quarticjacobi, blocksymtricirculant, unroll, randspeccurve
+import ForwardDiff: jacobian
+
+export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid
 
 
 """
@@ -23,6 +25,19 @@ function blocksymtricirculant(A, B, N)
     ret[Block(1,N)] = B'
     ret[Block(N,1)] = B
     ret
+end
+
+function symunroll(a)
+    m = length(a)
+    n = (isqrt(8m+1)-1) ÷ 2
+    @assert sum(1:n) == m # double check formula...
+    A = similar(a, n, n)
+    k̃ = 1
+    for j = 1:n, k = 1:j
+        A[k,j] = A[j,k] = a[k̃]
+        k̃ += 1
+    end
+    A
 end
 
 # a holds the non-symmetric entries of A

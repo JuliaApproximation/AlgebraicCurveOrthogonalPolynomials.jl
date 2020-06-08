@@ -1,6 +1,8 @@
 using BlockArrays, ForwardDiff, LinearAlgebra, Plots, Test
 import ForwardDiff: jacobian
 
+
+
 ###
 # explore 2 x 2 commuting Laurent polynomials,
 # begining with A_x = A_y = 0, that is,
@@ -95,19 +97,6 @@ X,Y = randspeccurve(2)
 
 N = 2
 
-evalmonbasis(N, x, y) = mortar([[x^k * y^(n-k) for k=0:n] for n=0:N])
-evalmonbasis(N, z) = evalmonbasis(N, reim(z)...)
-
-function vandermonde(N, x, y)
-    @assert length(x) == length(y)
-    ret = Matrix{Float64}(undef, length(x), sum(1:N+1))
-    for k in axes(ret,1)
-        ret[k,:] .= evalmonbasis(N, x[k], y[k])
-    end
-    ret
-end
-
-vandermonde(N, z) = vandermonde(N, real(z), imag(z))
 
 N = 2; 
 X,Y = randspeccurve(N)

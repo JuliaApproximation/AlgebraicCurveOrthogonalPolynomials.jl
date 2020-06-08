@@ -1,34 +1,43 @@
 """
+parameterise A and Bʸ
+"""
+function comunroll(V, λa)
+    n = (-3 + isqrt(9 + 8length(λa))) ÷ 2
+    @assert n + sum(1:n) == length(λa)
+    λ = λa[1:n]
+    symunroll(λa[n+1:end]), V * Diagonal(λ) * inv(V)
+end
+
+cm(A,B) = A*B-B*A
+
+"""
 Create a spectral curve from parameters
 """
-function speccurve(V, λˣ, c)
-    n = length(λˣ)
-    @assert size(V) == (n,n)
-    @assert length(c) == 2
-
-    Bˣ = V * Diagonal(λˣ) * inv(V)
-    if n == 2 # commuting is enough
-        Bʸ = V * Diagonal(c) * inv(V)
-    else
-        function f(λ)
-            Bʸ = V * Diagonal(λ) * inv(V)
-            Bˣ * Bʸ'  + Bˣ' * Bʸ - Bʸ * Bˣ' - Bʸ' * Bˣ
-        end
-        J = jacobian(f,zeros(n))
-        K = nullspace(J)
-        Bʸ = V * Diagonal(K*c) * inv(V)
+function speccurvemat(Aˣ::Symmetric, (λˣ, V), κʸ)
+    Bˣ = V*Diagonal(λˣ)*inv(V)
+    N = length(λˣ)
+    @assert length(κʸ) == 3
+    cond1 = (Aʸ,Bʸ) -> cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ)
+    cond0 = (Aʸ,Bʸ) -> cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ)
+    
+    conds = function(λa)
+        Aʸ, Bʸ = comunroll(V,λa)
+        vec([cond1(Aʸ,Bʸ); cond0(Aʸ,Bʸ)])
     end
-
-    X = z -> Bˣ/z + z*Bˣ'
-    Y = z -> Bʸ/z + z*Bʸ'
-
+    K = nullspace(jacobian(conds, zeros(N+sum(1:N))))
+    (Aˣ,Bˣ),comunroll(V, K * κʸ)
+end
+function speccurve(Aˣ, (λˣ, V), κʸ)
+    (Aˣ,Bˣ),(Aʸ,Bʸ) = speccurvemat(Aˣ, (λˣ, V), κʸ)
+    X = z -> Aˣ + Bˣ/z + z*Bˣ'
+    Y = z -> Aʸ + Bʸ/z + z*Bʸ'
     X,Y
 end
 
 """
 Create random spectral curve
 """
-randspeccurve(n) = speccurve(randn(n,n), randn(n), randn(2))
+randspeccurve(N) = speccurve(randn(N,N), randn(N,N), randn(3))
 
 
 """
@@ -78,3 +87,30 @@ end
 #     s = Chebyshev(minimum(x)-0.1..maximum(x)+0.1) *  Chebyshev(minimum(y)-0.1..maximum(y)+0.1)
 #     algebraiccurve(s, p)
 # end
+
+
+evalmonbasis(N, x, y) = mortar([[x^k * y^(n-k) for k=0:n] for n=0:N])
+evalmonbasis(N, z) = evalmonbasis(N, reim(z)...)
+
+function vandermonde(N, x, y)
+    @assert length(x) == length(y)
+    ret = Matrix{Float64}(undef, length(x), sum(1:N+1))
+    for k in axes(ret,1)
+        ret[k,:] .= evalmonbasis(N, x[k], y[k])
+    end
+    ret
+end
+
+vandermonde(N, z) = vandermonde(N, real(z), imag(z))
+
+"""
+Gives coefficients in monomial basis of polynomial vanishing
+on curve
+"""
+function spec2alg(X, Y)
+    N = size(X(1),1)
+    Z = vec(specgrid(X,Y))
+    K = nullspace(vandermonde(N, Z))
+    @assert size(K,2) == 1
+    vec(K)
+end
