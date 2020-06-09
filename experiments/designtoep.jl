@@ -45,10 +45,34 @@ z = exp(0.1im)
 #
 # 1) B_x^2 + B_y^2 = 0
 # 2) A_x*B_x + B_x*A_x + A_y*B_y + B_y*A_y = 0
-# 3) A_x^2 + B_x*B_x' + B_x'*B_x + A_y^2 + B_y*B_y' + B_y'*B_y = 0
+# 3) A_x^2 + B_x*B_x' + B_x'*B_x + A_y^2 + B_y*B_y' + B_y'*B_y = I
 #
 
+conds = function(p)
+    N = round(Int,(-3 + sqrt(3)sqrt(-21 + 8length(p))) / 6)
+    @assert sum(1:N) + N + N^2 + 3 == length(p)
+    Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+    λˣ = p[sum(1:N)+1:sum(1:N)+N]
+    V  = reshape(p[sum(1:N)+N+1:sum(1:N)+N+N^2],N,N)
+    κʸ = p[sum(1:N)+N+N^2+1:end]
+    (Aˣ,Bˣ),(Aʸ,Bʸ) = speccurvemat(Aˣ, (λˣ, V), κʸ)
+    [vec(Bˣ^2 + Bʸ^2); 
+    vec(Aˣ*Bˣ + Bˣ*Aˣ + Aʸ*Bʸ + Bʸ*Aʸ); 
+    vec(Aˣ^2 + Bˣ*Bˣ' + Bˣ'*Bˣ + Aʸ^2 + Bʸ*Bʸ' + Bʸ'*Bʸ);
+    eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - [1; 1];
+    eigvals(Symmetric(Aʸ - Bʸ - Bʸ')) - [-1; 1]
+    ]
+end
+
+p = [[0.5; 0; 0.5]; [0.25; 0.25]; ]
+
+
 N = 2
+p = randn(sum(1:N) + N + N^2 + 3)
+J = jacobian(conds,p); p = p - (J \ conds(p)); conds(p)
+
+jacobian(conds,p)
+h = 0.01; p̃ = copy(p); p̃[1] += h;  (conds(p̃) - conds(p))/h
 
 
 

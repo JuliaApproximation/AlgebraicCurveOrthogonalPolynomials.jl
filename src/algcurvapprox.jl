@@ -94,6 +94,22 @@ end
 
 condsjac(Aˣ, Bˣ, V) = [cond1jac(Aˣ, Bˣ, V); cond0jac(Aˣ, Bˣ, V)]
 
+
+"""
+special implementation for autodiff
+"""
+function qr_nullspace(N, A)
+    Q, R = qr(A',Val(true))
+    # @assert norm(R[end-N+1:end,:]) ≤ 1E-12
+    Q[:,end-N+1:end]
+end
+
+function eigen_nullspace(N, A)
+    λ,V = eigen(Symmetric(A'A))
+    # @assert norm(λ[1:N]) ≤ tol
+    V[:,1:N]
+end
+
 """
 Create a spectral curve from parameters
 """
@@ -104,7 +120,7 @@ function speccurvemat(Aˣ::Symmetric, (λˣ, V), κʸ)
     cond1 = (Aʸ,Bʸ) -> cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ)
     cond0 = (Aʸ,Bʸ) -> cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ)
     J = condsjac(Aˣ, Bˣ, V)
-    K = nullspace(J)
+    K = eigen_nullspace(3, J)
     (Aˣ,Bˣ),comunroll(V, K * κʸ)
 end
 function speccurve(Aˣ, (λˣ, V), κʸ)
