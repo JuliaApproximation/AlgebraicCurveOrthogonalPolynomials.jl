@@ -113,13 +113,15 @@ conds = function(p)
     Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
     Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
     Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
-    [vec(Bˣ^2 + Bʸ^2); 
+    # cond1 = (Aʸ,Bʸ) -> cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ)
+    # cond0 = (Aʸ,Bʸ) -> cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ)
+    [
+        vec(cm(Bˣ,Bʸ));
+        vec(cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ));
+        vec(cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ));
+    vec(Bˣ^2 + Bʸ^2); 
     vec(Aˣ*Bˣ + Bˣ*Aˣ + Aʸ*Bʸ + Bʸ*Aʸ); 
     vec(Aˣ^2 + Bˣ*Bˣ' + Bˣ'*Bˣ + Aʸ^2 + Bʸ*Bʸ' + Bʸ'*Bʸ - I);
-    # eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - [1; 1];
-    # eigvals(Symmetric(Aʸ - Bʸ - Bʸ')) - [-1; 1];
-    # Aʸ[1,1];
-    # Aʸ[2,2]
     eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - [1;1];
     eigvals(Symmetric(Aˣ - Bˣ - Bˣ'));
     eigvals(Symmetric(Aʸ + Bʸ + Bʸ'));
@@ -153,3 +155,44 @@ p .+= 0.01randn.()
 
 p = randn(2(sum(1:N) + N^2))
 p = p - jacobian(conds,p) \ conds(p); norm(conds(p))
+
+
+
+###
+# 2 arcs
+###
+
+conds = function(p)
+    m = length(p)
+    N = round(Int,(-1 + sqrt(1 + 12m))/6)
+    @assert 2sum(1:N) + 2N^2 == length(p)
+    Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+    Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+    Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+    Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+    # cond1 = (Aʸ,Bʸ) -> cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ)
+    # cond0 = (Aʸ,Bʸ) -> cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ)
+
+    x0,x1 = [-1.,-1.],[1.0,1.0]
+    y0,y1 = (-1,1) .* sqrt.(1 .- x0.^2), (-1,1) .* sqrt.(1 .- x1.^2)
+
+    [
+        vec(cm(Bˣ,Bʸ));
+        vec(cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ));
+        vec(cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ));
+    vec(Bˣ^2 + Bʸ^2); 
+    vec(Aˣ*Bˣ + Bˣ*Aˣ + Aʸ*Bʸ + Bʸ*Aʸ); 
+    vec(Aˣ^2 + Bˣ*Bˣ' + Bˣ'*Bˣ + Aʸ^2 + Bʸ*Bʸ' + Bʸ'*Bʸ - I);
+    eigvals(Symmetric(Aˣ - Bˣ - Bˣ')) - x0;
+    eigvals(Symmetric(Aʸ - Bʸ - Bʸ')) - y0;
+    eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - x1;
+    eigvals(Symmetric(Aʸ + Bʸ + Bʸ')) - y1;
+    Aʸ[1,2]
+    ]
+end
+
+# p = randn(2(sum(1:N) + N^2))
+p = [[Aˣ[1,1]; Aˣ[:,2]]; [Aʸ[1,1]; Aʸ[:,2]]; vec(Bˣ); vec(Bʸ)]
+p = p - jacobian(conds,p) \ conds(p); norm(conds(p))
+
+
