@@ -76,3 +76,80 @@ h = 0.01; p̃ = copy(p); p̃[1] += h;  (conds(p̃) - conds(p))/h
 
 
 
+
+
+###
+# Don't try to make commuting apriori
+###
+
+conds_enough = function(p)
+    m = length(p)
+    N = round(Int,(-1 + sqrt(1 + 12m))/6)
+    @assert 2sum(1:N) + 2N^2 == length(p)
+    Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+    Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+    Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+    Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+    [vec(Bˣ^2 + Bʸ^2); 
+    vec(Aˣ*Bˣ + Bˣ*Aˣ + Aʸ*Bʸ + Bʸ*Aʸ); 
+    vec(Aˣ^2 + Bˣ*Bˣ' + Bˣ'*Bˣ + Aʸ^2 + Bʸ*Bʸ' + Bʸ'*Bʸ - I);
+    # eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - [1; 1];
+    # eigvals(Symmetric(Aʸ - Bʸ - Bʸ')) - [-1; 1];
+    # Aʸ[1,1];
+    # Aʸ[2,2]
+    vec(Aˣ + Bˣ + Bˣ' - [1 0; 0 1]);
+    vec(Aˣ - Bˣ - Bˣ');
+    vec(Aʸ + Bʸ + Bʸ');
+    vec(Aʸ - Bʸ - Bʸ' - [0 -1; -1 0]);
+    ]
+end
+
+
+conds = function(p)
+    m = length(p)
+    N = round(Int,(-1 + sqrt(1 + 12m))/6)
+    @assert 2sum(1:N) + 2N^2 == length(p)
+    Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+    Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+    Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+    Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+    [vec(Bˣ^2 + Bʸ^2); 
+    vec(Aˣ*Bˣ + Bˣ*Aˣ + Aʸ*Bʸ + Bʸ*Aʸ); 
+    vec(Aˣ^2 + Bˣ*Bˣ' + Bˣ'*Bˣ + Aʸ^2 + Bʸ*Bʸ' + Bʸ'*Bʸ - I);
+    # eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - [1; 1];
+    # eigvals(Symmetric(Aʸ - Bʸ - Bʸ')) - [-1; 1];
+    # Aʸ[1,1];
+    # Aʸ[2,2]
+    eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - [1;1];
+    eigvals(Symmetric(Aˣ - Bˣ - Bˣ'));
+    eigvals(Symmetric(Aʸ + Bʸ + Bʸ'));
+    eigvals(Symmetric(Aʸ - Bʸ - Bʸ')) - [-1; 1];
+    Aʸ[1,2]
+    ]
+end
+
+a₁₂ = (1 + sqrt(2))/4
+a₂₁ = (1 - sqrt(2))/4
+p = [[0.5,0,0.5]; [0,-0.5,0]; [0.25,0,0,0.25]; vec([0 a₁₂; a₂₁ 0])]
+
+Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+
+_,Q = eigen(Aʸ)
+Aˣ = Q'Aˣ*Q
+Aʸ = Q'Aʸ*Q
+Bˣ = Q'Bˣ*Q
+Bʸ = Q'Bʸ*Q
+
+p = [[Aˣ[1,1]; Aˣ[:,2]]; [Aʸ[1,1]; Aʸ[:,2]]; vec(Bˣ); vec(Bʸ)]
+
+
+@test norm(conds(p)) ≤ 1E-15
+
+# 
+p .+= 0.01randn.()
+
+p = randn(2(sum(1:N) + N^2))
+p = p - jacobian(conds,p) \ conds(p); norm(conds(p))
