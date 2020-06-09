@@ -11,6 +11,90 @@ end
 cm(A,B) = A*B-B*A
 
 """
+Jacobian of A*X
+"""
+ljac(A) = mortar(Diagonal(Fill(A,size(A,1))))
+
+"""
+Jacobian of X*A
+"""
+function rjac(A::AbstractMatrix{T}) where T
+    N = size(A,1)
+    ret = zeros(T, N^2, N^2)
+    for k = 1:N
+        ret[k:N:end,k:N:end] = A'
+    end
+    ret
+end
+"""
+Jacobian of cm(A,X)
+"""
+cmjac(A) = ljac(A) - rjac(A)
+cmjac(A::Symmetric) = cmjac(Matrix(A))
+cmjac(A::Adjoint) = cmjac(Matrix(A))
+
+"""
+Jacobian of Diagonal(λ)
+"""
+function diagjac(::Type{T}, N) where T
+    ret = BlockArray{T}(undef, Fill(N,N), [N])
+    fill!(ret, zero(T))
+    for k = 1:N
+        ret[Block(k)[k],k] = 1
+    end
+    ret
+end
+diagjac(N) = diagjac(Int, N)
+
+"""
+Jacobian of symunroll(λ)
+"""
+function symjac(::Type{T}, N) where T
+    ret = BlockArray{T}(undef, Fill(N,N), 1:N)
+    fill!(ret, zero(T))
+    for J = 1:N
+        for k = 1:J
+            ret[Block(J)[k] , Block(J)[k]] = one(T)
+            ret[Block(k)[J], Block(J)[k]] = one(T)
+        end
+    end
+    ret
+end
+symjac(N) = symjac(Int, N)
+
+"""
+Jacobian of transpose(A)
+"""
+function trjac(::Type{T}, N) where T
+    ret = BlockArray{T}(undef, Fill(N,N), Fill(N,N))
+    fill!(ret, zero(T))
+    for J = 1:N, k = 1:N
+        ret[Block(k)[J] , Block(J)[k]] = one(T)
+    end
+    ret
+end
+trjac(N) = trjac(Int, N)
+
+
+function cond1jac(Aˣ, Bˣ, V)
+    N = size(Aˣ, 1)
+    Bʸjac = rjac(inv(V)) * ljac(V) * diagjac(N) 
+    Aʸjac = symjac(N)
+    AˣBʸjac = cmjac(Aˣ) * Bʸjac
+    BˣAʸjac = cmjac(Bˣ) * Aʸjac
+    [AˣBʸjac BˣAʸjac]
+end
+
+function cond0jac(Aˣ, Bˣ, V)
+    N = size(Aˣ, 1)
+    Bʸjac = rjac(inv(V)) * ljac(V) * diagjac(N) 
+    Aʸjac = symjac(N)
+    [(cmjac(Bˣ) * trjac(N) + cmjac(Bˣ'))*Bʸjac  cmjac(Aˣ)*Aʸjac]
+end
+
+condsjac(Aˣ, Bˣ, V) = [cond1jac(Aˣ, Bˣ, V); cond0jac(Aˣ, Bˣ, V)]
+
+"""
 Create a spectral curve from parameters
 """
 function speccurvemat(Aˣ::Symmetric, (λˣ, V), κʸ)
@@ -19,12 +103,8 @@ function speccurvemat(Aˣ::Symmetric, (λˣ, V), κʸ)
     @assert length(κʸ) == 3
     cond1 = (Aʸ,Bʸ) -> cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ)
     cond0 = (Aʸ,Bʸ) -> cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ)
-    
-    conds = function(λa)
-        Aʸ, Bʸ = comunroll(V,λa)
-        vec([cond1(Aʸ,Bʸ); cond0(Aʸ,Bʸ)])
-    end
-    K = nullspace(jacobian(conds, zeros(N+sum(1:N))))
+    J = condsjac(Aˣ, Bˣ, V)
+    K = nullspace(J)
     (Aˣ,Bˣ),comunroll(V, K * κʸ)
 end
 function speccurve(Aˣ, (λˣ, V), κʸ)

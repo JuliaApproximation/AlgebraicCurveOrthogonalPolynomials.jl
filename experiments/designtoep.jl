@@ -18,10 +18,12 @@ import ForwardDiff: jacobian
 #
 # First we need B_x and B_y to commute. Is that enough? No.
 
-N = 4
+N = 3
 Aˣ, (λˣ, V), κʸ = Symmetric(randn(N,N)), (randn(N),randn(N,N)), randn(3)
 X, Y = speccurve(Aˣ, (λˣ, V), κʸ)
 
+z = exp(0.1im)
+@test X(z)Y(z) ≈ Y(z)X(z)
 
 c = spec2alg(X,Y)
 p = (x,y) -> evalmonbasis(N, x+im*y)'*c
@@ -30,4 +32,23 @@ x = y = range(-5,5; length=50)
 contour(x,y, p.(x',y); nlevels=500)
 scatter!(vec(specgrid(X,Y)))
 
-norm(p.(real.(vec(specgrid(X,Y))), imag.(vec(specgrid(X,Y))))) # about 0
+z = exp(0.1im)
+@test X(z)Y(z) ≈ Y(z)X(z)
+
+@test norm(p.(real.(vec(specgrid(X,Y))), imag.(vec(specgrid(X,Y))))) ≤ 1E-12
+
+
+# try half-arc
+# X^2 = B_x^2/z^2 + (A_x*B_x + B_x*A_x)/z + A_x^2 + B_x*B_x' + B_x'*B_x + cc
+# Y^2 = B_y^2/z^2 + (A_y*B_y + B_y*A_y)/z + A_y^2 + B_y*B_y' + B_y'*B_y + cc
+# So we have
+#
+# 1) B_x^2 + B_y^2 = 0
+# 2) A_x*B_x + B_x*A_x + A_y*B_y + B_y*A_y = 0
+# 3) A_x^2 + B_x*B_x' + B_x'*B_x + A_y^2 + B_y*B_y' + B_y'*B_y = 0
+#
+
+N = 2
+
+
+
