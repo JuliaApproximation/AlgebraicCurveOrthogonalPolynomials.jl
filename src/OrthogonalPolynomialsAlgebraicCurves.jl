@@ -13,6 +13,12 @@ function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     Dual{Tg}.(λ, tuple.(parts...))
 end
 
+function eigvals(A::Hermitian{<:Complex{<:Dual{Tg,T,N}}}) where {Tg,T<:Real,N}
+    λ,Q = eigen(Hermitian(value.(real.(parent(A))) .+ im .* value.(imag.(parent(A)))))
+    parts = ntuple(j -> diag(real.(Q' * (getindex.(partials.(real.(A)) .+ im .* partials.(imag.(A)), j)) * Q)), N)
+    Dual{Tg}.(λ, tuple.(parts...))
+end
+
 # A ./ (λ - λ') but with diag special cased
 function _lyap_div!(A, λ)
     for (j,μ) in enumerate(λ), (k,λ) in enumerate(λ)
@@ -65,6 +71,8 @@ function symunroll(a)
     end
     A
 end
+
+symroll(A) = mortar([A[1:k,k] for k=1:size(A,2)])
 
 # a holds the non-symmetric entries of A
 function _unroll(a, b)

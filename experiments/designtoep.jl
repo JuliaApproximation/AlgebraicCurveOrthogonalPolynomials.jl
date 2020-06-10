@@ -1,5 +1,5 @@
 using OrthogonalPolynomialsAlgebraicCurves, ForwardDiff, Test, Plots
-import OrthogonalPolynomialsAlgebraicCurves: symunroll, comunroll, cm, speccurvemat, spec2alg, evalmonbasis
+import OrthogonalPolynomialsAlgebraicCurves: symunroll, comunroll, cm, speccurvemat, spec2alg, evalmonbasis, symroll
 import ForwardDiff: jacobian
 
 # explore 2 x 2 commuting Laurent polynomials,
@@ -130,6 +130,7 @@ conds = function(p)
     ]
 end
 
+N = 2
 a₁₂ = (1 + sqrt(2))/4
 a₂₁ = (1 - sqrt(2))/4
 p = [[0.5,0,0.5]; [0,-0.5,0]; [0.25,0,0,0.25]; vec([0 a₁₂; a₂₁ 0])]
@@ -145,7 +146,7 @@ Aʸ = Q'Aʸ*Q
 Bˣ = Q'Bˣ*Q
 Bʸ = Q'Bʸ*Q
 
-p = [[Aˣ[1,1]; Aˣ[:,2]]; [Aʸ[1,1]; Aʸ[:,2]]; vec(Bˣ); vec(Bʸ)]
+p_ex = [[Aˣ[1,1]; Aˣ[:,2]]; [Aʸ[1,1]; Aʸ[:,2]]; vec(Bˣ); vec(Bʸ)]
 
 
 @test norm(conds(p)) ≤ 1E-15
@@ -196,3 +197,157 @@ p = [[Aˣ[1,1]; Aˣ[:,2]]; [Aʸ[1,1]; Aʸ[:,2]]; vec(Bˣ); vec(Bʸ)]
 p = p - jacobian(conds,p) \ conds(p); norm(conds(p))
 
 
+##
+# N = 4
+##
+conds = function(p)
+    m = length(p)
+    N = round(Int,(-1 + sqrt(1 + 12m))/6)
+    @assert 2sum(1:N) + 2N^2 == length(p)
+    Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+    Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+    Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+    Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+    # cond1 = (Aʸ,Bʸ) -> cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ)
+    # cond0 = (Aʸ,Bʸ) -> cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ)
+
+    x0,x1 = zeros(N),fill(1,N)
+    y0,y1 = [-1,-1,1,1],zeros(N)
+
+    [
+        vec(cm(Bˣ,Bʸ));
+        vec(cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ));
+        vec(cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ));
+    vec(Bˣ^2 + Bʸ^2); 
+    vec(Aˣ*Bˣ + Bˣ*Aˣ + Aʸ*Bʸ + Bʸ*Aʸ); 
+    vec(Aˣ^2 + Bˣ*Bˣ' + Bˣ'*Bˣ + Aʸ^2 + Bʸ*Bʸ' + Bʸ'*Bʸ - I);
+    eigvals(Symmetric(Aˣ - Bˣ - Bˣ')) - x0;
+    eigvals(Symmetric(Aʸ - Bʸ - Bʸ')) - y0;
+    eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - x1;
+    eigvals(Symmetric(Aʸ + Bʸ + Bʸ')) - y1;
+    Aʸ[1,2];
+    Aʸ[1:2,3];
+    Aʸ[1:3,4];
+    ]
+end
+
+N = 4
+# p = randn(2(sum(1:N) + N^2))
+
+p .+= 0.0001randn.()
+p = p - jacobian(conds,p) \ conds(p); norm(conds(p))
+
+p_ex = [
+
+Aˣ4 = mortar(Diagonal(Matrix{Float64}[Aˣ, Aˣ]))
+Aʸ4 = mortar(Diagonal(Matrix{Float64}[Aʸ, Aʸ]))
+Bˣ4 = mortar(Diagonal([Bˣ, Bˣ]))
+Bʸ4 = mortar(Diagonal([Bʸ, Bʸ]))
+
+p_ex4 = [symroll(Aˣ4); symroll(Aʸ4); vec(Bˣ4); vec(Bʸ4)]
+p = p_ex4
+
+
+norm(conds(p))
+
+
+###
+# X^2 = B^2/z^2 + 
+#    (A*B + B*A)/z +
+#    A^2 + B*B' + B'*B + …
+# X^4 = B^4/z^4 + 
+#    (B^3*A + B^2*A*B + B*A*B^2 + A*B^3)/z^3 +
+#    (A*B*A*B + A*B^2*A + B*A^2*B + B*A*B*A + B^2*A^2 + A^2*B^2 + B^3*B' + B^2*B'*B + B*B'*B^2 + B'*B^3)/z^2 +
+#    (B^2*B'*A' + B^2*A'*B' + A*B*A^2 + A*B^2*B' + A*B*B'*B + B*A^3 + B*A*B*B' + B*A*B'*B + 
+# 
+###
+
+"""
+ Squares B/z + A + B'*z 
+"""
+lrntsquare(B, A) = (B^2, B*A+A*B, B*B'+A^2 + B'B)
+"""
+ Squares C/z^2 + B/z + A + B'*z + C'*z^2
+"""
+lrntsquare(C, B, A) = (C^2, C*B + B*C, C*A + B^2 + A*C, C*B' + B*A + A*B + B'*C, C*C' + B*B' + A^2 + B'B + C'C)
+
+function jointeigen(A::Symmetric, B::Symmetric)
+    _,Q = eigen(A + 1.23409304233B)
+    x,y = diag(Q'A*Q), diag(Q'B*Q)
+    p = sortperm(x)
+    x[p],y[p],Q
+end
+
+conds = function(p)
+    m = length(p)
+    N = round(Int,(-1 + sqrt(1 + 12m))/6)
+    @assert 2sum(1:N) + 2N^2 == length(p)
+    Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+    Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+    Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+    Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+    X² = lrntsquare(Bˣ, Aˣ); X⁴ = lrntsquare(X²...)
+    Y² = lrntsquare(Bʸ, Aʸ); Y⁴ = lrntsquare(Y²...)
+    # x0,x1 = zeros(N),fill(1,N)
+    # y0,y1 = [-1,-1,1,1],zeros(N)
+    x1,y1,_ = jointeigen(Symmetric(Aˣ - Bˣ - Bˣ'), Symmetric(Aʸ - Bʸ - Bʸ'))
+    x2,y2,_ = jointeigen(Symmetric(Aˣ + Bˣ + Bˣ'), Symmetric(Aʸ + Bʸ + Bʸ'))
+    [vec(cm(Bˣ,Bʸ));
+        vec(cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ));
+        vec(cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ));
+        vec.(X⁴ .+ Y⁴ .- (0I,0I,0I,0I,I))...;
+        (x1 .- [-1,0,0,1])...;
+        (y1 .- [0,1,-1,0])...;
+        (x2 .- [-1,0,0,1])...;
+        (y2 .- [0,1,-1,0])...;
+    # eigvals(Symmetric(Aˣ - Bˣ - Bˣ'))[1] - x0;
+    # eigvals(Symmetric(Aˣ - Bˣ - Bˣ'))[1] + 1;
+    # eigvals(Symmetric(Aˣ - Bˣ - Bˣ'))[2];
+    # eigvals(Symmetric(Aˣ - Bˣ - Bˣ'))[3];
+    # eigvals(Symmetric(Aˣ - Bˣ - Bˣ'))[end] - 1;
+    # eigvals(Symmetric(Aʸ - Bʸ - Bʸ'))[1] + 1;
+    # eigvals(Symmetric(Aʸ - Bʸ - Bʸ'))[2];
+    # eigvals(Symmetric(Aʸ - Bʸ - Bʸ'))[3];
+    # eigvals(Symmetric(Aʸ - Bʸ - Bʸ'))[end] - 1;
+    # eigvals(Hermitian(Aˣ + Bˣ/im + im*Bˣ'))[1] + 1;
+    # eigvals(Hermitian(Aˣ + Bˣ/im + im*Bˣ'))[2];
+    # eigvals(Hermitian(Aˣ + Bˣ/im + im*Bˣ'))[3];
+    # eigvals(Hermitian(Aˣ + Bˣ/im + im*Bˣ'))[4] - 1;
+    # eigvals(Hermitian(Aʸ + Bʸ/im + im*Bʸ'))[1] + 1;
+    # eigvals(Hermitian(Aʸ + Bʸ/im + im*Bʸ'))[2];
+    # eigvals(Hermitian(Aʸ + Bʸ/im + im*Bʸ'))[3];
+    # eigvals(Hermitian(Aʸ + Bʸ/im + im*Bʸ'))[4] - 1;
+    # # eigvals(Symmetric(Aˣ + Bˣ + Bˣ')) - x1;
+    # eigvals(Symmetric(Aʸ + Bʸ + Bʸ'))[1] + 1;
+    # eigvals(Symmetric(Aʸ + Bʸ + Bʸ'))[2];
+    # eigvals(Symmetric(Aʸ + Bʸ + Bʸ'))[3];
+    # eigvals(Symmetric(Aʸ + Bʸ + Bʸ'))[end] - 1;
+    # eigvals(Symmetric(Aˣ + Bˣ + Bˣ'))[1] + 1;
+    # eigvals(Symmetric(Aˣ + Bˣ + Bˣ'))[2];
+    # eigvals(Symmetric(Aˣ + Bˣ + Bˣ'))[3];
+    # eigvals(Symmetric(Aˣ + Bˣ + Bˣ'))[end] - 1;    
+    Aʸ[1,2];
+    Aʸ[1:2,3];
+    Aʸ[1:3,4]]
+end
+
+p = randn(52)
+p = p - jacobian(conds,p) \ conds(p); norm(conds(p))
+
+Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+
+X = z -> Aˣ + Bˣ/z + z*Bˣ'
+Y = z -> Aʸ + Bʸ/z + z*Bʸ'
+
+scatter(vec(specgrid(X,Y)))
+
+z
+X(z)^4 + Y(z)^4
+
+eigvals(X(z))
+eigvals(Y(z))
+X(z)Y(z)
+Y(z)X(z)
