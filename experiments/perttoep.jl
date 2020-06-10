@@ -142,26 +142,203 @@ function newunroll(Aˣ, Bˣ, c)
         cmjac(Bˣ)*S    cmjac(Aˣ);
         cmjac(Aˣ)*S   (cmjac(Bˣ)*Tr + cmjac(Bˣ'))]
 
-    K = qr_nullspace(3,J)
-    K = K*(K')[:,1:3] # normalise to enforce continuity
+    # K = qr_nullspace(3,J)
+    # K = K*(K')[:,1:3] # normalise to enforce continuity
 
-    # K = nullspace(J)
+    K = nullspace(J)
 
     (Aʸ, Bʸ) = comunroll(K*c)
     (Aˣ, Bˣ),(Aʸ, Bʸ)
 end
+
+function qr_newunroll(pin)
+    p,c = pin[1:end-3],pin[end-2:end]
+    Aˣ, Bˣ = comunroll(p)
+    qr_newunroll(Aˣ, Bˣ, c)
+end
+function qr_newunroll(Aˣ, Bˣ, c)
+    N = size(Aˣ,1)
+    M = length(c)
+
+    S = symjac(N)
+    Tr = trjac(N)
+    J = [0S             cmjac(Bˣ);
+        cmjac(Bˣ)*S    cmjac(Aˣ);
+        cmjac(Aˣ)*S   (cmjac(Bˣ)*Tr + cmjac(Bˣ'))]
+
+    K = qr_nullspace(M,J)
+    K = K*(K')[:,1:M] # normalise to enforce continuity
+    
+    (Aʸ, Bʸ) = comunroll(K*c)
+    (Aˣ, Bˣ),(Aʸ, Bʸ)
+end
+
+N = 2
+Aˣ = Symmetric(randn(N,N))
+Bˣ = randn(N,N)
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ, randn(3))
+
+
+scatter(vec(specgrid(X,Y)))
+p = spec2alg(X,Y)
+p[end-2]p[end] -(p[end-1]/2)^2 # ellipse (<0) or hyperbola (>0)
+
+###
+# Try parabola
+###
+
+Aˣ = Matrix(0.5I,N,N)
+Bˣ = Matrix(0.25I,N,N)
+
+# Y^2 = X
+# B^2/z^2 + (B*A + A*B)/z + B*B' + 
+
+
+(Aˣ, Bˣ),(Aʸ, Bʸ) = qr_newunroll(7, Aˣ, Bˣ, randn(7))
+
+function nl(p)
+    _,(Aʸ, Bʸ) = qr_newunroll(7,Aˣ, Bˣ,p)
+    # X² = lrntsquare(Bˣ, Aˣ); # X⁴ = lrntsquare(X²...)
+    # X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ); # Y⁴ = lrntsquare(Y²...)
+    # Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    vcat(vec.(Y² .- (0I,Bˣ,Aˣ))...)
+end
+
+p = randn(7)
+p = p - jacobian(nl,p) \ nl(p); norm(nl(p))
+
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ, p)
+scatter(vec(specgrid(X,Y)))
+
+
+###
+# Try one-branch hyperbola
+###
+
+
+
+# Y^2 + 1 = X^2
+# B^2/z^2 + (B*A + A*B)/z + B*B' + 
+
+
+Aˣ = Matrix(1.5I,N,N)
+Bˣ = Matrix(0.25I,N,N)
+
+# (Aˣ, Bˣ),(Aʸ, Bʸ) = qr_newunroll(7, Aˣ, Bˣ, randn(7))
+
+function nl(p)
+    _,(Aʸ, Bʸ) = qr_newunroll(7,Aˣ, Bˣ,p)
+    X² = lrntsquare(Bˣ, Aˣ); # X⁴ = lrntsquare(X²...)
+    # X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ); # Y⁴ = lrntsquare(Y²...)
+    # Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    vcat(vec.(Y² .- X² .+ (0I,0I,I))...)
+end
+
+p = randn(7)
+p = p - jacobian(nl,p) \ nl(p); norm(nl(p))
+
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ, p)
+scatter(vec(specgrid(X,Y)))
+
+# Hyperbola two-branch
+# X^2 + 1 = Y^2
+
+Aˣ = Matrix(0I,N,N)
+Bˣ = Matrix(0.5I,N,N)
+
+function nl(p)
+    _,(Aʸ, Bʸ) = qr_newunroll(7,Aˣ, Bˣ,p)
+    X² = lrntsquare(Bˣ, Aˣ); # X⁴ = lrntsquare(X²...)
+    # X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ); # Y⁴ = lrntsquare(Y²...)
+    # Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    vcat(vec.(X² .- Y² .+ (0I,0I,I))...)
+end
+
+p = randn(7)
+p = p - jacobian(nl,p) \ nl(p); norm(nl(p))
+
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ, p)
+scatter(vec(specgrid(X,Y)))
+
+
+
+###
+# Quartic
+###
+
+function nl(p)
+    _,(Aʸ, Bʸ) = qr_newunroll(Aˣ, Bˣ,p)
+    X² = lrntsquare(Bˣ, Aˣ);  X⁴ = lrntsquare(X²...)
+    # X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ);  Y⁴ = lrntsquare(Y²...)
+    # Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    vec(vcat((X⁴ .+ Y⁴ .- (0I,0I,0I,0I,I))...))
+end
+
+N = 4
+Aˣ = Matrix(0I,N,N)
+Bˣ = Matrix(0.5I,N,N)
+
+p = randn(26)
+p = p - jacobian(nl,p) \ nl(p); norm(nl(p))
+
+using Optim
+
+function nl(p)
+    _,(Aʸ, Bʸ) = qr_newunroll(Aˣ, Bˣ,p)
+    X² = lrntsquare(Bˣ, Aˣ);  X⁴ = lrntsquare(X²...)
+    # X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ);  Y⁴ = lrntsquare(Y²...)
+    # Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    sum(norm.(X⁴ .+ Y⁴ .- (0I,0I,0I,0I,I)) .^2)
+end
+
+nl(p)
+
+result = optimize(nl, p, Newton(); autodiff=:forward)
+result = optimize(nl, p)
+p = Optim.minimizer(result)
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ,p)
+
+scatter!(vec(specgrid(X,Y)))
+xx = range(-1,1; length=100)
+plot([xx; reverse(xx)], [(1 .- xx.^4).^(1/4); -(1 .- xx.^4).^(1/4)])
+spec2alg(X,Y)
+
+##
+# Try full solve
+###
+
+function nl(p)
+    (Aˣ, Bˣ),(Aʸ, Bʸ) = qr_newunroll(p)
+    X² = lrntsquare(Bˣ, Aˣ);  X⁴ = lrntsquare(X²...)
+    # X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ);  Y⁴ = lrntsquare(Y²...)
+    # Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    sum(norm.(X⁴ .+ Y⁴ .- (0I,0I,0I,0I,I)) .^2)
+end
+
+p = randn(sum(1:N) + N^2 + 3)
+result = optimize(nl, p, Newton(); autodiff=:forward)
+
+nl(p)
 
 
 using BandedMatrices
 N = 4
 Aˣ = zeros(N,N)
 Bˣ = zeros(N,N)
-Bˣ[band(1)] .= 0.5
-Bˣ[band(-1)] .= -0.5
-Bˣ[band(3)] .= -0.5
-Bˣ[band(-3)] .= 0.5
+Bˣ[band(1)] .= 0.25
+Bˣ[band(-1)] .= -0.25
+Bˣ[band(2)] .= 0.25
+Bˣ[band(-2)] .= -0.25
+Bˣ[band(3)] .= 0.25
+Bˣ[band(-3)] .= -0.25
 
-(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ, randn(10))
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ, randn(6))
 scatter(vec(specgrid(X,Y)))
 
 # circle
