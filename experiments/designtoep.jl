@@ -351,3 +351,77 @@ eigvals(X(z))
 eigvals(Y(z))
 X(z)Y(z)
 Y(z)X(z)
+
+
+###
+# homotopy
+# Move from circle via ε * x^4 + (1-ε) * x^2 + 
+###
+
+
+conds = function(p)
+    m = length(p)
+    N = round(Int,(-1 + sqrt(1 + 12m))/6)
+    @assert 2sum(1:N) + 2N^2 == length(p)
+    Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+    Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+    Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+    Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+    X² = lrntsquare(Bˣ, Aˣ); X⁴ = lrntsquare(X²...)
+    X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ); Y⁴ = lrntsquare(Y²...)
+    Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    # x0,x1 = zeros(N),fill(1,N)
+    # y0,y1 = [-1,-1,1,1],zeros(N)
+    # x1,y1,_ = jointeigen(Symmetric(Aˣ - Bˣ - Bˣ'), Symmetric(Aʸ - Bʸ - Bʸ'))
+    # x2,y2,_ = jointeigen(Symmetric(Aˣ + Bˣ + Bˣ'), Symmetric(Aʸ + Bʸ + Bʸ'))
+
+    ε = 0.001
+    [vec(cm(Bˣ,Bʸ));
+        vec(cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ));
+        vec(cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ));
+        vec.(ε .* X⁴ .+ (1-ε) .* X² .+ Y² .- (0I,0I,0I,0I,I))...;
+        # (x1 .- [-1,0,0,1])...;
+        # (y1 .- [0,1,-1,0])...;
+        # (x2 .- [-1,0,0,1])...;
+        # (y2 .- [0,1,-1,0])...;
+    eigvals(Symmetric(Aˣ - Bˣ - Bˣ'))[1] + 1;
+    eigvals(Hermitian(Aʸ + Bʸ/im + im*Bʸ'))[1] + 1;
+    eigvals(Hermitian(Aʸ + Bʸ/im + im*Bʸ'))[end] - 1;
+    eigvals(Symmetric(Aˣ + Bˣ + Bˣ'))[end] - 1;
+    eigvals(Hermitian(Aʸ - Bʸ/im - im*Bʸ'))[1] + 1;
+    eigvals(Hermitian(Aʸ - Bʸ/im - im*Bʸ'))[end] - 1;
+    Aʸ[1,2];
+    Aʸ[1:2,3];
+    Aʸ[1:3,4]]
+end
+
+
+
+Aˣ = Aʸ = zeros(2,2)
+Bˣ = [0.5 0; 0 0.5]
+Bʸ = [0 -0.5; 0.5 0]
+
+Aˣ4 = mortar(Diagonal(Matrix{Float64}[Aˣ, Aˣ]))
+Aʸ4 = mortar(Diagonal(Matrix{Float64}[Aʸ, Aʸ]))
+Bˣ4 = mortar(Diagonal([Bˣ, Bˣ]))
+Bʸ4 = mortar(Diagonal([Bʸ, Bʸ]))
+
+p_ex4 = [symroll(Aˣ4); symroll(Aʸ4); vec(Bˣ4); vec(Bʸ4)]
+
+p = copy(p_ex4)
+
+norm(conds(p))
+
+p = p - jacobian(conds,p) \ conds(p); norm(conds(p))
+
+
+Aˣ = Symmetric(symunroll(p[1:sum(1:N)]))
+Aʸ = Symmetric(symunroll(p[sum(1:N)+1:2sum(1:N)]))
+Bˣ = reshape(p[2sum(1:N)+1:2sum(1:N)+N^2],N,N)
+Bʸ = reshape(p[2sum(1:N)+N^2+1:end],N,N)
+
+X = z -> Aˣ + Bˣ/z + z*Bˣ'
+Y = z -> Aʸ + Bʸ/z + z*Bʸ'
+
+scatter(vec(specgrid(X,Y)))

@@ -116,11 +116,11 @@ Create a spectral curve from parameters
 function speccurvemat(Aˣ::Symmetric, (λˣ, V), κʸ)
     Bˣ = V*Diagonal(λˣ)*inv(V)
     N = length(λˣ)
-    @assert length(κʸ) == 3
+    # @assert length(κʸ) == 3
     cond1 = (Aʸ,Bʸ) -> cm(Aˣ,Bʸ) + cm(Bˣ,Aʸ)
     cond0 = (Aʸ,Bʸ) -> cm(Bˣ,Bʸ') + cm(Bˣ',Bʸ) + cm(Aˣ, Aʸ)
     J = condsjac(Aˣ, Bˣ, V)
-    K = eigen_nullspace(3, J)
+    K = nullspace(J)
     (Aˣ,Bˣ),comunroll(V, K * κʸ)
 end
 function speccurve(Aˣ, (λˣ, V), κʸ)
@@ -136,17 +136,27 @@ Create random spectral curve
 randspeccurve(N) = speccurve(randn(N,N), randn(N,N), randn(3))
 
 
+function jointeigen(A, B)
+    _,Q = eigen(A + 1.23409304233B)
+    x,y = real.(diag(Q'A*Q)), real.(diag(Q'B*Q))
+    x,y,Q
+end
+
+jointeigvals(A, B) = jointeigen(A, B)[1:2]
+
+
+
 """
 evaluate spectral curve at grid
 """
 function specgrid(X, Y)
-    NN = 20
+    NN = 40
     n = size(X(1),1)
     Z = Matrix{ComplexF64}(undef,n,NN)
     for (j,θ) in enumerate(range(0,2π; length=NN))
         z = exp(θ*im)
-        λ,Q = eigen(Hermitian(X(z)))
-        Z[:,j] = λ  .+ im*real(diag(Q'*Y(z)*Q))
+        x,y = jointeigvals(X(z), Y(z))
+        Z[:,j] .= complex.(x,y)
     end
     Z
 end
