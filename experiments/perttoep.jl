@@ -146,6 +146,7 @@ function newunroll(Aˣ, Bˣ, c)
     # K = K*(K')[:,1:3] # normalise to enforce continuity
 
     K = nullspace(J)
+    K = K*(K') # normalise to enforce continuity
 
     (Aʸ, Bʸ) = comunroll(K*c)
     (Aˣ, Bˣ),(Aʸ, Bʸ)
@@ -168,7 +169,7 @@ function qr_newunroll(Aˣ, Bˣ, c)
 
     K = qr_nullspace(M,J)
     K = K*(K')[:,1:M] # normalise to enforce continuity
-    
+
     (Aʸ, Bʸ) = comunroll(K*c)
     (Aˣ, Bˣ),(Aʸ, Bʸ)
 end
@@ -302,11 +303,34 @@ result = optimize(nl, p, Newton(); autodiff=:forward)
 result = optimize(nl, p)
 p = Optim.minimizer(result)
 (Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ,p)
-
-scatter!(vec(specgrid(X,Y)))
 xx = range(-1,1; length=100)
 plot([xx; reverse(xx)], [(1 .- xx.^4).^(1/4); -(1 .- xx.^4).^(1/4)])
+scatter!(vec(specgrid(X,Y)))
 spec2alg(X,Y)
+
+# try double
+
+N = 4
+Aˣ = Matrix(0I,N,N)
+Bˣ = [0 0.5 0 0; -0.5 0 0 0; 0 0 0.5 0; 0 0 0 0.5]
+
+function nl(p)
+    _,(Aʸ, Bʸ) = qr_newunroll(Aˣ, Bˣ,p)
+    X² = lrntsquare(Bˣ, Aˣ);  X⁴ = lrntsquare(X²...)
+    # X² = tuple(zeros(4,4),zeros(4,4),X²...)
+    Y² = lrntsquare(Bʸ, Aʸ);  Y⁴ = lrntsquare(Y²...)
+    # Y² = tuple(zeros(4,4),zeros(4,4),Y²...)
+    sum(norm.(X⁴ .+ Y⁴ .- (0I,0I,0I,0I,I)) .^2)
+end; nl(p)
+p = randn(10)
+result = optimize(nl, p, Newton(); autodiff=:forward)
+
+p = Optim.minimizer(result)
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(Aˣ, Bˣ,p)
+xx = range(-1,1; length=100)
+plot([xx; reverse(xx)], [(1 .- xx.^4).^(1/4); -(1 .- xx.^4).^(1/4)])
+scatter!(vec(specgrid(X,Y)))
+
 
 ##
 # Try full solve
@@ -323,6 +347,11 @@ end
 
 p = randn(sum(1:N) + N^2 + 3)
 result = optimize(nl, p, Newton(); autodiff=:forward)
+p = Optim.minimizer(result)
+
+(Aˣ, Bˣ),(Aʸ, Bʸ) = newunroll(p)
+
+scatter(vec(specgrid(X,Y)))
 
 nl(p)
 

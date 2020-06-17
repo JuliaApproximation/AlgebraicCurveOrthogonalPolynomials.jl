@@ -150,7 +150,7 @@ jointeigvals(A, B) = jointeigen(A, B)[1:2]
 evaluate spectral curve at grid
 """
 function specgrid(X, Y)
-    NN = 20
+    NN = 40
     n = size(X(1),1)
     Z = Matrix{ComplexF64}(undef,n,NN)
     for (j,θ) in enumerate(range(0,2π; length=NN))
