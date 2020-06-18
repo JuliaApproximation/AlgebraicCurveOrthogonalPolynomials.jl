@@ -80,6 +80,17 @@ for _=1:1000
     X = (A-z*I) - B*inv(X)*B'
 end
 
+Y = -inv(X)
+@test (A-z*I) + B*Y*B' ≈ -inv(Y)
+
+Z = sqrt(Y) * B * sqrt(Y)
+@test sqrt(Y)*(A-z*I)*sqrt(Y) + Z*Z' ≈ -I 
+@test sqrt(Y)*(A-z*I)*sqrt(Y) + Z*Z' ≈ -I 
+
+Z
+
+sqrt(Y) * B * Y * B' * sqrt(Y)
+
 X
 @test ((T -z*I) \ [Matrix(I,d,d); zeros(size(T,1)-d,d)])[Block(1,1)] ≈ inv(X)
 
