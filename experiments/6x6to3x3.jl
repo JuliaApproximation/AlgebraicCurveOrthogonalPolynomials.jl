@@ -2,6 +2,74 @@ using OrthogonalPolynomialsAlgebraicCurves, Plots, ForwardDiff
 import ForwardDiff: jacobian
 import OrthogonalPolynomialsAlgebraicCurves: cm
 
+# Optimise
+
+
+Ax = PseudoBlockArray(A66x, fill(3,2), fill(3,2))
+Bx = PseudoBlockArray(B66x, fill(3,2), fill(3,2))
+Ay = PseudoBlockArray(A66y, fill(3,2), fill(3,2))
+By = PseudoBlockArray(B66y, fill(3,2), fill(3,2))
+
+
+Ax1 = Ax[Block(1,1)]
+Ax2 = Ax[Block(2,2)]
+Bx1 = Ax[Block(1,2)]
+Bx2 = Bx[Block(2,1)]
+
+Ay1 = Ay[Block(1,1)]
+Ay2 = Ay[Block(2,2)]
+By1 = Ay[Block(1,2)]
+By2 = By[Block(2,1)]
+
+# We want to conjugate by Q = Diagonal([…,I,Q,I,Q,…])
+# so that B1*Q' == Q*B2
+#
+svdvals(By1)
+svdvals(By2)
+
+polar(By1)[2]
+polar(By2')[2]
+By1
+By2
+Q = [0 -1 0; 0 0 -1; -1 0 0]
+# Q = Q * Diagonal([-1,1,-1])
+@test Bx1*Q' ≈ Q*Bx2
+@test By1*Q' ≈ Q*By2
+@test Q*Ax2*Q' ≈ Ax1
+@test Q*Ay2*Q' ≈ Ay1
+
+
+Bx = Q*Bx2
+By = Q*By2
+Ax = Ax1
+Ay = Ay1
+
+X = z -> Bx/z + Ax + Bx'*z
+Y = z -> By/z + Ay + By'*z
+
+z = exp(0.1im)
+@test X(z)Y(z) ≈ Y(z)X(z)
+
+
+
+p = randn(9)
+function qopt(p)
+    Q = qr(reshape(p,3,3)).Q
+    vec(By1*Q' - Q*By2)
+end
+
+p = p - svd(jacobian(qopt,p)) \ qopt(p); norm(qopt(p))
+
+
+Ỹ = PseudoBlockArray([A66y B66y; B66y' A66y], fill(3,4), fill(3,4))
+
+
+A66x
+
+
+
+
+
 Z = zeros(6,6)
 Q1 = Matrix(I,6,6)[[1,2,3,6,5,4],:]
 Q = [Q1 Z; Z Q1]

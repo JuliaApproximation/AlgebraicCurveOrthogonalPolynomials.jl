@@ -7,18 +7,18 @@ using BandedMatrices, Plots
 n = 100
 J = Symmetric(BandedMatrix(0 => (-1) .^ (0:n-1), 1 => ones(n-1)))
 
+L = (m,z) -> [[Matrix(I,2,2) zeros(2,m-2)]; (J-z*I)[2:m-1, 1:m]]
+M = z -> inv(L(4,z))[end-1:end,1:2]
 z = 1.5;
 let m = 4
-    M = z -> inv([[Matrix(I,2,2) zeros(2,m-2)];
-            (J-z*I)[2:m-1, 1:m]])[end-1:end,1:2]
+    
 end
 z
 Δ = z -> tr(M(z))/2
 
 1 - Δ(1.5)^2
 
-m = 10; inv([[Matrix(I,2,2) zeros(2,m-2)];
-            (J-z*I)[2:m-1, 1:m]])
+m = 10; inv()
 
 det(M)
 eigvals(M)
