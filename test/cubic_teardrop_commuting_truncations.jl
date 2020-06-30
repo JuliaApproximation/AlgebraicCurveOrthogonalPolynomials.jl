@@ -1,4 +1,4 @@
-using LinearAlgebra, BlockBandedMatrices, Test
+using LinearAlgebra, BlockBandedMatrices, OrthogonalPolynomialsAlgebraicCurves, Test
 
 @testset "commuting truncations cubic teardrop upper branch" begin
     γ(x) = 1/2*(1 - x)*sqrt(1 + x)
@@ -39,8 +39,8 @@ using LinearAlgebra, BlockBandedMatrices, Test
     X[Block(3+blocks,4+blocks)] = b0x'; X[Block(4+blocks,3+blocks)] = b0x
     X[Block(4+blocks,4+blocks)] = a0x
     for k = 1:blocks-1
-    X[Block(k+2,k+2)] = Aˣ
-    X[Block(k+2,k+3)] = Bˣ; X[Block(k+3,k+2)] = Bˣ'
+        X[Block(k+2,k+2)] = Aˣ
+        X[Block(k+2,k+3)] = Bˣ; X[Block(k+3,k+2)] = Bˣ'
     end
     X[Block(blocks+2,blocks+2)] = Aˣ
     Y = BlockBandedMatrix(zeros(3(blocks+2),3(blocks+2)),[1;2;fill(3,blocks);2;1],[1;2;fill(3,blocks);2;1],(1,1))
@@ -53,8 +53,8 @@ using LinearAlgebra, BlockBandedMatrices, Test
     Y[Block(3+blocks,4+blocks)] = b0y'; Y[Block(4+blocks,3+blocks)] = b0y
     Y[Block(4+blocks,4+blocks)] = a0y
     for k = 1:blocks-1
-    Y[Block(k+2,k+2)] = Aʸ
-    Y[Block(k+2,k+3)] = Bʸ; Y[Block(k+3,k+2)] = Bʸ'
+        Y[Block(k+2,k+2)] = Aʸ
+        Y[Block(k+2,k+3)] = Bʸ; Y[Block(k+3,k+2)] = Bʸ'
     end
     Y[Block(blocks+2,blocks+2)] = Aʸ
    @test X*Y ≈ Y*X
@@ -99,8 +99,8 @@ end
     X[Block(3+blocks,4+blocks)] = b0x'; X[Block(4+blocks,3+blocks)] = b0x
     X[Block(4+blocks,4+blocks)] = a0x
     for k = 1:blocks-1
-    X[Block(k+2,k+2)] = Aˣ
-    X[Block(k+2,k+3)] = Bˣ; X[Block(k+3,k+2)] = Bˣ'
+        X[Block(k+2,k+2)] = Aˣ
+        X[Block(k+2,k+3)] = Bˣ; X[Block(k+3,k+2)] = Bˣ'
     end
     X[Block(blocks+2,blocks+2)] = Aˣ
     Y = BlockBandedMatrix(zeros(3(blocks+2),3(blocks+2)),[1;2;fill(3,blocks);2;1],[1;2;fill(3,blocks);2;1],(1,1))
@@ -113,8 +113,8 @@ end
     Y[Block(3+blocks,4+blocks)] = b0y'; Y[Block(4+blocks,3+blocks)] = b0y
     Y[Block(4+blocks,4+blocks)] = a0y
     for k = 1:blocks-1
-    Y[Block(k+2,k+2)] = Aʸ
-    Y[Block(k+2,k+3)] = Bʸ; Y[Block(k+3,k+2)] = Bʸ'
+        Y[Block(k+2,k+2)] = Aʸ
+        Y[Block(k+2,k+3)] = Bʸ; Y[Block(k+3,k+2)] = Bʸ'
     end
     Y[Block(blocks+2,blocks+2)] = Aʸ
    @test X*Y ≈ Y*X

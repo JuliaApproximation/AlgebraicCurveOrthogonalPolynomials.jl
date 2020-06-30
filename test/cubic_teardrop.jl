@@ -1,4 +1,6 @@
 using LinearAlgebra, Test
+using ForwardDiff
+import ForwardDiff: jacobian
 
 @testset "6x6" begin
     Ae1 = [0 1/2 0;1/2 0 0;0 0 0]
@@ -24,6 +26,8 @@ using LinearAlgebra, Test
         @test Y(z)^2 ≈ 1/4*(I - X(z))^2*(I + X(z))
     end
 end
+
+
 
 @testset "3x3" begin
     v = 1/(4*sqrt(2))
