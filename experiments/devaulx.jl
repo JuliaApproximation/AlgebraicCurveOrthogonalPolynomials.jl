@@ -1,4 +1,30 @@
-using BlockBandedMatrices, BlockArrays, InfiniteLinearAlgebra
+using BlockBandedMatrices, BlockArrays, InfiniteLinearAlgebra, Plots
+
+e = 0.001
+B = [e 0; 2 e]
+A = [1 2.; 2 1]
+C = Matrix(B')
+J = mortar(Tridiagonal(Fill(C,∞), Fill(A,∞), Fill(B,∞)))
+J = mortar(convert(AbstractMatrix{Matrix{ComplexF64}}, J.blocks))
+
+G = function(z)
+    U,L = ul(J - z*I)
+    inv(L[Block(1,1)])
+end
+
+xx = range(-10,10;length=1000)
+W = x -> real((G(x+1E-8im) - G(x-1E-8im))/(2π*im))
+
+M = W.(xx)
+p = plot(; title="e = $e")
+for j = 1:4
+    plot!(xx, getindex.(M,j))
+end; p
+
+##
+# Old
+##
+
 
 B = randn(2,2)
 A = randn(2,2) - 10I #; A = A + A'
@@ -6,12 +32,12 @@ C = Matrix(B')
 
 N = 501; J = mortar(Tridiagonal(fill(C,N-1), fill(A,N), fill(B,N-1)))
 
-function ul(A)
+function ul(A::Matrix)
     L,U = lu(A[end:-1:1,end:-1:1], Val(false))
     L[end:-1:1,end:-1:1] , U[end:-1:1,end:-1:1]
 end
 
-U,L = ul(Matrix(J))
+N = 100; U,L = ul(Matrix(J[Block.(1:N),Block.(1:N)])-(3+eps()im)I)
 
 X = U[1:2,1:2]*L[1:2,1:2]
 
