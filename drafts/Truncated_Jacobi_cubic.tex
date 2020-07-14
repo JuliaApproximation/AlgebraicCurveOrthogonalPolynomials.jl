@@ -79,7 +79,7 @@ The symbols associated with the limiting $x$ and $y$ Jacobi operators are, respe
 X(z) = \frac{\left(B^x\right)^{\intercal}}{z} + A^x + B^x z, \qquad
 Y(z) = \frac{\left(B^y\right)^{\intercal}}{z} + A^y + B^y z, 
 \end{equation*}
-where $z$ is on the unit circle. The symbols commute, satisfy the algebraic equation defining $\gamma$ and the image of their joint spectrum is the support of the OPs (also $\gamma$), i.e., 
+where $z$ is on the complex unit circle. The symbols commute, satisfy the algebraic equation defining $\gamma$ and the image of their joint spectrum is the support of the OPs (also $\gamma$), i.e., 
 \begin{equation*}
 X(z)Y(z) = Y(z)X(z), \qquad Y(z)^2 = \phi\left[X(z) \right] = \frac{1}{4}\left[\,\mathrm{I} - X(z)\,\right]^2\left[\,\mathrm{I} + X(z)\,\right],
 \end{equation*}
@@ -91,13 +91,13 @@ and
 see Figure~\ref{fig:symbolspectrum}.
 \begin{figure}
 	\centering
-	\includegraphics[width = 0.9\textwidth]{symbol_spectrum.pdf}
-	\caption{The joint spectrum of $X(z)$ and $Y(z)$, i.e., a plot of $(\lambda_{x,i}, \lambda_{y,i})$ defined in (\ref{eq:jointspect}), sampled at $30$ equally spaced points on the unit circle.    }   
+	\includegraphics[width = 0.9\textwidth]{symbol_spectrum2.pdf}
+	\caption{In blue, the joint spectrum of $X(z)$ and $Y(z)$, i.e., a plot of $(\lambda_{x,i}, \lambda_{y,i})$ defined in (\ref{eq:jointspect}), sampled at $20$ equally spaced points on the complex unit circle. In green, the joint spectrum of $33 \times 33$ versions of the truncated operators $\widetilde{X}$ and $\widetilde{Y}$ defined in (\ref{eq:xtruncation})--(\ref{eq:opspectrum}).   }   
 	\label{fig:symbolspectrum}
 \end{figure}
 
 It is possible to construct truncated versions of the limiting $3\times 3$-block-Toeplitz Jacobi operators in such a way that they commute and satisfy the algebraic equation defining the teardrop curve. The truncated operators take the form
-$$
+\begin{equation}
 \widetilde{X} := \left(
 \begin{array}{c c c c c c c c }
 A_0^x  & B_0^x   &        &        & & & &   \\
@@ -109,8 +109,8 @@ A_0^x  & B_0^x   &        &        & & & &   \\
                                 &                        & &          &  & b_1^x   & a_1^x & \left(b_0^x \right)^{\intercal}  \\
                                 &     & & & &  &  b_0^x & a_0^x
 \end{array}
-\right), 
-$$
+\right), \label{eq:xtruncation}
+\end{equation}
 where $A_0^x$, $a_0^x$ are $1\times 1$ matrices; $B_0^x$, $b_0^x$ are $1 \times 2$; $A_1^x$, $a_1^x$ are symmetric $2 \times 2$ matrices and $B_1^x$, $b_1^x$ are $2 \times 3$ and $A^x, B^x$ are the $3\times 3$ matrices defined above. The truncated operator $\widetilde{Y}$ is defined similarly. 
 
 The entries of the block matrices in the top-left and bottom-right corners ($A_0^x$, $a_0^x$, $A_0^y$, $a_0^y$, etc.) are determined by requiring that
@@ -249,5 +249,5 @@ v\left(
 \end{array}
 \right), \quad v = \frac{\sqrt{2}}{64},
 \end{equation*}
-where $y_i = \sqrt{\phi(x_i)}$, $i = 3, 4$.
+where $y_i = \sqrt{\phi(x_i)}$, $i = 3, 4$. Figure~\ref{fig:symbolspectrum} shows the joint spectrum of $\widetilde{X}$ and $\widetilde{Y}$ for the choices $x_1 = 1, x_2 = -1/4, x_3 = 0, x_4 = -1$.
 \end{document}
