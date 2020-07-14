@@ -78,3 +78,8 @@ k = 5;
 
 
 
+w = Fun(x -> [1 x; x x^2]/sqrt(1-x^2), ArraySpace(JacobiWeight(-0.5,-0.5,Chebyshev()),2,2))
+
+w(-0.1) |> eigvals
+
+lanczos(w,10)
