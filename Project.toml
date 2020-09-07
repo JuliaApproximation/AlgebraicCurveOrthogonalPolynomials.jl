@@ -30,6 +30,6 @@ ToeplitzMatrices = "c751599d-da0a-543b-9d20-d0a503d91d24"
 
 [compat]
 BlockArrays = "0.12"
-BlockBandedMatrices = "0.8"
+BlockBandedMatrices = "0.8, 0.9"
 FastGaussQuadrature = "0.4"
 GaussQuadrature = "0.5"
