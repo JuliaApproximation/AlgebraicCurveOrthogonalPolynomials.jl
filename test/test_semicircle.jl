@@ -2,30 +2,6 @@ using OrthogonalPolynomialsQuasi, BandedMatrices, BlockBandedMatrices, BlockArra
 using ForwardDiff, StaticArrays
 import OrthogonalPolynomialsQuasi: jacobimatrix
 
-@testset "Arc OPs" begin
-    P₊ = jacobi(0,1/2,0..1)
-    x = axes(P₊,1)
-    y = @.(sqrt(1 - x^2))
-    U = LanczosPolynomial(y, P₊)
-
-    P₋ = jacobi(0,-1/2,0..1)
-    T = LanczosPolynomial(@.(1/sqrt(1 - x^2)), P₋)
-
-    @test bandwidths(U.P \ T.P) == (0,1)
-    @test U.w == U.w
-    R = U \ T;
-
-    J_U = jacobimatrix(U)
-    J_T = jacobimatrix(T)
-    
-    H_1 = T
-    H_2 = BroadcastQuasiMatrix(*, y, U)
-    x̃ = 0.1; ỹ = sqrt(1-x̃^2)
-    n = 5
-    @test x̃ * H_1[x̃,n] ≈ dot(J_T[n-1:n+1,n],H_1[x̃,n-1:n+1])
-    @test x̃ * H_2[x̃,n] ≈ dot(J_U[n-1:n+1,n],H_2[x̃,n-1:n+1])
-    
-end
 
 
 

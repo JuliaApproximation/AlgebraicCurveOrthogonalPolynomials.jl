@@ -1,0 +1,4 @@
+[deps]
+ContinuumArrays = "7ae1f121-cc2c-504b-ac30-9b923412ae5c"
+OrthogonalPolynomialsQuasi = "aa41a628-2c43-45df-899b-83ab96621781"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
