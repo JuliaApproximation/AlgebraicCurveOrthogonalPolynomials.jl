@@ -20,13 +20,13 @@ version = "2.0.2"
 
 [[ApproxFun]]
 deps = ["AbstractFFTs", "ApproxFunBase", "ApproxFunFourier", "ApproxFunOrthogonalPolynomials", "ApproxFunSingularities", "Calculus", "DomainSets", "DualNumbers", "FFTW", "FastTransforms", "LinearAlgebra", "RecipesBase", "Reexport"]
-path = "/Users/sheehanolver/Projects/ApproxFun.jl/"
+git-tree-sha1 = "ec4b8ad650e0384c35f670fcfcbc8c30f94165fa"
 uuid = "28f2ccd6-bb30-5033-b560-165f7b14dc2f"
-version = "0.12.1"
+version = "0.12.2"
 
 [[ApproxFunBase]]
 deps = ["AbstractFFTs", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "Calculus", "DSP", "DomainSets", "DualNumbers", "FFTW", "FastGaussQuadrature", "FillArrays", "InfiniteArrays", "IntervalSets", "LazyArrays", "LinearAlgebra", "LowRankApprox", "SparseArrays", "SpecialFunctions", "StaticArrays", "Statistics", "Test", "ToeplitzMatrices"]
-path = "../../../Projects/ApproxFunBase.jl"
+git-tree-sha1 = "e6b6f7a30102b150f6e20daf622eb3807c0d9a46"
 uuid = "fbd15aa5-315a-5a7d-a8a4-24992e37be05"
 version = "0.3.8"
 
@@ -44,9 +44,9 @@ version = "0.3.5"
 
 [[ApproxFunSingularities]]
 deps = ["ApproxFunBase", "ApproxFunOrthogonalPolynomials", "DomainSets", "IntervalSets", "LinearAlgebra", "Reexport", "Statistics"]
-path = "../../../Projects/ApproxFunSingularities.jl"
+git-tree-sha1 = "f81dc4a9f09547b280183ebbdc79d2d91ff94c02"
 uuid = "f8fcb915-6b99-5be2-b79a-d6dbef8e6e7e"
-version = "0.1.9"
+version = "0.2.0"
 
 [[ArrayInterface]]
 deps = ["LinearAlgebra", "Requires", "SparseArrays"]
@@ -166,9 +166,9 @@ version = "0.3.2"
 
 [[Contour]]
 deps = ["StaticArrays"]
-git-tree-sha1 = "81685fee51fc5168898e3cbd8b0f01506cd9148e"
+git-tree-sha1 = "d05a3a25b762720d40246d5bedf518c9c2614ef5"
 uuid = "d38c429a-6771-53c6-b99e-75d170b6e991"
-version = "0.5.4"
+version = "0.5.5"
 
 [[DSP]]
 deps = ["FFTW", "IterTools", "LinearAlgebra", "Polynomials", "Random", "Reexport", "SpecialFunctions", "Statistics"]
@@ -288,7 +288,7 @@ version = "0.4.2"
 
 [[FastTransforms]]
 deps = ["AbstractFFTs", "ArrayLayouts", "BinaryProvider", "DSP", "FFTW", "FastGaussQuadrature", "FastTransforms_jll", "FillArrays", "Libdl", "LinearAlgebra", "Reexport", "SpecialFunctions", "Test", "ToeplitzMatrices"]
-git-tree-sha1 = "425722dfeaad5fdb9b2af0bfdba5edd524303a80"
+path = "../../../Projects/FastTransforms.jl"
 uuid = "057dd010-8810-581a-b7be-e3fc3b93f78c"
 version = "0.10.1"
 
@@ -391,7 +391,7 @@ version = "0.8.17"
 
 [[HypergeometricFunctions]]
 deps = ["DualNumbers", "LinearAlgebra", "SpecialFunctions", "Test"]
-git-tree-sha1 = "d6ca61daca76ed9a2989ac221d143587df65ab01"
+path = "../../../Projects/HypergeometricFunctions.jl"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.3"
 
@@ -399,7 +399,7 @@ version = "0.3.3"
 deps = ["DSP", "FillArrays", "LazyArrays", "LinearAlgebra", "Statistics"]
 path = "../../../Projects/InfiniteArrays.jl"
 uuid = "4858937d-0d70-526a-a4dd-2d5cb5dd786c"
-version = "0.8.1"
+version = "0.8.2"
 
 [[InfiniteLinearAlgebra]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "FillArrays", "InfiniteArrays", "LazyArrays", "LazyBandedMatrices", "LinearAlgebra", "MatrixFactorizations", "SemiseparableMatrices"]
@@ -648,10 +648,10 @@ uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 version = "1.3.0"
 
 [[OrthogonalPolynomialsQuasi]]
-deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "ContinuumArrays", "DomainSets", "FastTransforms", "FillArrays", "HypergeometricFunctions", "InfiniteArrays", "InfiniteLinearAlgebra", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays", "SemiseparableMatrices"]
-path = "/Users/sheehanolver/Projects/OrthogonalPolynomialsQuasi.jl/"
+deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "ContinuumArrays", "DomainSets", "FastTransforms", "FillArrays", "HypergeometricFunctions", "InfiniteArrays", "InfiniteLinearAlgebra", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays"]
+path = "/Users/solver/Projects/OrthogonalPolynomialsQuasi.jl/"
 uuid = "aa41a628-2c43-45df-899b-83ab96621781"
-version = "0.2.1"
+version = "0.3.0"
 
 [[PDMats]]
 deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse", "Test"]
@@ -742,9 +742,9 @@ uuid = "2576dda1-a324-5b11-aa66-c48ed7e3c618"
 version = "0.5.0"
 
 [[RecipesBase]]
-git-tree-sha1 = "58de8f7e33b7fda6ee39eff65169cd1e19d0c107"
+git-tree-sha1 = "6ee6c35fe69e79e17c455a386c1ccdc66d9f7da4"
 uuid = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
-version = "1.0.2"
+version = "1.1.0"
 
 [[RecipesPipeline]]
 deps = ["Dates", "NaNMath", "PlotUtils", "RecipesBase"]
@@ -787,7 +787,7 @@ uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 
 [[SemiseparableMatrices]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockBandedMatrices", "LazyArrays", "LazyBandedMatrices", "LinearAlgebra", "MatrixFactorizations"]
-git-tree-sha1 = "a99ad8c5ee92f051ceb7ae86908bbb9276d6b37d"
+path = "../../../Projects/SemiseparableMatrices.jl"
 uuid = "f8ebbe35-cbfb-4060-bf7f-b10e4670cf57"
 version = "0.1.4"
 
