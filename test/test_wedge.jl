@@ -71,24 +71,25 @@ end
 end
 
 
-n = 200
-x,y,w = gausswedge(n); V= plan_wedgetransform(n); M = wedgemassmatrix(n);
+# n = 200
+# x,y,w = gausswedge(n); V= plan_wedgetransform(n); M = wedgemassmatrix(n);
 
-m = 150;
-p0 = p.(m, x, y)/sqrt(M[Block(m+1,m+1)[1,1]]); (sqrt.(M) * V * (x .* p0))[Block.(m:m+2)]
-q0 = q.(m, x, y)/sqrt(M[Block(m+1,m+1)[2,2]]); (sqrt.(M) * V * (x .* q0))[Block.(m:m+2)]
+# m = 150;
+# p0 = p.(m, x, y)/sqrt(M[Block(m+1,m+1)[1,1]]); (sqrt.(M) * V * (x .* p0))[Block.(m:m+2)]
+# q0 = q.(m, x, y)/sqrt(M[Block(m+1,m+1)[2,2]]); (sqrt.(M) * V * (x .* q0))[Block.(m:m+2)]
 
-p0 = p.(m, x, y)/sqrt(M[Block(m+1,m+1)[1,1]]); (sqrt.(M) * V * (y .* p0))[Block.(m:m+2)]
-q0 = q.(m, x, y)/sqrt(M[Block(m+1,m+1)[2,2]]); (sqrt.(M) * V * (y .* q0))[Block.(m:m+2)]
+# p0 = p.(m, x, y)/sqrt(M[Block(m+1,m+1)[1,1]]); (sqrt.(M) * V * (y .* p0))[Block.(m:m+2)]
+# q0 = q.(m, x, y)/sqrt(M[Block(m+1,m+1)[2,2]]); (sqrt.(M) * V * (y .* q0))[Block.(m:m+2)]
 
+@testset "symbols" begin
+    X = z -> [ 1/8   -1/8; -1/8    1/8 ]/z + [ 3/4    1/4;   1/4    3/4] + [ 1/8  -1/8; -1/8     1/8]*z
+    Y = z -> [ 1/8    1/8;  1/8    1/8 ]/z + [ 3/4    -1/4; -1/4    3/4] + [ 1/8   1/8;  1/8     1/8]*z
 
-X = z -> [ 1/8   -1/8; -1/8    1/8 ]/z + [ 3/4    1/4;   1/4    3/4] + [ 1/8  -1/8; -1/8     1/8]*z
-Y = z -> [ 1/8    1/8;  1/8    1/8 ]/z + [ 3/4    -1/4; -1/4    3/4] + [ 1/8   1/8;  1/8     1/8]*z
-
-# (1-x) * (1-y) == 0
-z = exp(0.1im)
-@test norm((I - X(z)) * (I - Y(z))) ≤ eps()
-@test X(z)Y(z) ≈ Y(z)X(z)
+    # (1-x) * (1-y) == 0
+    z = exp(0.1im)
+    @test norm((I - X(z)) * (I - Y(z))) ≤ eps()
+    @test X(z)Y(z) ≈ Y(z)X(z)
+end
 
 
 [0.125 
