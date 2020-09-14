@@ -30,11 +30,11 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, StaticAr
     end
 
     @testset "WedgeLegendre" begin
-        P = WedgeLegendre()
+        P = WedgeJacobi(0,0,0)
         @test P[SVector(1,0.2), Block(1)[1]] == P[SVector(0.2,1), Block(1)[1]] == 1.0
         @test P[SVector(1,0.2), 1] == P[SVector(0.2,1), 1] == 1.0
         @test P[SVector(1,0.2), Block(1)] == [1.0]
-        @test P[SVector(1,0.2),Block(2)] == [-0.6,-0.8]
+        @test P[SVector(1,0.2),Block(2)] == [-0.6,-1.6]
     end
 end
 

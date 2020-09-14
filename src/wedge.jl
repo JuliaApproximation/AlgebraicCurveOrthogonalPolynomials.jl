@@ -5,17 +5,24 @@ function gausswedge(n)
     [x; ones(length(x)-1)], [ones(length(x)); reverse!(x[1:end-1])], [w[1:end-1]; 2w[end]; reverse!(w[1:end-1])]
 end
 
+_binomial(n, k) = exp(loggamma(n+1) - loggamma(k+1) - loggamma(n-k+1))
+logpochhammer(a, n) = loggamma(a+n) - loggamma(a)
+
 function wedgep(n, a, b, c, x, y)
     Pᶜᵃ = jacobi(c,a,0..1)
     Pᶜᵇ = jacobi(c,b,0..1)
-    Pᶜᵃ[x,n+1] + Pᶜᵇ[y,n+1] - binomial(n+c,n)
+    Pᶜᵃ[x,n+1] + Pᶜᵇ[y,n+1] - _binomial(n+c,n)
 end
 
 function wedgeq(n, a, b, c, x, y)
     Pᶜᵃ = jacobi(c+2,a,0..1)
     Pᶜᵇ = jacobi(c+2,b,0..1)
-    pochhammer(c+a+2,n)/pochhammer(a+1,n-1)*(1-x) * Pᶜᵃ[x,n] - pochhammer(c+b+2,n)/pochhammer(b+1,n-1) * (1-y)*Pᶜᵇ[y,n]
+    exp(logpochhammer(c+a+2,n)-logpochhammer(a+1,n-1))*(1-x) * Pᶜᵃ[x,n] - 
+        exp(logpochhammer(c+b+2,n)-logpochhammer(b+1,n-1)) * (1-y)*Pᶜᵇ[y,n]
 end
+
+wedgep(n, x, y) = wedgep(n, 0,0,0, x,y)
+wedgeq(n, x, y) = wedgeq(n, 0,0,0, x,y)
 
 function wedgemassmatrix(n)
     x,y,w = gausswedge(n)
@@ -37,7 +44,7 @@ function plan_wedgetransform(n)
     ret = Array{Float64}(undef, N, N)
     p0 = wedgep.(0, x, y)
     σ = dot(p0, Diagonal(w), p0)
-    ret[1,:] .= p.(0, x, y) .* w ./ σ
+    ret[1,:] .= wedgep.(0, x, y) .* w ./ σ
     for m = 1:n-1
         p0 = wedgep.(m, x, y)
         q0 = wedgeq.(m, x, y)
@@ -61,17 +68,23 @@ function in(p::SVector{2}, d::Wedge)
     (x == 1 && 0 ≤ y ≤ 1) || (y == 1 && 0 ≤ x ≤ 1)
 end
 
-struct WedgeLegendre{T} <: OrthogonalPolynomial{T} end
-WedgeLegendre() = WedgeLegendre{Float64}()
-
-axes(P::WedgeLegendre) = (Inclusion(Wedge()),blockedrange([1; Fill(2,∞)]))
-
-function getindex(P::WedgeLegendre, xy::SVector{2}, j::BlockIndex{1})
-    K,k = block(j),blockindex(j)
-    k == 1 ? wedgep(Int(K)-1, xy...) : wedgeq(Int(K)-1, xy...)
+struct WedgeJacobi{T} <: OrthogonalPolynomial{T}
+    a::T
+    b::T
+    c::T
+    WedgeJacobi{T}(a, b, c) where T = new{T}(a, b, c)
 end
 
-function getindex(P::WedgeLegendre, xy::SVector{2}, j::Int)
+WedgeJacobi(a::A, b::B, c::C) where {A,B,C} = WedgeJacobi{float(promote_type(A,B,C))}(a,b,c)
+
+axes(P::WedgeJacobi) = (Inclusion(Wedge()),blockedrange([1; Fill(2,∞)]))
+
+function getindex(P::WedgeJacobi, xy::SVector{2}, j::BlockIndex{1})
+    K,k = block(j),blockindex(j)
+    k == 1 ? wedgep(Int(K)-1, P.a, P.b, P.c, xy...) : wedgeq(Int(K)-1, P.a, P.b, P.c, xy...)
+end
+
+function getindex(P::WedgeJacobi, xy::SVector{2}, j::Int)
     j == 1 && return P[xy, Block(1)[1]]
     P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
 end
