@@ -160,7 +160,7 @@ version = "0.3.3+0"
 
 [[ContinuumArrays]]
 deps = ["ArrayLayouts", "BandedMatrices", "FillArrays", "InfiniteArrays", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays"]
-path = "../../../Projects/ContinuumArrays.jl"
+git-tree-sha1 = "886a89c224e512fd2f02c180209b59619e39c6c3"
 uuid = "7ae1f121-cc2c-504b-ac30-9b923412ae5c"
 version = "0.3.2"
 
@@ -288,7 +288,7 @@ version = "0.4.2"
 
 [[FastTransforms]]
 deps = ["AbstractFFTs", "ArrayLayouts", "BinaryProvider", "DSP", "FFTW", "FastGaussQuadrature", "FastTransforms_jll", "FillArrays", "Libdl", "LinearAlgebra", "Reexport", "SpecialFunctions", "Test", "ToeplitzMatrices"]
-path = "../../../Projects/FastTransforms.jl"
+git-tree-sha1 = "425722dfeaad5fdb9b2af0bfdba5edd524303a80"
 uuid = "057dd010-8810-581a-b7be-e3fc3b93f78c"
 version = "0.10.1"
 
@@ -391,13 +391,13 @@ version = "0.8.17"
 
 [[HypergeometricFunctions]]
 deps = ["DualNumbers", "LinearAlgebra", "SpecialFunctions", "Test"]
-path = "../../../Projects/HypergeometricFunctions.jl"
+git-tree-sha1 = "d6ca61daca76ed9a2989ac221d143587df65ab01"
 uuid = "34004b35-14d8-5ef3-9330-4cdb6864b03a"
 version = "0.3.3"
 
 [[InfiniteArrays]]
 deps = ["DSP", "FillArrays", "LazyArrays", "LinearAlgebra", "Statistics"]
-path = "../../../Projects/InfiniteArrays.jl"
+git-tree-sha1 = "aa50bca542c26505efb399290eb5f83e995517bc"
 uuid = "4858937d-0d70-526a-a4dd-2d5cb5dd786c"
 version = "0.8.2"
 
@@ -471,7 +471,7 @@ version = "3.100.0+2"
 
 [[LazyArrays]]
 deps = ["ArrayLayouts", "FillArrays", "LinearAlgebra", "MacroTools", "MatrixFactorizations", "SparseArrays", "StaticArrays"]
-path = "../../../Projects/LazyArrays.jl"
+git-tree-sha1 = "1e9f6f50e6b39b2cabb18d5f0fafdd45d9c2a28f"
 uuid = "5078a376-72f3-5289-bfd5-ec5146d43c02"
 version = "0.18.1"
 
@@ -649,7 +649,7 @@ version = "1.3.0"
 
 [[OrthogonalPolynomialsQuasi]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "ContinuumArrays", "DomainSets", "FastTransforms", "FillArrays", "HypergeometricFunctions", "InfiniteArrays", "InfiniteLinearAlgebra", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays"]
-path = "/Users/solver/Projects/OrthogonalPolynomialsQuasi.jl/"
+git-tree-sha1 = "cf2d2e81c3e0d79b52561570d0628ca31b368ba1"
 uuid = "aa41a628-2c43-45df-899b-83ab96621781"
 version = "0.3.0"
 
@@ -723,7 +723,7 @@ version = "2.4.1"
 
 [[QuasiArrays]]
 deps = ["ArrayLayouts", "LazyArrays", "LinearAlgebra"]
-path = "../../../Projects/QuasiArrays.jl"
+git-tree-sha1 = "f998773e35f582ad8c0efdc1ffbe031ddd65f146"
 uuid = "c4ea9172-b204-11e9-377d-29865faadc5c"
 version = "0.3.4"
 
@@ -787,7 +787,7 @@ uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
 
 [[SemiseparableMatrices]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockBandedMatrices", "LazyArrays", "LazyBandedMatrices", "LinearAlgebra", "MatrixFactorizations"]
-path = "../../../Projects/SemiseparableMatrices.jl"
+git-tree-sha1 = "a99ad8c5ee92f051ceb7ae86908bbb9276d6b37d"
 uuid = "f8ebbe35-cbfb-4060-bf7f-b10e4670cf57"
 version = "0.1.4"
 
