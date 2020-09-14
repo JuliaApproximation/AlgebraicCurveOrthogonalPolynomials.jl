@@ -83,9 +83,9 @@ version = "0.12.12"
 
 [[BlockBandedMatrices]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "Distributed", "FillArrays", "LinearAlgebra", "MatrixFactorizations", "Pkg", "SharedArrays", "SparseArrays", "Statistics"]
-git-tree-sha1 = "4b84711044d741cb8561942272b8af5ec161e91b"
+git-tree-sha1 = "a0af2a3e46f51cfb1a74a37b9d91ab87f7d800f5"
 uuid = "ffab5731-97b5-5995-9138-79e8c1846df0"
-version = "0.9.1"
+version = "0.9.2"
 
 [[Bzip2_jll]]
 deps = ["Libdl", "Pkg"]
@@ -148,9 +148,9 @@ version = "0.3.0"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "215f1c81cfd1c5416cd78740bff8ef59b24cd7c0"
+git-tree-sha1 = "7c7f4cda0d58ec999189d70f5ee500348c4b4df1"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "3.15.0"
+version = "3.16.0"
 
 [[CompilerSupportLibraries_jll]]
 deps = ["Libdl", "Pkg"]
@@ -160,9 +160,9 @@ version = "0.3.3+0"
 
 [[ContinuumArrays]]
 deps = ["ArrayLayouts", "BandedMatrices", "FillArrays", "InfiniteArrays", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays"]
-git-tree-sha1 = "886a89c224e512fd2f02c180209b59619e39c6c3"
+path = "../../../Projects/ContinuumArrays.jl"
 uuid = "7ae1f121-cc2c-504b-ac30-9b923412ae5c"
-version = "0.3.2"
+version = "0.3.3"
 
 [[Contour]]
 deps = ["StaticArrays"]
@@ -189,9 +189,9 @@ version = "0.21.7"
 
 [[DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "6189e66c78a2d840db5ee530ac2326505b3cc7ae"
+git-tree-sha1 = "a88a67acbf3b61057371f315cadd027c8bce6d6d"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.4"
+version = "0.18.5"
 
 [[DataValueInterfaces]]
 git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
@@ -239,6 +239,12 @@ deps = ["Calculus", "LinearAlgebra", "NaNMath", "SpecialFunctions", "Test"]
 git-tree-sha1 = "e178a6768dad879ff1abfc1c612406856bb06ce0"
 uuid = "fa6b7ba4-c1ee-5f82-b5fc-ecf0adba8f74"
 version = "0.6.2"
+
+[[EarCut_jll]]
+deps = ["Libdl", "Pkg"]
+git-tree-sha1 = "eabac56550a7d7e0be499125673fbff560eb8b20"
+uuid = "5ae413db-bbd1-5e63-b57d-d24a61df00f5"
+version = "2.1.5+0"
 
 [[EllipsisNotation]]
 git-tree-sha1 = "65dad386e877850e6fce4fc77f60fe75a468ce9d"
@@ -372,10 +378,10 @@ uuid = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
 version = "0.5.4"
 
 [[GeometryBasics]]
-deps = ["IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
-git-tree-sha1 = "119f32f9c2b497b49cd3f7f513b358b82660294c"
+deps = ["EarCut_jll", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
+git-tree-sha1 = "49d13ebd048bd71315ff98bdc2c560ec16eda2b4"
 uuid = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
-version = "0.2.15"
+version = "0.3.1"
 
 [[GeometryTypes]]
 deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "StaticArrays"]
@@ -533,9 +539,9 @@ version = "2020.2.254+0"
 
 [[MPFR_jll]]
 deps = ["GMP_jll", "Libdl", "Pkg"]
-git-tree-sha1 = "584d55157951b8e029a1dafa70ee639d24e25644"
+git-tree-sha1 = "301ce96952df90bbaa2c66112b7c1f15ced2b55b"
 uuid = "3a97d323-0669-5f0c-9066-3539efd106a3"
-version = "4.0.2+2"
+version = "4.1.0+1"
 
 [[MacroTools]]
 deps = ["Markdown", "Random"]
@@ -602,9 +608,9 @@ uuid = "4d1e1d77-625e-5b40-9113-a560ec7a8ecd"
 version = "1.0.0"
 
 [[OffsetArrays]]
-git-tree-sha1 = "b8500f9d73999cfbab4add5136ec26894081581e"
+git-tree-sha1 = "663d3402efa943c95f4736fa7b462e9dd97be1a9"
 uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.1.3"
+version = "1.2.0"
 
 [[Ogg_jll]]
 deps = ["Libdl", "Pkg"]
@@ -632,9 +638,9 @@ version = "0.5.3+3"
 
 [[Optim]]
 deps = ["Compat", "FillArrays", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "PositiveFactorizations", "Printf", "SparseArrays", "StatsBase"]
-git-tree-sha1 = "271a1d8e586c2d357dca9f2cc94e825268dbd2c5"
+git-tree-sha1 = "c434c4853a7e61506caf0340b3c153fc08865088"
 uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "1.1.0"
+version = "1.2.0"
 
 [[Opus_jll]]
 deps = ["Libdl", "Pkg"]
@@ -649,7 +655,7 @@ version = "1.3.0"
 
 [[OrthogonalPolynomialsQuasi]]
 deps = ["ArrayLayouts", "BandedMatrices", "BlockArrays", "BlockBandedMatrices", "ContinuumArrays", "DomainSets", "FastTransforms", "FillArrays", "HypergeometricFunctions", "InfiniteArrays", "InfiniteLinearAlgebra", "IntervalSets", "LazyArrays", "LinearAlgebra", "QuasiArrays"]
-git-tree-sha1 = "cf2d2e81c3e0d79b52561570d0628ca31b368ba1"
+path = "/Users/sheehanolver/Projects/OrthogonalPolynomialsQuasi.jl/"
 uuid = "aa41a628-2c43-45df-899b-83ab96621781"
 version = "0.3.0"
 
@@ -689,9 +695,9 @@ version = "1.0.6"
 
 [[Plots]]
 deps = ["Base64", "Contour", "Dates", "FFMPEG", "FixedPointNumbers", "GR", "GeometryBasics", "GeometryTypes", "JSON", "LinearAlgebra", "Measures", "NaNMath", "PlotThemes", "PlotUtils", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "Requires", "Showoff", "SparseArrays", "Statistics", "StatsBase", "UUIDs"]
-git-tree-sha1 = "b81e3dfb1f0ece1e170b8768d2d0f10a78dfb4d7"
+git-tree-sha1 = "392a4007f3584cbf98c89273d2453f9441ead3d4"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.6.3"
+version = "1.6.4"
 
 [[Polynomials]]
 deps = ["Intervals", "LinearAlgebra", "OffsetArrays", "RecipesBase"]

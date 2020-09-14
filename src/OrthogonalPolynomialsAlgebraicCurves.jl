@@ -1,12 +1,17 @@
 module OrthogonalPolynomialsAlgebraicCurves
-using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, ForwardDiff, OrthogonalPolynomialsQuasi
+using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
+        ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen
 
+import Base: in, axes, getindex
+
+import BlockArrays: block, blockindex
+
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
-        wedgep, wedgeq, wedgetransform, plan_wedgetransform, gausswedge
+        wedgep, wedgeq, wedgetransform, plan_wedgetransform, gausswedge, WedgeLegendre
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))

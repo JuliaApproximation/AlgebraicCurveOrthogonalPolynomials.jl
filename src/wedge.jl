@@ -5,14 +5,16 @@ function gausswedge(n)
     [x; ones(length(x)-1)], [ones(length(x)); reverse!(x[1:end-1])], [w[1:end-1]; 2w[end]; reverse!(w[1:end-1])]
 end
 
-function wedgep(n, x, y)
-    P = legendre(0..1)
-    P[x,n+1] + P[y,n+1] - 1
+function wedgep(n, a, b, c, x, y)
+    Pᶜᵃ = jacobi(c,a,0..1)
+    Pᶜᵇ = jacobi(c,b,0..1)
+    Pᶜᵃ[x,n+1] + Pᶜᵇ[y,n+1] - binomial(n+c,n)
 end
 
-function wedgeq(n, x, y)
-    jacobi(2,0,0..1)
-    sqrt(n) * ((1-x) * P²⁰[x,n] - (1-y)*P²⁰[y,n])
+function wedgeq(n, a, b, c, x, y)
+    Pᶜᵃ = jacobi(c+2,a,0..1)
+    Pᶜᵇ = jacobi(c+2,b,0..1)
+    pochhammer(c+a+2,n)/pochhammer(a+1,n-1)*(1-x) * Pᶜᵃ[x,n] - pochhammer(c+b+2,n)/pochhammer(b+1,n-1) * (1-y)*Pᶜᵇ[y,n]
 end
 
 function wedgemassmatrix(n)
@@ -48,3 +50,28 @@ function plan_wedgetransform(n)
 end
 
 wedgetransform(v::AbstractVector) = plan_wedgetransform(length(v) ÷ 2 + 1) * v
+
+
+
+struct Wedge{T} <: EuclideanDomain{2,T} end
+Wedge() = Wedge{Float64}()
+
+function in(p::SVector{2}, d::Wedge)
+    x,y = p
+    (x == 1 && 0 ≤ y ≤ 1) || (y == 1 && 0 ≤ x ≤ 1)
+end
+
+struct WedgeLegendre{T} <: OrthogonalPolynomial{T} end
+WedgeLegendre() = WedgeLegendre{Float64}()
+
+axes(P::WedgeLegendre) = (Inclusion(Wedge()),blockedrange([1; Fill(2,∞)]))
+
+function getindex(P::WedgeLegendre, xy::SVector{2}, j::BlockIndex{1})
+    K,k = block(j),blockindex(j)
+    k == 1 ? wedgep(Int(K)-1, xy...) : wedgeq(Int(K)-1, xy...)
+end
+
+function getindex(P::WedgeLegendre, xy::SVector{2}, j::Int)
+    j == 1 && return P[xy, Block(1)[1]]
+    P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
+end

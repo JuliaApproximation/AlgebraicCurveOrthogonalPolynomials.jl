@@ -1,32 +1,41 @@
-using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, Test
+using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, StaticArrays, BlockArrays, Test
 
+@testset "Wedge" begin
+    @testset "transform" begin
+        n = 2
+        V = plan_wedgetransform(n)
+        x,y,w = gausswedge(n)
+        @test V * wedgep.(0,x,y) ≈ [1,0,0]
+        @test V * wedgep.(1,x,y) ≈ [0,1,0]
+        @test V * wedgeq.(1,x,y) ≈ [0,0,1]
 
-@testset "transform" begin
-    n = 2
-    V = plan_wedgetransform(n)
-    x,y,w = gausswedge(n)
-    @test V * wedgep.(0,x,y) ≈ [1,0,0]
-    @test V * wedgep.(1,x,y) ≈ [0,1,0]
-    @test V * wedgeq.(1,x,y) ≈ [0,0,1]
+        n = 3
+        V = plan_wedgetransform(n)
+        x,y,w = gausswedge(n)
+        @test V * wedgep.(0,x,y) ≈ [1,0,0,0,0]
+        @test V * wedgep.(1,x,y) ≈ [0,1,0,0,0]
+        @test V * wedgeq.(1,x,y) ≈ [0,0,1,0,0]
+        @test V * wedgep.(2,x,y) ≈ [0,0,0,1,0]
+        @test V * wedgeq.(2,x,y) ≈ [0,0,0,0,1]
+    end
 
-    n = 3
-    V = plan_wedgetransform(n)
-    x,y,w = gausswedge(n)
-    @test V * wedgep.(0,x,y) ≈ [1,0,0,0,0]
-    @test V * wedgep.(1,x,y) ≈ [0,1,0,0,0]
-    @test V * wedgeq.(1,x,y) ≈ [0,0,1,0,0]
-    @test V * wedgep.(2,x,y) ≈ [0,0,0,1,0]
-    @test V * wedgeq.(2,x,y) ≈ [0,0,0,0,1]
-end
+    @testset "symbols" begin
+        X = z -> [ 1/8   -1/8; -1/8    1/8 ]/z + [ 3/4    1/4;   1/4    3/4] + [ 1/8  -1/8; -1/8     1/8]*z
+        Y = z -> [ 1/8    1/8;  1/8    1/8 ]/z + [ 3/4    -1/4; -1/4    3/4] + [ 1/8   1/8;  1/8     1/8]*z
 
-@testset "symbols" begin
-    X = z -> [ 1/8   -1/8; -1/8    1/8 ]/z + [ 3/4    1/4;   1/4    3/4] + [ 1/8  -1/8; -1/8     1/8]*z
-    Y = z -> [ 1/8    1/8;  1/8    1/8 ]/z + [ 3/4    -1/4; -1/4    3/4] + [ 1/8   1/8;  1/8     1/8]*z
+        # (1-x) * (1-y) == 0
+        z = exp(0.1im)
+        @test norm((I - X(z)) * (I - Y(z))) ≤ eps()
+        @test X(z)Y(z) ≈ Y(z)X(z)
+    end
 
-    # (1-x) * (1-y) == 0
-    z = exp(0.1im)
-    @test norm((I - X(z)) * (I - Y(z))) ≤ eps()
-    @test X(z)Y(z) ≈ Y(z)X(z)
+    @testset "WedgeLegendre" begin
+        P = WedgeLegendre()
+        @test P[SVector(1,0.2), Block(1)[1]] == P[SVector(0.2,1), Block(1)[1]] == 1.0
+        @test P[SVector(1,0.2), 1] == P[SVector(0.2,1), 1] == 1.0
+        @test P[SVector(1,0.2), Block(1)] == [1.0]
+        @test P[SVector(1,0.2),Block(2)] == [-0.6,-0.8]
+    end
 end
 
 
