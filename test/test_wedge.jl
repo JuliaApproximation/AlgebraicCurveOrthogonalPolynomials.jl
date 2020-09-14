@@ -29,12 +29,15 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, StaticAr
         @test X(z)Y(z) ≈ Y(z)X(z)
     end
 
-    @testset "WedgeLegendre" begin
-        P = WedgeJacobi(0,0,0)
+    @testset "JacobiWedge" begin
+        P = JacobiWedge(0,0,0)
         @test P[SVector(1,0.2), Block(1)[1]] == P[SVector(0.2,1), Block(1)[1]] == 1.0
         @test P[SVector(1,0.2), 1] == P[SVector(0.2,1), 1] == 1.0
         @test P[SVector(1,0.2), Block(1)] == [1.0]
         @test P[SVector(1,0.2),Block(2)] == [-0.6,-1.6]
+
+        JacobiWedge(1/2,1/2,0)
+        # gausswedge
     end
 end
 

@@ -68,23 +68,23 @@ function in(p::SVector{2}, d::Wedge)
     (x == 1 && 0 ≤ y ≤ 1) || (y == 1 && 0 ≤ x ≤ 1)
 end
 
-struct WedgeJacobi{T} <: OrthogonalPolynomial{T}
+struct JacobiWedge{T} <: Basis{T}
     a::T
     b::T
     c::T
-    WedgeJacobi{T}(a, b, c) where T = new{T}(a, b, c)
+    JacobiWedge{T}(a, b, c) where T = new{T}(a, b, c)
 end
 
-WedgeJacobi(a::A, b::B, c::C) where {A,B,C} = WedgeJacobi{float(promote_type(A,B,C))}(a,b,c)
+JacobiWedge(a::A, b::B, c::C) where {A,B,C} = JacobiWedge{float(promote_type(A,B,C))}(a,b,c)
 
-axes(P::WedgeJacobi) = (Inclusion(Wedge()),blockedrange([1; Fill(2,∞)]))
+axes(P::JacobiWedge) = (Inclusion(Wedge()),blockedrange([1; Fill(2,∞)]))
 
-function getindex(P::WedgeJacobi, xy::SVector{2}, j::BlockIndex{1})
+function getindex(P::JacobiWedge, xy::SVector{2}, j::BlockIndex{1})
     K,k = block(j),blockindex(j)
     k == 1 ? wedgep(Int(K)-1, P.a, P.b, P.c, xy...) : wedgeq(Int(K)-1, P.a, P.b, P.c, xy...)
 end
 
-function getindex(P::WedgeJacobi, xy::SVector{2}, j::Int)
+function getindex(P::JacobiWedge, xy::SVector{2}, j::Int)
     j == 1 && return P[xy, Block(1)[1]]
     P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
 end

@@ -1,6 +1,6 @@
 module OrthogonalPolynomialsAlgebraicCurves
 using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
-        ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, HypergeometricFunctions
+        ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, HypergeometricFunctions, ContinuumArrays
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
@@ -13,7 +13,7 @@ import Base: in, axes, getindex
 import BlockArrays: block, blockindex
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
-        wedgep, wedgeq, wedgetransform, plan_wedgetransform, gausswedge, WedgeJacobi
+        wedgep, wedgeq, wedgetransform, plan_wedgetransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))
@@ -117,6 +117,8 @@ end
 
 
 include("wedge.jl")
+include("square.jl")
+
 include("quartic.jl")
 
 include("algcurvapprox.jl")
