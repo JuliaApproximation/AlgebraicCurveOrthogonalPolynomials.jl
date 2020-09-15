@@ -6,7 +6,6 @@ import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen
 
-import HypergeometricFunctions: pochhammer
 
 import Base: in, axes, getindex
 

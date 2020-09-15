@@ -1,8 +1,11 @@
-function gausswedge(n)
-    x,w = gaussradau(n)
-    reverse!(x); reverse!(w)
-    x .= (1 .- x)./2; ldiv!(2, w);
-    [x; ones(length(x)-1)], [ones(length(x)); reverse!(x[1:end-1])], [w[1:end-1]; 2w[end]; reverse!(w[1:end-1])]
+function gausswedge(n, a=0, b=0, c=0)
+    x,w_x = gaussradau(n,a,c)
+    y,w_y = gaussradau(n,b,c)
+    reverse!(x); reverse!(w_x)
+    reverse!(y); reverse!(w_y)
+    x .= (1 .- x)./2; ldiv!(2, w_x);
+    y .= (1 .- y)./2; ldiv!(2, w_y);
+    [x; ones(length(x)-1)], [ones(length(x)); y[1:end-1]], [w_x[1:end-1]; w_x[end]+w_y[end]; w_y[1:end-1]]
 end
 
 _binomial(n, k) = exp(loggamma(n+1) - loggamma(k+1) - loggamma(n-k+1))

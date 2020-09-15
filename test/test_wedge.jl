@@ -1,6 +1,35 @@
 using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, StaticArrays, BlockArrays, Test
 
 @testset "Wedge" begin
+    @testset "quadrature" begin
+        @testset "Legendre" begin
+            n = 2
+            x,y,w = gausswedge(n)
+            @test sum(w) == 2
+            @test dot(w,x) == dot(w,y) == 3/2
+
+            n = 3
+            x,y,w = gausswedge(n)
+            @test sum(w) ≈ 2
+            @test dot(w,x) ≈ dot(w,y) ≈ 3/2
+            @test dot(w,x.^2) ≈ dot(w,y.^2) ≈ 4/3
+        end
+
+        @testset "Chebyshev" begin
+            a,b,c = -1/2,-1/2,0
+            n = 2
+            x,y,w = gausswedge(n,a,b,c)
+            @test sum(w) ≈ 2sqrt(2)
+            @test dot(w,x) ≈ dot(w,y) ≈ sqrt(2) * 4/3
+
+            n = 3
+            x,y,w = gausswedge(n,a,b,c)
+            @test sum(w) ≈ 2sqrt(2)
+            @test dot(w,x) ≈ dot(w,y) ≈ sqrt(2) * 4/3
+            @test dot(w,x.^2) ≈ dot(w,y.^2) ≈ (6sqrt(2))/5
+        end
+    end
+
     @testset "transform" begin
         n = 2
         V = plan_wedgetransform(n)
