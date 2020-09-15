@@ -19,28 +19,33 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, StaticAr
             a,b,c = -1/2,-1/2,0
             n = 2
             x,y,w = gausswedge(n,a,b,c)
-            @test sum(w) ≈ 4
-            @test dot(w,x) ≈ dot(w,y) ≈ 8/3
+            @test sum(w) ≈ 2
+            @test dot(w,x) ≈ dot(w,y) ≈ 4/3
 
             n = 3
             x,y,w = gausswedge(n,a,b,c)
-            @test sum(w) ≈ 4
-            @test dot(w,x) ≈ dot(w,y) ≈ 8/3
-            @test dot(w,x.^2) ≈ dot(w,y.^2) ≈ 12/5
-            @test dot(w,x.*y) ≈ 4/3
+            @test sum(w) ≈ 2
+            @test dot(w,x) ≈ dot(w,y) ≈ 4/3
+            @test dot(w,x.^2) ≈ dot(w,y.^2) ≈ 6/5
+            @test dot(w,x.*y) ≈ 2/3
 
             @test abs(dot(w,wedgeq.(1,a,b,c,x,y))) ≤ 10eps()
 
             a,b,c = 1/2,-1/2,0
             x,y,w = gausswedge(n,a,b,c)
-            @test sum(w) ≈ 8/3
-            @test dot(w,x) ≈ 12/5
+            @test sum(w) ≈ 2
+            @test dot(w,x) ≈ 8/5
             @test dot(w,y) ≈ 4/3
-            @test dot(w,x.^2) ≈ 16/7
-            @test dot(w,x .* y) ≈ 16/15
-            @test dot(w,y.^2) ≈ 16/15
+            @test dot(w,x.^2) ≈ 10/7
+            @test dot(w,x .* y) ≈ 14/15
+            @test dot(w,y.^2) ≈ 6/5
 
-            dot(w,wedgeq.(1,a,b,c,x,y))
+            @test abs(dot(w,wedgeq.(1,a,b,c,x,y))) ≤ 10eps()
+            @test abs(dot(w,wedger.(1,a,b,c,x,y))) ≤ 10eps()
+            
+            p = wedgep.(1,a,b,c,x,y)
+            r = wedger.(1,a,b,c,x,y)
+            @test abs(p'*Diagonal(w)*r) ≤ 10eps()
         end
     end
 
@@ -84,13 +89,13 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, StaticAr
         M = P̃'Diagonal(w)*P̃
         @test M ≈ Diagonal(M)
 
-        a,b,c = 1/2,1/2,0
-        a,b,c = 1/2,-1/2,0
-        P = JacobiWedge(a,b,c)
-        x,y,w = gausswedge(10,a,b,c)
-        P̃ = P[SVector.(x,y),Block.(1:3)]
-        M = P̃'Diagonal(w)*P̃
-        @test M ≈ Diagonal(M)
+        for (a,b,c) in ((1/2,1/2,0),(1/2,-1/2,0))
+            P = JacobiWedge(a,b,c)
+            x,y,w = gausswedge(10,a,b,c)
+            P̃ = P[SVector.(x,y),Block.(1:3)]
+            M = P̃'Diagonal(w)*P̃
+            @test M ≈ Diagonal(M)
+        end
     end
 end
 

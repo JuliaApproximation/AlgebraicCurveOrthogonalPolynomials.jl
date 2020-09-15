@@ -27,9 +27,9 @@ function getindex(P::LegendreSquare{T}, xy::SVector{2}, K::Block) where T
     a,b,c = -1/2,-1/2,0
     K == Block(1) && return T[1]
     K == Block(2) && return T[x, y]
-    K == Block(3) && return T[wedgep(1,a,b,c,x^2,y^2),x*y,wedgeq(1,a,b,c,x^2,y^2)]
-    iseven(n) && return T[wedgep(m,a,b,c,x^2,y^2),wedgeq(m,a,b,c,x^2,y^2),x*y*wedgep(m-1,a+1,b+1,c,x^2,y^2),x*y*wedgeq(m-1,a+1,b+1,c,x^2,y^2)]
-    T[x*wedgep(m,a+1,b,c,x^2,y^2),x*wedgeq(m,a+1,b,c,x^2,y^2),y*wedgep(m,a,b+1,c,x^2,y^2),y*wedgeq(m,a,b+1,c,x^2,y^2)]
+    K == Block(3) && return T[wedgep(1,a,b,c,x^2,y^2),x*y,wedger(1,a,b,c,x^2,y^2)]
+    iseven(n) && return T[wedgep(m,a,b,c,x^2,y^2),wedger(m,a,b,c,x^2,y^2),x*y*wedgep(m-1,a+1,b+1,c,x^2,y^2),x*y*wedger(m-1,a+1,b+1,c,x^2,y^2)]
+    T[x*wedgep(m,a+1,b,c,x^2,y^2),x*wedger(m,a+1,b,c,x^2,y^2,3),y*wedgep(m,a,b+1,c,x^2,y^2),y*wedger(m,a,b+1,c,x^2,y^2,1/3)]
 end
 
 function getindex(P::LegendreSquare{T}, xy::SVector{2}, k::Int) where T

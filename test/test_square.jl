@@ -34,16 +34,27 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, FastGaus
         @test abs(dot(w,x .* y .^ 3)) ≤ 10eps()
         @test dot(w,y.^4) ≈ 24/5
 
-        x,y, w = gausssquare(5)
+        x,y, w = gausssquare(10)
         v = x .* wedgep.(1,1/2,-1/2,0,x.^2,y.^2)
-        u = x .* wedgeq.(1,1/2,-1/2,0,x.^2,y.^2)
+        u = x .* wedger.(1,1/2,-1/2,0,x.^2,y.^2,3)
+        @test abs(dot(u,Diagonal(w),v)) ≤ 10eps()
+        v = y .* wedgep.(1,-1/2,1/2,0,x.^2,y.^2)
+        u = y .* wedger.(1,-1/2,1/2,0,x.^2,y.^2,1/3)
+        @test abs(dot(u,Diagonal(w),v)) ≤ 10eps()
 
-        x,y, w = gausswedge(10,1/2,-1/2,0)
-        wedgep.(1,1/2,-1/2,0,x,y)'*Diagonal(w)*wedgeq.(1,1/2,-1/2,0,x,y)
-        P = JacobiWedge(1/2,-1/2,0)
-        P[SVector.(x,y),1:3]'*Diagonal(w)*P[SVector.(x,y),1:3]
 
-        @test abs(dot(w, v .* u)) ≤ 10eps()
+        x̃, ỹ, w̃ = gausswedge(5,-1/2,-1/2,0)
+
+        @test sum(w) ≈ 4sum(w̃)
+        @test dot(w,x.^2) ≈ dot(w̃,x̃) + 2sum(w̃)
+        x̃, ỹ, w̃ = gausswedge(5,1/2,-1/2,0)
+
+        v = wedgep.(1,1/2,-1/2,0,x̃,ỹ)
+        u = wedger.(1,1/2,-1/2,0,x̃,ỹ)
+        dot(u,Diagonal(w̃),v)
+
+        @test abs(u' * Diagonal(w) * v) ≤ eps()
+
     end
 
     @testset "LegendreSquare" begin
@@ -69,6 +80,7 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, FastGaus
             x,y, w = gausssquare(6)
             P̃ = P[SVector.(x,y),Block.(1:4)]
             M = P̃' * Diagonal(w) * P̃
+            @test M ≈ Diagonal(M)
         end
     end
 end

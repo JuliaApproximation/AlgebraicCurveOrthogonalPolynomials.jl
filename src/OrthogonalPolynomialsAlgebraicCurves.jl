@@ -5,14 +5,14 @@ using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices,
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen
-
+import FastGaussQuadrature: jacobimoment
 
 import Base: in, axes, getindex
 
 import BlockArrays: block, blockindex
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
-        wedgep, wedgeq, wedgetransform, plan_wedgetransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare
+        wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))
