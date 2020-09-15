@@ -38,3 +38,13 @@ function getindex(P::LegendreSquare{T}, xy::SVector{2}, k::Int) where T
     k ≤ 6 && return P[xy,Block(3)][k-3]
     P[xy,Block((k+1) ÷ 4 + 2)][mod1(k+2,4)]
 end
+
+
+function plan_squaretransform(n)
+    N = 6 + 4*(n-3)
+    x,y,w = gausssquare(n+1)
+    ret = Array{Float64}(undef, N, N)
+    P = LegendreSquare()[SVector.(x,y),Block.(1:n)]
+    M = P' * Diagonal(w) * P
+    PseudoBlockArray(M \ (P' * Diagonal(w)), [1:3; fill(4,n-3)], [length(x)])
+end

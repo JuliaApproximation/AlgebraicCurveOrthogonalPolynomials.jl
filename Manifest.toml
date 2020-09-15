@@ -77,7 +77,7 @@ version = "0.5.10"
 
 [[BlockArrays]]
 deps = ["ArrayLayouts", "Compat", "FillArrays", "LinearAlgebra"]
-git-tree-sha1 = "7657b0d61bcdceb4d7a404f9514e93c27e8bcebb"
+path = "/Users/sheehanolver/Projects/BlockArrays.jl/"
 uuid = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
 version = "0.12.12"
 

@@ -77,10 +77,23 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, FastGaus
             M = P̃' * Diagonal(w) * P̃
             @test M ≈ Diagonal(M)
 
-            x,y, w = gausssquare(6)
+            x,y, w = gausssquare(4)
             P̃ = P[SVector.(x,y),Block.(1:4)]
             M = P̃' * Diagonal(w) * P̃
             @test M ≈ Diagonal(M)
+
+            F = plan_squaretransform(5)
+            x,y,w = gausssquare(6)
+            @test F * P[SVector.(x,y),Block.(1:5)] ≈ I
+        end
+
+        @testset "jacobi" begin
+            n = 10
+            F = plan_squaretransform(n)
+            x,y,w = gausssquare(n+1)
+
+            X = F * (x .* P[SVector.(x,y),Block.(1:n)])
+            Y = F * (y .* P[SVector.(x,y),Block.(1:n)])
         end
     end
 end
