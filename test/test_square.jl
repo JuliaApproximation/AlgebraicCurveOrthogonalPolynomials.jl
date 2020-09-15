@@ -35,8 +35,14 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, FastGaus
         @test dot(w,y.^4) ≈ 24/5
 
         x,y, w = gausssquare(5)
-        v = x .* wedgep.(1,1/2,1/2,0,x.^2,y.^2)
-        u = x .* wedgeq.(1,1/2,1/2,0,x.^2,y.^2)
+        v = x .* wedgep.(1,1/2,-1/2,0,x.^2,y.^2)
+        u = x .* wedgeq.(1,1/2,-1/2,0,x.^2,y.^2)
+
+        x,y, w = gausswedge(10,1/2,-1/2,0)
+        wedgep.(1,1/2,-1/2,0,x,y)'*Diagonal(w)*wedgeq.(1,1/2,-1/2,0,x,y)
+        P = JacobiWedge(1/2,-1/2,0)
+        P[SVector.(x,y),1:3]'*Diagonal(w)*P[SVector.(x,y),1:3]
+
         @test abs(dot(w, v .* u)) ≤ 10eps()
     end
 

@@ -3,8 +3,8 @@ function gausswedge(n, a=0, b=0, c=0)
     y,w_y = gaussradau(n,b,c)
     reverse!(x); reverse!(w_x)
     reverse!(y); reverse!(w_y)
-    x .= (1 .- x)./2; ldiv!(2, w_x);
-    y .= (1 .- y)./2; ldiv!(2, w_y);
+    x .= (1 .- x)./2; ldiv!(2^(a+c+1), w_x);
+    y .= (1 .- y)./2; ldiv!(2^(b+c+1), w_y);
     [x; ones(length(x)-1)], [ones(length(x)); y[1:end-1]], [w_x[1:end-1]; w_x[end]+w_y[end]; w_y[1:end-1]]
 end
 
