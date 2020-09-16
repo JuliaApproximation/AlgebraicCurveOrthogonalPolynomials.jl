@@ -88,7 +88,7 @@ struct JacobiWedge{T} <: Basis{T}
     JacobiWedge{T}(a, b, c, σ) where T = new{T}(a, b, c, σ)
 end
 
-JacobiWedge(a::A, b::B, c::C, σ::Σ) where {A,B,C,Σ} = JacobiWedge{float(promote_type(A,B,C,Σ))}(a,b,c,σ)
+JacobiWedge(a::A, b::B, c::C, σ::Σ=1) where {A,B,C,Σ} = JacobiWedge{float(promote_type(A,B,C,Σ))}(a,b,c,σ)
 
 axes(P::JacobiWedge) = (Inclusion(Wedge()),blockedrange([1; Fill(2,∞)]))
 

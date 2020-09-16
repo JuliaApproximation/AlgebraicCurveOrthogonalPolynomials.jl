@@ -8,6 +8,6 @@ x(z) = Bx'/z + Ax + Bx*z
 y(z) = By'/z + Ay + By*z
 z=exp(im*0)
 @testset "cubic teardrop upper branch symbols" begin
-@test x(z)*y(z) ≈ y(z)*x(z)
-@test y(z)^2 ≈ 1/4*(I - x(z))^2*(I + x(z))
+    @test x(z)*y(z) ≈ y(z)*x(z)
+    @test y(z)^2 ≈ 1/4*(I - x(z))^2*(I + x(z))
 end
