@@ -127,16 +127,16 @@ using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, FastGaus
             P*Aʸ*P'
             P*Bʸ*P'
         end
-        # @testset "4x4" begin
-        #     Bˣ = [3/4 1/4 0 0; 1/4 3/4 0 0; 0 0 1/4 -1/4; 0 0 -1/4 1/4]
-        #     Bʸ = [0 0 3/4 -1/4; 0 0 -1/4 3/4; 1/4 1/4 0 0; 1/4 1/4 0 0]
-        #     x = z -> Bˣ/z + Bˣ'*z
-        #     y = z -> Bʸ/z + Bʸ'*z
+        @testset "4x4" begin
+            Bˣ = [-1/4 1/4 1/2 1/2; 1/4 -1/4 1/2 1/2; 0 0 -1/4 1/4; 0 0 1/4 -1/4]
+            Bʸ = [1/4 1/4 -1/2 1/2; 1/4 1/4 1/2 -1/2; 0 0 1/4 1/4; 0 0 1/4 1/4]
+            x = z -> Bˣ/z + Bˣ'*z
+            y = z -> Bʸ/z + Bʸ'*z
 
-        #     z = exp(0.1im)
-        #     @test x(z)y(z) ≈ y(z)x(z)
-        #     @test norm((I-x(z)^2)*(I-y(z)^2)) ≤ 10eps()
-        # end
+            z = exp(0.1im)
+            @test x(z)y(z) ≈ y(z)x(z)
+            @test norm((I-x(z)^2)*(I-y(z)^2)) ≤ 10eps()
+        end
     end
 end
 
