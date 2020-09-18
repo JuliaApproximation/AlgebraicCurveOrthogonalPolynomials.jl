@@ -161,7 +161,17 @@ function specgrid(X, Y)
     Z
 end
 
-
+function specgrid(X::AbstractQuasiVector, Y::AbstractQuasiVector)
+    NN = 40
+    n = size(X[1],1)
+    Z = Matrix{ComplexF64}(undef,n,NN)
+    for (j,θ) in enumerate(range(0,2π; length=NN))
+        z = exp(θ*im)
+        x,y = jointeigvals(X[z], Y[z])
+        Z[:,j] .= complex.(x,y)
+    end
+    Z
+end
 
 # using ApproxFun, LinearAlgebra
 

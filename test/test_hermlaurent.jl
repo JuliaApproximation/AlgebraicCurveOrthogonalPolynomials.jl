@@ -64,5 +64,22 @@ using OrthogonalPolynomialsAlgebraicCurves, StaticArrays, Test
         Y = HermLaurent(zero.(Bʸ), Bʸ)
         @test X .* Y ≈ Y .* X
         @test (I - X.^2) .* (I - Y.^2) ≈ 0I
+    
+
+        # simplify
+        _,Q = eigen(Bˣ[1:2,1:2]); Q=[Q zeros(2,2); zeros(2,2) Q]; 
+        Bˣ = Q'Bˣ*Q; Bʸ = Q'Bʸ*Q;
+        X = HermLaurent(zeros(4,4), Bˣ)
+        Y = HermLaurent(zeros(4,4), Bʸ)
+        @test checkcommutes(X, Y)
+        @test norm((I - X.^2) .* (I - Y.^2)) ≤ 10eps()
+
+        # explicit simple
+        Bˣ = [-0.5 0 0 0; 0 0 0 1; 0 0 -0.5 0; 0 0 0 0]
+        Bʸ = [0 0 -1 0; 0 0.5 0 0; 0 0 0 0; 0 0 0 0.5]
+        X = HermLaurent(zeros(4,4), Bˣ)
+        Y = HermLaurent(zeros(4,4), Bʸ)
+        @test checkcommutes(X, Y)
+        @test norm((I - X.^2) .* (I - Y.^2)) ≤ 10eps()
     end
 end

@@ -13,7 +13,7 @@ import BlockArrays: block, blockindex
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent
+        HermLaurent, jointeigen, jointeigvals
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))

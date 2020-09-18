@@ -7,7 +7,7 @@ Represents Hermitian-valued Laurent series of the form
 struct HermLaurent{T, Coeffs<:AbstractVector} <: AbstractQuasiVector{T}
     A::Coeffs
     function HermLaurent{T,Coeffs}(A::Coeffs) where {T,Coeffs}
-        @assert ishermitian(A[1])
+        @assert isapprox(A[1], A[1]'; atol=100eps())
         new{T,Coeffs}(A)
     end
 end
@@ -76,18 +76,19 @@ end
 # 1/z^3 * (B*G + C*F) + …
 # 1/z^4 * (C*G)
 
+norm(A::HermLaurent) = norm(map(norm,A.A))
+
 function padisapprox(X::AbstractVector, Y::AbstractVector)
-    nrm = zero(real(eltype(eltype(X))))
+    tol = 10*(norm(map(norm,X)) + norm(map(norm,Y)))*eps()
     m = min(length(X), length(Y))
     for k = 1:m
-        X[k] ≈ Y[k] || return false
-        nrm += norm(X[k])
+        isapprox(X[k], Y[k]; atol=tol)
     end
     for k = m+1:length(X)
-        norm(X[k]) ≤ 10*nrm*eps() || return false
+        norm(X[k]) ≤ tol || return false
     end
     for k = m+1:length(Y)
-        norm(Y[k]) ≤ 10*nrm*eps() || return false
+        norm(Y[k]) ≤ tol || return false
     end
     return true
 end
@@ -132,8 +133,14 @@ broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefV
 
 
 padbroadcast(F, A::SVector{N}, B::SVector{N}) where N = broadcast(F, A, B)
-padbroadcast(F, A::SVector{1}, B::SVector{N}) where N = SVector(broadcast(F, A[1], B[1]), broadcast.(F, zero(eltype(eltype(A))), tail(B.data))...)
-padbroadcast(F, A::SVector{N}, B::SVector{1}) where N = SVector(broadcast(F, A[1], B[1]), broadcast.(F, tail(A.data), zero(eltype(eltype(B))))...)
+
+@generated function padbroadcast(F, A::SVector{N}, B::SVector{M}) where {N,M}
+    if N < M
+        :(vcat(broadcast(F, A, B[SOneTo($N)]), broadcast.(F, zero(eltype(eltype(A))), reverse(reverse(B)[SOneTo($(M-N))]))))
+    else # M < N
+        :(vcat(broadcast(F, A[SOneTo($M)], B), broadcast.(F, reverse(reverse(A)[SOneTo($(N-M))]), zero(eltype(eltype(B))))))
+    end
+end
 
 for op in (:+, :-)
     @eval begin
