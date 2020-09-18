@@ -4,7 +4,7 @@ using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices,
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
-import LinearAlgebra: eigvals, eigen
+import LinearAlgebra: eigvals, eigen, isapprox
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \

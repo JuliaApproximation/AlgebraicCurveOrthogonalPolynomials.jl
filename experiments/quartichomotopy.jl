@@ -26,8 +26,7 @@ end
 Bˣ = randn(4,4)
 K = nullspace(hermcmjac(Bˣ))
 Bʸ = reshape(K*randn(size(K,2)),4,4)
-X = HermLaurent(zeros(4,4), Bˣ)
-Y = HermLaurent(zeros(4,4), Bʸ)
+X = HermLaurent(zeros(4,4), Bˣ); Y = HermLaurent(zeros(4,4), Bʸ)
 @test checkcommutes(X, Y)
 
 
@@ -63,6 +62,7 @@ end
 # random commuting
 Bˣ = [-0.5 0 0 0; 0 0 0 1; 0 0 -0.5 0; 0 0 0 0]
 Bʸ = [0 0 -1 0; 0 0.5 0 0; 0 0 0 0; 0 0 0 0.5]
+X = HermLaurent(zeros(4,4), Bˣ); Y = HermLaurent(zeros(4,4), Bʸ)
 p₀ = [Bʸ[6]; Bʸ[1]; Bʸ[3]; Bʸ[9]; Bʸ[11]; Bʸ[14]]
 
 
