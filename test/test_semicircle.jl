@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsQuasi, BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, Test
+using OrthogonalPolynomialsQuasi, BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, Test, Random
 using ForwardDiff, StaticArrays
 import OrthogonalPolynomialsQuasi: jacobimatrix
 
@@ -90,17 +90,19 @@ function F_semicircle(x)
     vcat(map(vec,[Σ*X*E - I, Σ*Y*E, Ω*X*E, Ω*Y*E - [0 -1; -1 0],  X*Y - Y*X, X^2 + Y^2 - I])...)
 end
 
+Random.seed!(0)
+
 @testset "Newton" begin
     @testset "circle" begin
         p = randn(14)
-        for _ = 1:10
+        for _ = 1:15
             J = ForwardDiff.jacobian(F_circle,p); p = p - (J \ F_circle(p))
         end
         Ax,Bx,Ay,By = unroll(p)
         @test norm(Ax) ≤ 10eps()
         @test Bx ≈ [0.5 0; 0 0.5]
         @test norm(Ay) ≤ 10eps()
-        @test By ≈ [0 -0.5; 0.5 0]
+        @test By ≈ [0 0.5; -0.5 0]
     end
     @testset "semicircle" begin
         x0 = randn(14)
@@ -172,40 +174,40 @@ end
 # scatter(Z)
 
 
-function F_circle(x)
-    Bx = reshape(x,2,4)[:,1:2]
-    By = reshape(x,2,4)[:,3:end]
-    N = 5
-    Z = zeros(eltype(x),2,2)
-    X = blocksymtricirculant(Z, Bx, N)
-    Y = blocksymtricirculant(Z, By, N)
+# function F_circle(x)
+#     Bx = reshape(x,2,4)[:,1:2]
+#     By = reshape(x,2,4)[:,3:end]
+#     N = 5
+#     Z = zeros(eltype(x),2,2)
+#     X = blocksymtricirculant(Z, Bx, N)
+#     Y = blocksymtricirculant(Z, By, N)
 
-    vcat(map(vec,[X*Y - Y*X, X^2 + Y^2 - I])...)
-end
+#     vcat(map(vec,[X*Y - Y*X, X^2 + Y^2 - I])...)
+# end
 
-p = randn(8)
-J = ForwardDiff.jacobian(F_circle,p); p = p - (J \ F_circle(p)); norm(F_circle(p))
+# p = randn(8)
+# J = ForwardDiff.jacobian(F_circle,p); p = p - (J \ F_circle(p)); norm(F_circle(p))
 
-Bx = reshape(p,2,4)[:,1:2]
-By = reshape(p,2,4)[:,3:end]
-
-
+# Bx = reshape(p,2,4)[:,1:2]
+# By = reshape(p,2,4)[:,3:end]
 
 
-x = z -> (Bx/z + Bx'*z)
-y = z -> (By/z + By'*z)
-NN = 20; Z = Matrix{ComplexF64}(undef,size(Bx,1),NN)
-for (j,θ) in enumerate(range(0,2π; length=NN))
-    z = exp(θ*im)
-    λ,Q = eigen(x(z))
-    Z[:,j] = λ  .+ im*real(diag(Q'*y(z)*Q))
-end
 
-@test real(Z).^2 + imag(Z).^2 ≈ Ones(2,NN)
 
-scatter(vec(Z))
+# x = z -> (Bx/z + Bx'*z)
+# y = z -> (By/z + By'*z)
+# NN = 20; Z = Matrix{ComplexF64}(undef,size(Bx,1),NN)
+# for (j,θ) in enumerate(range(0,2π; length=NN))
+#     z = exp(θ*im)
+#     λ,Q = eigen(x(z))
+#     Z[:,j] = λ  .+ im*real(diag(Q'*y(z)*Q))
+# end
 
-using BlockArrays
-import BlockBandedMatrices: _BlockBandedMatrix
+# @test real(Z).^2 + imag(Z).^2 ≈ Ones(2,NN)
 
-_BlockBandedMatrix(Vcat(0,mortar(Fill([1,0,0,1],∞))), [1; Fill(2,∞)], [1; Fill(2,∞)], (0,0))
+# scatter(vec(Z))
+
+# using BlockArrays
+# import BlockBandedMatrices: _BlockBandedMatrix
+
+# _BlockBandedMatrix(Vcat(0,mortar(Fill([1,0,0,1],∞))), [1; Fill(2,∞)], [1; Fill(2,∞)], (0,0))

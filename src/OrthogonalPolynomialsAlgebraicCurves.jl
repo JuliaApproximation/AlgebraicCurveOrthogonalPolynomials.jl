@@ -7,7 +7,7 @@ import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle
-import Base: in, axes, getindex, broadcasted, tail
+import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \
 
 import BlockArrays: block, blockindex
 

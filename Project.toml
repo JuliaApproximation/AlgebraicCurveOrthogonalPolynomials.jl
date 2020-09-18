@@ -29,7 +29,10 @@ SpecialFunctions = "0.10"
 StaticArrays = "0.12"
 
 [extras]
+BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
+FillArrays = "1a297f60-69ca-5386-bcde-b61e274b549b"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["BandedMatrices", "FillArrays", "Random", "Test"]
