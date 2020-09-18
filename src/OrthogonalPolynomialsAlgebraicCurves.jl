@@ -1,13 +1,13 @@
 module OrthogonalPolynomialsAlgebraicCurves
 using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
-    ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, HypergeometricFunctions, ContinuumArrays, QuasiArrays
+    ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen
 import FastGaussQuadrature: jacobimoment
-
-import Base: in, axes, getindex, broadcasted
+import QuasiArrays: DefaultQuasiArrayStyle
+import Base: in, axes, getindex, broadcasted, tail
 
 import BlockArrays: block, blockindex
 
