@@ -3,6 +3,27 @@ import OrthogonalPolynomialsAlgebraicCurves: checkcommutes
 import ForwardDiff: gradient, jacobian
 
 
+###
+# Square
+###
+
+Bˣ = [-0.5 0 0 0; 0 0 0 1; 0 0 -0.5 0; 0 0 0 0]
+Bʸ = [0 0 -1 0; 0 0.5 0 0; 0 0 0 0; 0 0 0 0.5]
+X = HermLaurent(zeros(4,4), Bˣ)
+Y = HermLaurent(zeros(4,4), Bʸ)
+
+ε = 1
+@test ε .* X.^2 .* Y.^2 .- X.^2 .- Y.^2 ≈ -I
+@test eigvals(X[1]) ≈ [-1,-1,-1,1]
+@test eigvals(Y[1]) ≈ [-1,1,1,1]
+
+
+##
+# Old
+##
+
+
+
 comroll(A, B) = [symroll(A); vec(B)]
 
 

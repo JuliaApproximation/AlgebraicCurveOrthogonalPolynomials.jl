@@ -4,16 +4,17 @@ using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices,
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
-import LinearAlgebra: eigvals, eigen, isapprox
+import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \
 
 import BlockArrays: block, blockindex
+import BlockBandedMatrices: BlockTridiagonal
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent, jointeigen, jointeigvals
+        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))

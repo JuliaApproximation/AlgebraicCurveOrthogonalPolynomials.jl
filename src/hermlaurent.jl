@@ -21,7 +21,7 @@ in(x::Number, ::UnitCircle) = abs(x) ≈ 1
 
 axes(F::HermLaurent) = (Inclusion(UnitCircle()),)
 
-function getindex(F::HermLaurent, z)
+function getindex(F::HermLaurent, z::Number)
     z in axes(F,1) || throw(BoundsError())
     ret = complex(F.A[1])
     for k = 2:length(F.A)
@@ -69,10 +69,10 @@ function _mul_hermlaurent_terms(X::SVector{3}, Y::SVector{3})
     SVector(A*E + B*F' + B'F + C*G' + C'G, A*F + B*E  + B'G + C*F', A*G + B*F  + C*E, B*G + C*F, C*G)
 end
 
-# (A + B/z + B'z + C/z^2 + C'*z^2)*(E + F/z + F'z + G/z^2 + G*z^2) == 
-#          A*E + B*F' + B'F + C*G' + C'G     + 
-#  1/z  * (A*F + B*E  + B'G + C*F'       )    + 
-# 1/z^2 * (A*G + B*F  + C*E)                            + 
+# (A + B/z + B'z + C/z^2 + C'*z^2)*(E + F/z + F'z + G/z^2 + G*z^2) ==
+#          A*E + B*F' + B'F + C*G' + C'G     +
+#  1/z  * (A*F + B*E  + B'G + C*F'       )    +
+# 1/z^2 * (A*G + B*F  + C*E)                            +
 # 1/z^3 * (B*G + C*F) + …
 # 1/z^4 * (C*G)
 
@@ -94,7 +94,7 @@ function padisapprox(X::AbstractVector, Y::AbstractVector)
 end
 
 
-checkcommutes(X::HermLaurent, Y::HermLaurent) = 
+checkcommutes(X::HermLaurent, Y::HermLaurent) =
     padisapprox(_mul_hermlaurent_terms(X.A,Y.A), _mul_hermlaurent_terms(Y.A,X.A)) || throw(ArgumentError("Do not commute"))
 
 function broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof(*), X::HermLaurent,  Y::HermLaurent)
@@ -114,15 +114,15 @@ function broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::
     A,B,C = F.A
     HermLaurent(
     C*C' + B*B' + A^2 + B'B + C'C,
-    C*B' + B*A + A*B + B'*C, 
-    C*A + B^2 + A*C, 
-    C*B + B*C, 
+    C*B' + B*A + A*B + B'*C,
+    C*A + B^2 + A*C,
+    C*B + B*C,
     C^2)
 end
 
 function broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, F::HermLaurent{<:Any,<:SVector{2}}, ::Base.RefValue{Val{3}})
     A,B = F.A
-    HermLaurent(B*B'*A + B*A*B' + A^3 + A*B*B' + A*B'*B + B'*A*B + B'*B*A, 
+    HermLaurent(B*B'*A + B*A*B' + A^3 + A*B*B' + A*B'*B + B'*A*B + B'*B*A,
                     B*A^2 + B^2*B' + B*B'*B + A^2*B + A*B*A + B'*B^2,
                     B*A*B + B^2*A + A*B^2, B^3)
 end
@@ -144,7 +144,7 @@ end
 
 for op in (:+, :-)
     @eval begin
-        broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof($op), X::HermLaurent,  Y::HermLaurent) = 
+        broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof($op), X::HermLaurent,  Y::HermLaurent) =
             HermLaurent(padbroadcast($op, X.A, Y.A))
 
         $op(A::UniformScaling, B::HermLaurent) = $op(HermLaurent(A(size(B[1],1))), B)
@@ -163,3 +163,11 @@ isapprox(F::HermLaurent, B::UniformScaling) = F ≈ HermLaurent(B(size(F[1],1)))
 isapprox(B::UniformScaling, F::HermLaurent) = HermLaurent(I(size(F[1],1))) ≈ F
 
 isapprox(X::HermLaurent, Y::HermLaurent) = padisapprox(X.A, Y.A)
+
+
+
+blocksymtricirculant(X::HermLaurent, N) = blocksymtricirculant(X.A..., N)
+function BlockTridiagonal(X::HermLaurent)
+    A,B = X.A
+    mortar(Tridiagonal(Fill(Matrix(B'),∞), Fill(A,∞), Fill(B,∞)))
+end
