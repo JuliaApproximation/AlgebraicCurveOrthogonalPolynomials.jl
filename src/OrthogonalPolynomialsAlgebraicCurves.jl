@@ -8,13 +8,14 @@ import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \
+import ContinuumArrays: Weight, grid
 
-import BlockArrays: block, blockindex
+import BlockArrays: block, blockindex, _BlockedUnitRange
 import BlockBandedMatrices: BlockTridiagonal
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal
+        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, JacobiCircle, Block, SVector
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))
@@ -116,7 +117,9 @@ function unroll(x)
     Ax,Bx,Ay,By
 end
 
+abstract type AlgebraicOrthogonalPolynomial{d,T} <: Basis{T} end
 
+include("circle.jl")
 include("wedge.jl")
 include("square.jl")
 
