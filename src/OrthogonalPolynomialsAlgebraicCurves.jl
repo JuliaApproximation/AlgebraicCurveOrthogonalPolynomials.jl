@@ -4,18 +4,19 @@ using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices,
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
-import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm
+import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle
-import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \
+import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo
 import ContinuumArrays: Weight, grid
+import OrthogonalPolynomialsQuasi: checkpoints, ShuffledRFFT, TransformFactorization
 
 import BlockArrays: block, blockindex, _BlockedUnitRange
 import BlockBandedMatrices: BlockTridiagonal
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, JacobiCircle, Block, SVector
+        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, JacobiCircle, Block, SVector, CircleCoordinate
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))
