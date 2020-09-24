@@ -1,6 +1,14 @@
 using OrthogonalPolynomialsAlgebraicCurves, BandedMatrices, BlockBandedMatrices, BlockArrays
 using ForwardDiff, StaticArrays
 
+@testset "x^2 + y^4 = 1" begin
+    P = UltrasphericalArc()
+    Q = UltrasphericalArc(1)
+    xy² = axes(P,1)
+    x = first.(xy²)
+    y² = last.(xy²)
+end
+
 
 function F_quartic(x)
     Ax,Bx,Ay,By = unroll(x)

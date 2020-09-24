@@ -15,6 +15,10 @@ end
 const CircleInclusion{T} = Inclusion{CircleCoordinate{T},UnitCircle{T}}
 CircleInclusion{T}() where T = Inclusion{CircleCoordinate{T},UnitCircle{T}}(UnitCircle{T}())
 
+
+"""
+y^a on unit circle
+"""
 struct UltrasphericalCircleWeight{T} <: Weight{T}
     a::T
 end
@@ -60,17 +64,31 @@ Ortogonal polynomials w.r.t. y^a
 """
 struct UltrasphericalCircle{T} <: AlgebraicOrthogonalPolynomial{2,T}
     a::T
+    UltrasphericalCircle{T}(a) where T = new{T}(a)
 end
 
-axes(P::UltrasphericalCircle) = (Inclusion(UnitCircle()),_BlockedUnitRange(1:2:∞))
+UltrasphericalCircle(a::T) where T = UltrasphericalCircle{float(T)}(a)
 
-function getindex(P::UltrasphericalCircle, xy::SVector{2}, j::BlockIndex{1})
+axes(P::UltrasphericalCircle{T}) where T = axes(LegendreCircle{T}())
+
+function getindex(P::UltrasphericalCircle{T}, xy::StaticVector{2}, j::BlockIndex{1}) where T
     x,y = xy
     K,k = block(j),blockindex(j)
-    k == 1 ? Jacobi((P.a - 1)/2, (P.a - 1)/2)[x,Int(K)] : y*Jacobi((P.a + 1)/2, (P.a + 1)/2)[x,Int(K)-1]
+    K == Block(1) && return one(T)
+    k == 1 ? y*Jacobi((P.a + 1)/2, (P.a + 1)/2)[x,Int(K)-1] :  Jacobi((P.a - 1)/2, (P.a - 1)/2)[x,Int(K)] 
 end
 
-function getindex(P::UltrasphericalCircle, xy::SVector{2}, j::Int)
+function getindex(P::UltrasphericalCircle, xy::StaticVector{2}, j::Int)
     j == 1 && return P[xy, Block(1)[1]]
     P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
+end
+
+
+function ldiv(C::UltrasphericalCircle{V}, f) where V
+    P = LegendreCircle{V}()
+    cfs = P \ f;
+    c = paddeddata(cfs);
+    c[1:2:end] = cheb2jac(c[1:2:end], (C.a-1)/2, (C.a-1)/2);
+    c[2:2:end] = cheb2jac(ultra2cheb(c[2:2:end], 1), (C.a+1)/2, (C.a+1)/2);
+    cfs
 end
