@@ -16,6 +16,10 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
 
         U = UltrasphericalArc(1)
         @test norm((U \ P[:,10])[Block.(1:4)]) ≤ 10eps()
+
+        @testset "Jacobi" begin
+            x .* P
+        end
     end
 
     @testset "Circulant" begin    

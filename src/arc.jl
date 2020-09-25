@@ -62,8 +62,7 @@ function getindex(P::UltrasphericalArc, xy::StaticVector{2}, j::Int)
     P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
 end
 
-show(io::IO, P::UltrasphericalArc{V}) where V = print(io, "UltrasphericalArc($(P.a))")
-show(io::IO, ::MIME"text/plain", P::UltrasphericalArc) = show(io, P)
+summary(io::IO, P::UltrasphericalArc{V}) where V = print(io, "UltrasphericalArc($(P.a))")
 
 function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}}, f::AbstractQuasiVector{V}) where {T,V}
     _,jr = parentindices(Pn)
