@@ -26,7 +26,7 @@ axes(P::UltrasphericalArcWeight{T}) where T = (ArcInclusion{T}(),)
 getindex(P::UltrasphericalArcWeight, xy::StaticVector{2}) = xy[2]^P.a
 
 """
-Ortogonal polynomials w.r.t. y^a
+Ortogonal polynomials w.r.t. y^a for y^2 + x^2 = 1, y ≥ 0.
 """
 struct UltrasphericalArc{V,TT,UU} <: AlgebraicOrthogonalPolynomial{2,V}
     a::V
