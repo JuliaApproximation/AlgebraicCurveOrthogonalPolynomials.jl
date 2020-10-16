@@ -35,13 +35,9 @@ struct UltrasphericalArc{V,TT,UU} <: AlgebraicOrthogonalPolynomial{2,V}
 end
 UltrasphericalArc{V}(a, T::TT, U::UU) where {V,TT,UU} = UltrasphericalArc{V,TT,UU}(a,T,U)
 
-function UltrasphericalArc{V}(a) where V 
-    P₊ = jacobi(1/2,0,0..1)
-    y = axes(P₊,1)
-    x = @. sqrt(1 - y^2)
-    U = LanczosPolynomial(y .^ a .* x, P₊)
-    P₋ = jacobi(-1/2,0,0..1)
-    T = LanczosPolynomial(y .^ a ./ x, P₋)
+function UltrasphericalArc{V}(a) where V
+    T = SemiclassicalJacobi(2, 0, -1/2-a/2, -1/2-a/2)
+    U = SemiclassicalJacobi(2, 0, 1/2-a/2, 1/2-a/2, T)
     UltrasphericalArc{V}(a, T, U)
 end
 
@@ -53,8 +49,8 @@ axes(P::UltrasphericalArc{T}) where T = (ArcInclusion{T}(), _BlockedUnitRange(1:
 function getindex(P::UltrasphericalArc{T}, xy::StaticVector{2}, j::BlockIndex{1}) where T
     x,y = xy
     K,k = block(j),blockindex(j)
-    K == Block(1) && return P.T[y,1]
-    k == 1 ? x*P.U[y,Int(K)-1] :  P.T[y,Int(K)] 
+    K == Block(1) && return P.T[1-y,1]
+    k == 1 ? x*P.U[1-y,Int(K)-1] :  P.T[1-y,Int(K)] 
 end
 
 function getindex(P::UltrasphericalArc, xy::StaticVector{2}, j::Int)
@@ -69,11 +65,11 @@ function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}
     P = parent(Pn)
     N = maximum(jr)
     ret = Array{T}(undef, N)
-    ret[1:2:end] = P.T[:,1:(N+1) ÷ 2] \ BroadcastQuasiVector{Float64}(y -> f[CircleCoordinate(asin(y))] + f[CircleCoordinate(π-asin(y))], axes(P.T,1))
+    ret[1:2:end] = P.T[:,1:(N+1) ÷ 2] \ BroadcastQuasiVector{Float64}(y -> f[CircleCoordinate(asin(1-y))] + f[CircleCoordinate(π-asin(1-y))], axes(P.T,1))
     if N > 1
         ret[2:2:end] = P.U[:,1:N÷2] \ BroadcastQuasiVector{Float64}(function(y)
-            xy = CircleCoordinate(asin(y))
-            xỹ = CircleCoordinate(π-asin(y))
+            xy = CircleCoordinate(asin(1-y))
+            xỹ = CircleCoordinate(π-asin(1-y))
             (f[xy] - f[xỹ])/xy[1]
         end, axes(P.T,1))
     end

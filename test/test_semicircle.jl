@@ -1,4 +1,6 @@
-using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, Test, Random
+using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, 
+    BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, 
+    SemiclassicalOrthogonalPolynomials, Test, Random
 using ForwardDiff, StaticArrays
 import OrthogonalPolynomialsQuasi: jacobimatrix
 
@@ -6,10 +8,19 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
 @testset "semicircle" begin
     @testset "OPs" begin
         P = UltrasphericalArc()
+
+        x,y = CircleCoordinate(0.1)
+        @test P[CircleCoordinate(0.1),1] == 1
+        @test P[CircleCoordinate(0.1),2] ≈ x*P.U[1-y,1]
+        @test P[CircleCoordinate(0.1),3] ≈ P.T[1-y,2]
+        @test P[CircleCoordinate(0.1),4] ≈ x*P.U[1-y,2]
+        @test P[CircleCoordinate(0.1),5] ≈ P.T[1-y,3]
+        
+
         xy = axes(P,1)
         x,y = first.(xy),last.(xy)
         f = exp.(cos.(y) .+ exp.(x))
-        u = P * [P[:,Base.OneTo(100)] \ f; Zeros(∞)];
+        u = P * [P[:,Base.OneTo(40)] \ f; Zeros(∞)];
         @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
         u = P * (P \ f)
         @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
