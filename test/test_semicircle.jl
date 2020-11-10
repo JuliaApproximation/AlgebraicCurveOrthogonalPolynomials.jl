@@ -1,6 +1,6 @@
 using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, 
     BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, 
-    SemiclassicalOrthogonalPolynomials, Test, Random
+    SemiclassicalOrthogonalPolynomials, Test, Random, LazyArrays
 using ForwardDiff, StaticArrays
 import OrthogonalPolynomialsQuasi: jacobimatrix
 
@@ -16,20 +16,40 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
         @test P[CircleCoordinate(0.1),4] ≈ x*P.U[1-y,2]
         @test P[CircleCoordinate(0.1),5] ≈ P.T[1-y,3]
         
+        @testset "expansion" begin
+            xy = axes(P,1)
+            x,y = first.(xy),last.(xy)
+            f = exp.(cos.(y) .+ exp.(x))
+            u = P * [P[:,Base.OneTo(40)] \ f; Zeros(∞)];
+            @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
+            u = P * (P \ f)
+            @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
 
-        xy = axes(P,1)
-        x,y = first.(xy),last.(xy)
-        f = exp.(cos.(y) .+ exp.(x))
-        u = P * [P[:,Base.OneTo(40)] \ f; Zeros(∞)];
-        @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
-        u = P * (P \ f)
-        @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
-
-        U = UltrasphericalArc(1)
-        @test norm((U \ P[:,10])[Block.(1:4)]) ≤ 10eps()
+            U = UltrasphericalArc(1)
+            @test norm((U \ P[:,10])[Block.(1:4)]) ≤ 10eps()
+        end
 
         @testset "Jacobi" begin
-            x .* P
+            T,U = P.T,P.U
+            X_T = jacobimatrix(T)
+            X_U = jacobimatrix(U)
+            R = U \ T;
+            L = T \ (SemiclassicalJacobiWeight(2,1,0,1) .* U);
+            xy = CircleCoordinate(0.1)
+            x,y = xy
+            @test y*T[y,1:3]' ≈ T[y,1:4]'*X_T[1:4,1:3]
+            @test (1-y) * P[xy, 1] == P[xy,[1,3]]'* X_T[1:2, 1]
+            X̃_T = BroadcastMatrix(-, Eye(∞), X_T)
+            X̃_U = BroadcastMatrix(-, Eye(∞), X_U)
+            @test x * P[xy, 1] ≈ P[xy,2] * R[1,1]
+            @test x * P[xy, 2] ≈ P[xy,1:2:5]' * L[1:3,1]
+            @test x * P[xy, 3] ≈ P[xy,2:2:4]' * R[1:2,2]
+            @test x * P[xy, 4] ≈ P[xy,3:2:7]' * L[2:4,2]
+            @test x * P[xy, 5] ≈ P[xy,2:2:6]' * R[1:3,3]
+            @test y * P[xy, 1] ≈ P[xy,1:2:3]' * X̃_T[1:2, 1]
+            @test y * P[xy, 2] ≈ P[xy,2:2:4]' * X̃_U[1:2, 1]
+            @test y * P[xy, 3] ≈ P[xy,1:2:5]' * X̃_T[1:3, 2]
+            @test y * P[xy, 4] ≈ P[xy,2:2:6]' * X̃_U[1:3, 2]
         end
     end
 

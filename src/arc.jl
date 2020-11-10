@@ -36,8 +36,8 @@ end
 UltrasphericalArc{V}(a, T::TT, U::UU) where {V,TT,UU} = UltrasphericalArc{V,TT,UU}(a,T,U)
 
 function UltrasphericalArc{V}(a) where V
-    T = SemiclassicalJacobi(2, 0, -1/2-a/2, -1/2-a/2)
-    U = SemiclassicalJacobi(2, 0, 1/2-a/2, 1/2-a/2, T)
+    T = SemiclassicalJacobi(2, -1/2-a/2, 0, -1/2-a/2)
+    U = SemiclassicalJacobi(2,  1/2-a/2, 0, 1/2-a/2, T)
     UltrasphericalArc{V}(a, T, U)
 end
 
