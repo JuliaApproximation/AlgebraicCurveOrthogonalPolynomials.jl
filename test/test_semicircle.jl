@@ -56,8 +56,7 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
             @test X[Block(1,1)] == zeros(1,1)
             @test X[Block(2,1)] isa Matrix
             @test issymmetric(X[1:10,1:10])
-            P[xy,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)]
-            
+            @test P[xy,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)] ≈ x * P[xy,Block.(1:5)]'
         end
     end
 
