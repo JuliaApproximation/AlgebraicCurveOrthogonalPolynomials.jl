@@ -12,7 +12,7 @@ import ContinuumArrays: Weight, grid, ℵ₁
 import OrthogonalPolynomialsQuasi: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata
 
 import BlockArrays: block, blockindex, _BlockedUnitRange
-import BlockBandedMatrices: BlockTridiagonal
+import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,

@@ -1,6 +1,6 @@
 using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, 
     BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, 
-    SemiclassicalOrthogonalPolynomials, Test, Random, LazyArrays
+    SemiclassicalOrthogonalPolynomials, Test, Random, LazyArrays, LazyBandedMatrices
 using ForwardDiff, StaticArrays
 import OrthogonalPolynomialsQuasi: jacobimatrix
 
@@ -30,26 +30,34 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
         end
 
         @testset "Jacobi" begin
-            T,U = P.T,P.U
-            X_T = jacobimatrix(T)
-            X_U = jacobimatrix(U)
+            T,U = P.T,P.U;
+            X_T = jacobimatrix(T);
+            X_U = jacobimatrix(U);
             R = U \ T;
             L = T \ (SemiclassicalJacobiWeight(2,1,0,1) .* U);
+            @test L[1:10,1:10]' ≈ R[1:10,1:10]
             xy = CircleCoordinate(0.1)
             x,y = xy
             @test y*T[y,1:3]' ≈ T[y,1:4]'*X_T[1:4,1:3]
             @test (1-y) * P[xy, 1] == P[xy,[1,3]]'* X_T[1:2, 1]
-            X̃_T = BroadcastMatrix(-, Eye(∞), X_T)
-            X̃_U = BroadcastMatrix(-, Eye(∞), X_U)
+            X̃_T = BroadcastMatrix(-, Eye(∞), X_T);
+            X̃_U = BroadcastMatrix(-, Eye(∞), X_U);
             @test x * P[xy, 1] ≈ P[xy,2] * R[1,1]
-            @test x * P[xy, 2] ≈ P[xy,1:2:5]' * L[1:3,1]
+            @test x * P[xy, 2] ≈ P[xy,1:2:5]' * R[1,1:3]
             @test x * P[xy, 3] ≈ P[xy,2:2:4]' * R[1:2,2]
-            @test x * P[xy, 4] ≈ P[xy,3:2:7]' * L[2:4,2]
+            @test x * P[xy, 4] ≈ P[xy,3:2:7]' * R[2,2:4]
             @test x * P[xy, 5] ≈ P[xy,2:2:6]' * R[1:3,3]
             @test y * P[xy, 1] ≈ P[xy,1:2:3]' * X̃_T[1:2, 1]
             @test y * P[xy, 2] ≈ P[xy,2:2:4]' * X̃_U[1:2, 1]
             @test y * P[xy, 3] ≈ P[xy,1:2:5]' * X̃_T[1:3, 2]
             @test y * P[xy, 4] ≈ P[xy,2:2:6]' * X̃_U[1:3, 2]
+
+            X = OrthogonalPolynomialsAlgebraicCurves.jacobimatrix(Val(1), P);
+            @test X[Block(1,1)] == zeros(1,1)
+            @test X[Block(2,1)] isa Matrix
+            @test issymmetric(X[1:10,1:10])
+            P[xy,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)]
+            
         end
     end
 

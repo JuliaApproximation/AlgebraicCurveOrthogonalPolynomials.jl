@@ -38,7 +38,7 @@ UltrasphericalArc{V}(a, T::TT, U::UU) where {V,TT,UU} = UltrasphericalArc{V,TT,U
 function UltrasphericalArc{V}(a) where V
     T = SemiclassicalJacobi(2, -1/2-a/2, 0, -1/2-a/2)
     U = SemiclassicalJacobi(2,  1/2-a/2, 0, 1/2-a/2, T)
-    UltrasphericalArc{V}(a, T, U)
+    UltrasphericalArc{V}(a, Normalized(T), Normalized(U))
 end
 
 UltrasphericalArc(a::T) where T = UltrasphericalArc{float(T)}(a)
@@ -75,3 +75,39 @@ function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}
     end
     ldiv!(2,ret)
 end
+
+struct UltrasphericalArcJacobiX{T} <: AbstractBlockBandedMatrix{T}
+    R
+end
+
+UltrasphericalArcJacobiX(R) = UltrasphericalArcJacobiX{eltype(R)}(R)
+
+function BlockArrays.getblock(X::UltrasphericalArcJacobiX{T}, k::Int, j::Int) where T
+    R = X.R
+    k == j == 1 && return zeros(T,1,1)
+    (k,j) == (2,1) && return reshape([R[1,1]; zero(T)], 2, 1)
+    (k,j) == (1,2) && return [R[1,1] zero(T)]
+    k == 1 && return zeros(T,1,2)
+    j == 1 && return zeros(T,2,1)
+    k == j && return [zero(T) R[j-1,j]; R[j-1,j] zero(T)]
+    k == j+1 && return [zero(T) R[j,j]; R[j-1,j+1] zero(T)]
+    k+1 == j && return [zero(T) R[k-1,k+1]; R[k,k] zero(T)]
+    zeros(T,2,2)
+end
+
+function getindex(X::UltrasphericalArcJacobiX, k::Int, j::Int)
+    ki,ji = findblockindex.(axes(X), (k,j))
+    X[block(ki),block(ji)][blockindex(ki),blockindex(ji)]
+end
+
+axes(::UltrasphericalArcJacobiX) = (_BlockedUnitRange(1:2:∞),_BlockedUnitRange(1:2:∞))
+
+blockbandwidths(::UltrasphericalArcJacobiX) = (1,1)
+subblockbandwidths(::UltrasphericalArcJacobiX) = (1,1)
+
+function jacobimatrix(::Val{1}, P::UltrasphericalArc)
+    R = P.U \ P.T;
+    UltrasphericalArcJacobiX(R)
+end
+
+BlockBandedMatrices.MemoryLayout(::Type{<:UltrasphericalArcJacobiX}) = BlockBandedMatrices.BlockBandedLayout()

@@ -4,6 +4,7 @@ authors = ["Sheehan Olver <solver@mac.com>"]
 version = "0.0.1"
 
 [deps]
+ArrayLayouts = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
 BlockArrays = "8e7c35d0-a365-5155-bbbb-fb81a777f24e"
 BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
 ContinuumArrays = "7ae1f121-cc2c-504b-ac30-9b923412ae5c"
@@ -21,7 +22,7 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-BlockArrays = "0.12.12"
+BlockArrays = "0.13"
 BlockBandedMatrices = "0.9.3"
 ContinuumArrays = "0.3.3"
 DomainSets = "0.4"
