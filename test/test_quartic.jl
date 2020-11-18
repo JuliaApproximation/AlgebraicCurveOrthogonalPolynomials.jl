@@ -1,14 +1,21 @@
-using OrthogonalPolynomialsAlgebraicCurves, BandedMatrices, BlockBandedMatrices, BlockArrays
+using OrthogonalPolynomialsAlgebraicCurves, BandedMatrices, BlockBandedMatrices, BlockArrays, Test
 using ForwardDiff, StaticArrays
 
 @testset "x^2 + y^4 = 1" begin
     P = UltrasphericalArc()
-    Q = UltrasphericalArc(1)
+    Q = UltrasphericalArc(2, P)
     xy² = axes(P,1)
     x = first.(xy²)
     y² = last.(xy²)
 
+    # 	P_00(x,y^2), 
+	# P_10(x,y^2),	y*Q_00(x,y^2), 
+	# P_20(x,y^2), 	y*Q_10(x,y^2),	P_11(x,y^2)
+	# P_30(x,y^2), 	y*Q_20(x,y^2),	y*Q_11(x,y^2),		P_21(x,y^2)
+	# P_40(x,y^2), 	y*Q_30(x,y^2),	y*Q_21(x,y^2),		P_31(x,y^2)
+    # …
     
+    Q \ P
 end
 
 
