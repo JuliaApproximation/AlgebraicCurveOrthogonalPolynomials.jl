@@ -1,0 +1,140 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx}
+
+\include{somacros}
+
+\topmargin  -18mm    
+\textheight 254mm   
+\textwidth 169mm    
+\oddsidemargin -4mm
+\begin{document}
+\begin{center}
+{\Large \textbf{OPs inside cubic curves}}\\
+{\footnotesize \today}
+\end{center}
+
+\def\C{\tilde C}
+
+Consider for $t > 1$
+$$
+\Omega = \{ (x,y) : y^2 \leq \underbrace{(1-x^2) (t-x)}_{\rho(x)}, -1 \leq x \leq 1\}
+$$
+Define
+$$
+P_{nk}(x,y) := \C_{n-k}^{(k+1)}(x) \rho(x)^{k/2} P_k(y/\rho(x))
+$$
+where $P_k$ are Legendre polynomials and $\C_k^{(\lambda)}$ are monic semiclassical ultraspherical polynomials, orthogonal w.r.t. $\rho(x)^{\lambda-1/2}$. Denote its norm-squared as
+$$
+h_k^{(\lambda)} := \int_{-1}^1 \C_k^{(\lambda)}(x)^2 \rho(x)^{\lambda-1/2} \D x
+$$
+Note $P_{nk}(x,y)$ are orthogonal w.r.t. 
+$$
+\ip<f,g> := \int_{-1}^1 \int_{-\rho(x)}^{\rho(x)}  f(x,y) g(x,y) \D y \D x
+$$
+since, with $t = y/\sqrt{\rho(x)}$ we have
+$$
+\ip<P_{nk},P_{mj}> = \int_{-1}^1 \C_{n-k}^{(k+1)}(x) \C_{m-j}^{(j+1)}(x)  \rho(x)^{(k+j+1)/2} \D x \int_{-1}^1 P_k(t) P_j(t) \D t
+$$
+Denote it's norm-squared as
+$$
+h_{nk}^P := \ip<P_{nk},P_{nk}> = h_{n-k}^{(k+1)} h_k^P
+$$
+where $h_k^P$ are the Legendre norms.
+
+
+Let's denote the true OPs as $R$, and we know the first 5:
+$$
+R_{00} := P_{00} | R_{10} := P_{10}, R_{11} := P_{11} | R_{20} := P_{20}, R_{21} := P_{21}
+$$
+Here we use a total lexicographical ordering of polynomials whenever we talk about "lower order terms". 
+
+\subsection{Quadratic case}
+
+The catch: $P_{nk}$ does not include all polynomials, so for example $R_{22} \neq P_{22}$ since
+$$
+P_{22}(x,y) = \rho(x) P_2(y/\rho(x)) = {3 \over 2} y^2 - {\rho(x) \over 2} = -{x^3 \over 2} + {\rm l.o.t}
+$$
+which is cubic in $x$. Idea is to use 
+$$
+P_{30}(x,y) = \C_3^{(1)}(x) = x^3 + O(x^2)
+$$ 
+to kill of the cubic term via
+$$
+R_{22} := P_{22} + {P_{30} \over 2} = {3\over 2} y^2 + {\rm l.o.t.}
+$$
+Note this is indeed an OP since for lower order polynomials $R_{kj}$ we have
+$$
+\ip<R_{22},R_{kj}> = \ip<R_{22},P_{kj}> = \ip<P_{22},P_{kj}> + {\ip<P_{30},P_{kj}> \over 2} = 0.
+$$
+If we denote
+$$
+h_{nk}^R := \ip<R_{nk},R_{nk}>
+$$
+we have
+$$
+h_{22}^R = h_{22}^P + {h_{30}^P \over 2}
+$$
+
+\subsection{Cubic case}
+
+The catch, $R_{30} \neq P_{30}$ since 
+$$
+\ip<P_{30},R_{22}> = {\ip<P_{30}, P_{30}> \over 2} = {h_{30}^P \over 2}  (= {h_3^{(1)} \over 2})
+$$
+But the solution is simple:
+$$
+R_{30} := P_{30} - {h_{30}^P \over 2 h_{22}^R} R_{22}
+$$
+Fortunately the next term is fine
+$$
+R_{31} := P_{31}
+$$
+since all l.o.t. $R_{nk}$ are sums of l.o.t. $P_{nk}$. Now note
+$$
+P_{32}(x,y) = \C_1^{(2)}(x) \pr( {3 \over 2} y^2 - {\rho(x) \over 2} ) = -{x^4 \over 2} + {\rm l.o.t.}
+$$
+So
+$$
+R_{32} := P_{32} + {P_{40} \over 2}.
+$$
+Finally
+$$
+P_{33}(x,y) = {5 \over 2} y^3 - {3 \over 2} \rho(x) y = - {3 \over 2} x^3 y + {\rm l.o.t.}
+$$
+Here we use
+$$
+P_{41}(x,y) = \C_3^{(2)}(x) y = x^3 y + {\rm l.o.t}
+$$
+so we define
+$$
+R_{33} := P_{33} + {3 \over 2} P_{41}
+$$
+
+\subsection{Quartic case}
+
+$$
+R_{40} := P_{40} - {h_{40}^P \over 2 h_{32}^R} R_{32}
+$$
+
+$$
+R_{41} := P_{41} - {3 h_{41}^P \over 2 h_{33}^R} R_{33}
+$$
+
+$$
+R_{42} := P_{42} + {P_{50} \over 2}
+$$
+
+$$
+R_{43} := P_{43} + {3 \over 2} P_{51}
+$$
+
+The next term is the hard one as we now have two "bad" terms:
+$$
+P_{44}(x,y)  = {35 \over 8} y^4 - {30 \over 8} \rho(x) y^2 + {3 \rho(x)^2 \over 8} = {3 \over 8} x^6 - {3 \over 4} t x^5 - {30 \over 8} x^3 y^2 + {\rm l.o.t.}
+$$
+We can clearly kill it off using $P_{60}$, $P_{50}$, $P_{51}$ and $P_{52}$ though it seems that the construction becomes increasingly difficult for quintic and higher.
+
+
+\end{document}
