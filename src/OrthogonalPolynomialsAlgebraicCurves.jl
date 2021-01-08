@@ -1,13 +1,14 @@
 module OrthogonalPolynomialsAlgebraicCurves
 using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
-    ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays, SemiclassicalOrthogonalPolynomials
+    ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays, SemiclassicalOrthogonalPolynomials,
+    MultivariateOrthogonalPolynomials, FillArrays, ArrayLayouts, LazyBandedMatrices
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality
-import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary
+import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==
 import ContinuumArrays: Weight, grid, ℵ₁
 import OrthogonalPolynomialsQuasi: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix
 
@@ -118,7 +119,8 @@ function unroll(x)
     Ax,Bx,Ay,By
 end
 
-abstract type AlgebraicOrthogonalPolynomial{d,T} <: Basis{T} end
+abstract type AlgebraicOrthogonalPolynomial{d,T} <: MultivariateOrthogonalPolynomial{d,T} end
+
 
 include("circle.jl")
 include("arc.jl")

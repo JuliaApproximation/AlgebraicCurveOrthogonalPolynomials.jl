@@ -87,6 +87,10 @@ function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}
 end
 
 abstract type AbstractUltrasphericalArcJacobi{T} <: AbstractBlockBandedMatrix{T} end
+
+ArrayLayouts.MemoryLayout(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyBandedBlockBandedLayout()
+Base.BroadcastStyle(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyArrayStyle{2}()
+
 struct UltrasphericalArcJacobiX{T} <: AbstractUltrasphericalArcJacobi{T}
     R
 end
@@ -102,7 +106,8 @@ UltrasphericalArcJacobiY(X_T, X_U) = UltrasphericalArcJacobiY{promote_type(eltyp
 
 
 
-function BlockArrays.getblock(X::UltrasphericalArcJacobiX{T}, k::Int, j::Int) where T
+function BlockArrays.viewblock(X::UltrasphericalArcJacobiX{T}, kj::Block{2}) where T
+    k,j = kj.n
     R = X.R
     k == j == 1 && return zeros(T,1,1)
     (k,j) == (2,1) && return reshape([R[1,1]; zero(T)], 2, 1)
@@ -115,7 +120,8 @@ function BlockArrays.getblock(X::UltrasphericalArcJacobiX{T}, k::Int, j::Int) wh
     zeros(T,2,2)
 end
 
-function BlockArrays.getblock(Y::UltrasphericalArcJacobiY{T}, k::Int, j::Int) where T
+function BlockArrays.viewblock(Y::UltrasphericalArcJacobiY{T}, kj::Block{2}) where T
+    k,j = kj.n
     X_T, X_U = Y.X_T, Y.X_U
     k == j == 1 && return reshape([1-X_T[1,1]],1,1)
     (k,j) == (2,1) && return reshape([zero(T),-X_T[2,1]], 2, 1)
@@ -181,5 +187,8 @@ end
 BlockBandedMatrices.MemoryLayout(::Type{<:AbstractUltrasphericalArcJacobi}) = BlockBandedMatrices.BlockBandedLayout()
 BlockBandedMatrices.MemoryLayout(::Type{<:UltrasphericalArcConversion}) = BlockBandedMatrices.BlockBandedLayout()
 
-\(Q::UltrasphericalArc, P::UltrasphericalArc) = UltrasphericalArcConversion(P, Q)
+function \(Q::UltrasphericalArc{T}, P::UltrasphericalArc{V}) where {T,V}
+    P == Q && return FillArrays.SquareEye{promote_type(T,V)}((axes(P,2),))
+    UltrasphericalArcConversion(P, Q)
+end
     

@@ -1,5 +1,5 @@
-using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, 
-    BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, 
+using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi,
+    BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, ArrayLayouts,
     SemiclassicalOrthogonalPolynomials, Test, Random, LazyArrays, LazyBandedMatrices
 using ForwardDiff, StaticArrays
 import OrthogonalPolynomialsQuasi: jacobimatrix
@@ -16,7 +16,7 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
             @test P[CircleCoordinate(0.1),3] ≈ P.T[1-y,2]
             @test P[CircleCoordinate(0.1),4] ≈ x*P.U[1-y,2]
             @test P[CircleCoordinate(0.1),5] ≈ P.T[1-y,3]
-            
+
             @testset "expansion" begin
                 xy = axes(P,1)
                 x,y = first.(xy),last.(xy)
@@ -28,6 +28,9 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
 
                 U = UltrasphericalArc(1)
                 @test norm((U \ P[:,10])[Block.(1:4)]) ≤ 10eps()
+
+                @test P == P
+                @test P \ P ≡ Eye((axes(P,2),))
             end
 
             @testset "Jacobi" begin
@@ -61,6 +64,19 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
                 @test issymmetric(X[1:10,1:10])
                 @test P[xy,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)] ≈ x * P[xy,Block.(1:5)]'
                 @test P[xy,Block.(1:6)]' * Y[Block.(1:6),Block.(1:5)] ≈ y * P[xy,Block.(1:5)]'
+
+                @testset "nice syntax" begin
+                    P = UltrasphericalArc()
+                    xy = axes(P,1)
+                    x,y = first.(xy),last.(xy)
+                    X = (x .* P).args[2]
+                    @test MemoryLayout(X) isa LazyBandedMatrices.LazyBandedBlockBandedLayout
+                    Base.BroadcastStyle(typeof(X))
+                    X = P \ (x .* P)
+                    # TODO: overload broadcasted(*, ::Ones, ...) for this case
+
+                    @test X[Block.(1:5),Block.(1:5)] == jacobimatrix(Val(1), P)[Block.(1:5),Block.(1:5)]
+                end
             end
         end
         @testset "a = 1" begin
@@ -68,7 +84,7 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
         end
     end
 
-    @testset "Circulant" begin    
+    @testset "Circulant" begin
         Ax = Matrix(0.5I,2,2)
         Bx = Matrix(0.25I,2,2)
         a₁₂ = (1 + sqrt(2))/4
@@ -205,5 +221,14 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
 
         @test X*Y ≈ Y*X
         @test X^2 + Y^2 ≈ Eye(N)
+    end
+
+    @testset "lowering/raising asymptotics -> symbol" begin
+        P = UltrasphericalArc()
+        X,Y = jacobimatrix(Val(1),P),jacobimatrix(Val(2),P)
+
+        N = 10
+        X[Block.(N-1:N+1),Block(N)]
+        
     end
 end
