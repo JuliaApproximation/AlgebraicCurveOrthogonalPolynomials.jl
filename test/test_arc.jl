@@ -225,8 +225,7 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
 
     @testset "lowering/raising asymptotics -> symbol" begin
         P = UltrasphericalArc()
-        X,Y = jacobimatrix(Val(1),P),jacob
-        imatrix(Val(2),P)
+        X,Y = jacobimatrix(Val(1),P),jacobimatrix(Val(2),P)
 
         N = 10
         X[Block.(N-1:N+1),Block(N)]

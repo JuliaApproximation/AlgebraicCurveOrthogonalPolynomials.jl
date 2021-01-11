@@ -88,9 +88,6 @@ end
 
 abstract type AbstractUltrasphericalArcJacobi{T} <: AbstractBlockBandedMatrix{T} end
 
-ArrayLayouts.MemoryLayout(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyBandedBlockBandedLayout()
-Base.BroadcastStyle(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyArrayStyle{2}()
-
 struct UltrasphericalArcJacobiX{T} <: AbstractUltrasphericalArcJacobi{T}
     R
 end
@@ -167,7 +164,8 @@ function UltrasphericalArcConversion(P, Q)
     UltrasphericalArcConversion(R_T, R_U)
 end
 
-function BlockArrays.getblock(R::UltrasphericalArcConversion{T}, k::Int, j::Int) where T
+function BlockArrays.viewblock(R::UltrasphericalArcConversion{T}, kj::Block{2}) where T
+    k,j = kj.n
     R_T, R_U = R.R_T, R.R_U
     k == j == 1 && return reshape([R_T[1,1]],1,1)
     j == 1 && return reshape([zero(T),R_T[k,1]], 2, 1)
@@ -182,10 +180,10 @@ function getindex(X::UltrasphericalArcConversion, k::Int, j::Int)
 end
 
 
+ArrayLayouts.MemoryLayout(::Type{<:UltrasphericalArcConversion}) = BlockBandedMatrices.LazyBlockBandedLayout()
+ArrayLayouts.MemoryLayout(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyBlockBandedLayout()
+Base.BroadcastStyle(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyArrayStyle{2}()
 
-
-BlockBandedMatrices.MemoryLayout(::Type{<:AbstractUltrasphericalArcJacobi}) = BlockBandedMatrices.BlockBandedLayout()
-BlockBandedMatrices.MemoryLayout(::Type{<:UltrasphericalArcConversion}) = BlockBandedMatrices.BlockBandedLayout()
 
 function \(Q::UltrasphericalArc{T}, P::UltrasphericalArc{V}) where {T,V}
     P == Q && return FillArrays.SquareEye{promote_type(T,V)}((axes(P,2),))
