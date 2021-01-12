@@ -1,66 +1,81 @@
-struct Arc{T} <: Domain{T} end
+"""
+The arc y ≥ h
+"""
+struct Arc{T} <: Domain{T} 
+    h::T
+end
+Arc{T}() where T = Arc{T}(zero(T))
 Arc() = Arc{Float64}()
+Arc(a::Arc) = a
+Arc{T}(a::Arc) where T = Arc{T}(a.h)
 cardinality(::Arc) = ℵ₁
 
-show(io::IO, a::Arc) = print(io, "Arc()")
+show(io::IO, a::Arc) = print(io, "Arc($(a.h))")
 
+# TODO: Make sure in domain
 checkpoints(::Arc{T}) where T = [CircleCoordinate(0.1),CircleCoordinate(1.32),CircleCoordinate(2.9)]
 
 function in(xy::StaticVector{2}, d::Arc)
     x,y = xy
-    norm(xy) == 1 && y ≥ 0
+    norm(xy) == 1 && y ≥ d.h
 end
 
 const ArcInclusion{T} = Inclusion{CircleCoordinate{T},Arc{T}}
 ArcInclusion{T}() where T = Inclusion{CircleCoordinate{T},Arc{T}}(Arc{T}())
+ArcInclusion{T}(a::Number) where T = Inclusion{CircleCoordinate{T},Arc{T}}(Arc{T}(a))
+ArcInclusion(a) = ArcInclusion{typeof(a)}(a)
 
 
 """
-y^a on half circle
+y^a on arc
 """
 struct UltrasphericalArcWeight{T} <: Weight{T}
+    h::T
     a::T
 end
 
-axes(P::UltrasphericalArcWeight{T}) where T = (ArcInclusion{T}(),)
+axes(P::UltrasphericalArcWeight{T}) where T = (ArcInclusion(P.h),)
 getindex(P::UltrasphericalArcWeight, xy::StaticVector{2}) = xy[2]^P.a
 
 """
-Ortogonal polynomials w.r.t. y^a for y^2 + x^2 = 1, y ≥ 0.
+Ortogonal polynomials w.r.t. y^a for y^2 + x^2 = 1, y ≥ h
 """
 struct UltrasphericalArc{V,TT,UU} <: AlgebraicOrthogonalPolynomial{2,V}
+    h::V
     a::V
     T::TT
     U::UU
 end
-UltrasphericalArc{V}(a, T::TT, U::UU) where {V,TT,UU} = UltrasphericalArc{V,TT,UU}(a,T,U)
+UltrasphericalArc{V}(h, a, T::TT, U::UU) where {V,TT,UU} = UltrasphericalArc{V,TT,UU}(h,a,T,U)
 
-function UltrasphericalArc{V}(a) where V
-    T = SemiclassicalJacobi(2, -1/2+a/2, 0, -1/2+a/2)
-    U = SemiclassicalJacobi(2,  1/2+a/2, 0, 1/2+a/2, T)
-    UltrasphericalArc{V}(a, Normalized(T), Normalized(U))
+function UltrasphericalArc{V}(h,a=zero(h)) where V
+    T = SemiclassicalJacobi(2/(1-h), -one(a)/2+a/2, 0, -one(a)/2+a/2)
+    U = SemiclassicalJacobi(2/(1-h),  one(a)/2+a/2, 0, one(a)/2+a/2, T)
+    UltrasphericalArc{V}(h, a, Normalized(T), Normalized(U))
 end
 
-function UltrasphericalArc{V}(a, P) where V
-    T = SemiclassicalJacobi(2, -1/2+a/2, 0, -1/2+a/2, P.T.P)
-    U = SemiclassicalJacobi(2,  1/2+a/2, 0, 1/2+a/2, T)
-    UltrasphericalArc{V}(a, Normalized(T), Normalized(U))
+function UltrasphericalArc{V}(h, a, P) where V
+    T = SemiclassicalJacobi(2/(1-h), -one(a)/2+a/2, 0, -one(a)/2+a/2, P.T.P)
+    U = SemiclassicalJacobi(2/(1-h),  one(a)/2+a/2, 0, one(a)/2+a/2, T)
+    UltrasphericalArc{V}(h, a, Normalized(T), Normalized(U))
 end
 
 
-UltrasphericalArc(a::T) where T = UltrasphericalArc{float(T)}(a)
-UltrasphericalArc(a::T, P) where T = UltrasphericalArc{float(T)}(a, P)
+UltrasphericalArc(h, a=zero(h)) = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a)
+UltrasphericalArc(h, a, P) where T = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a, P)
 UltrasphericalArc() = UltrasphericalArc(0)
 
-axes(P::UltrasphericalArc{T}) where T = (ArcInclusion{T}(), _BlockedUnitRange(1:2:∞))
+axes(P::UltrasphericalArc{T}) where T = (ArcInclusion(P.h), _BlockedUnitRange(1:2:∞))
 
 ==(P::UltrasphericalArc, Q::UltrasphericalArc) = P.a == Q.a
 
 function getindex(P::UltrasphericalArc{T}, xy::StaticVector{2}, j::BlockIndex{1}) where T
     x,y = xy
     K,k = block(j),blockindex(j)
-    K == Block(1) && return P.T[1-y,1]
-    k == 1 ? x*P.U[1-y,Int(K)-1] :  P.T[1-y,Int(K)] 
+    h = P.h
+    ỹ = (1-y)/(1-h)
+    K == Block(1) && return P.T[ỹ,1]
+    k == 1 ? x*P.U[ỹ,Int(K)-1] :  P.T[ỹ,Int(K)] 
 end
 
 function getindex(P::UltrasphericalArc, xy::StaticVector{2}, j::Int)
@@ -68,11 +83,12 @@ function getindex(P::UltrasphericalArc, xy::StaticVector{2}, j::Int)
     P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
 end
 
-summary(io::IO, P::UltrasphericalArc{V}) where V = print(io, "UltrasphericalArc($(P.a))")
+summary(io::IO, P::UltrasphericalArc{V}) where V = print(io, "UltrasphericalArc($(P.h), $(P.a))")
 
 function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}}, f::AbstractQuasiVector{V}) where {T,V}
     _,jr = parentindices(Pn)
     P = parent(Pn)
+    @assert P.h == 0
     N = maximum(jr)
     ret = Array{T}(undef, N)
     ret[1:2:end] = P.T[:,1:(N+1) ÷ 2] \ BroadcastQuasiVector{Float64}(y -> f[CircleCoordinate(asin(1-y))] + f[CircleCoordinate(π-asin(1-y))], axes(P.T,1))
@@ -120,13 +136,13 @@ end
 function BlockArrays.viewblock(Y::UltrasphericalArcJacobiY{T}, kj::Block{2}) where T
     k,j = kj.n
     X_T, X_U = Y.X_T, Y.X_U
-    k == j == 1 && return reshape([1-X_T[1,1]],1,1)
-    (k,j) == (2,1) && return reshape([zero(T),-X_T[2,1]], 2, 1)
-    (k,j) == (1,2) && return [zero(T) -X_T[1,2]]
+    k == j == 1 && return reshape([X_T[1,1]],1,1)
+    (k,j) == (2,1) && return reshape([zero(T),X_T[2,1]], 2, 1)
+    (k,j) == (1,2) && return [zero(T) X_T[1,2]]
     k == 1 && return zeros(T,1,2)
     j == 1 && return zeros(T,2,1)
-    k == j && return [1-X_U[k-1,j-1] zero(T); zero(T) 1-X_T[k,j]]
-    return [-X_U[k-1,j-1] zero(T); zero(T) -X_T[k,j]]
+    k == j && return [X_U[k-1,j-1] zero(T); zero(T) X_T[k,j]]
+    return [X_U[k-1,j-1] zero(T); zero(T) X_T[k,j]]
 end
 
 function getindex(X::AbstractUltrasphericalArcJacobi, k::Int, j::Int)
@@ -144,10 +160,12 @@ function jacobimatrix(::Val{1}, P::UltrasphericalArc)
     UltrasphericalArcJacobiX(R)
 end
 
-function jacobimatrix(::Val{2}, P::UltrasphericalArc)
-    X_T = jacobimatrix(P.T);
-    X_U = jacobimatrix(P.U);
-    UltrasphericalArcJacobiY(X_T, X_U)
+function jacobimatrix(::Val{2}, P::UltrasphericalArc{T}) where T
+    X_T = jacobimatrix(P.T)
+    X_U = jacobimatrix(P.U)
+    h = P.h
+    # UltrasphericalArcJacobiY((I-X_T)/(1-h), (I-X_U)/(1-h))
+    UltrasphericalArcJacobiY(BroadcastMatrix(-, Eye{T}(∞), X_T)/(1-h), BroadcastMatrix(-, Eye{T}(∞), X_U)/(1-h))
 end
 
 struct UltrasphericalArcConversion{T} <: AbstractBlockBandedMatrix{T}

@@ -1,7 +1,7 @@
 module OrthogonalPolynomialsAlgebraicCurves
 using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
     ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays, SemiclassicalOrthogonalPolynomials,
-    MultivariateOrthogonalPolynomials, FillArrays, ArrayLayouts, LazyBandedMatrices
+    MultivariateOrthogonalPolynomials, FillArrays, ArrayLayouts, LazyBandedMatrices, LazyArrays
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
