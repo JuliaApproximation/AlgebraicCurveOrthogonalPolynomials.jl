@@ -30,7 +30,7 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 [compat]
 BlockArrays = "0.14"
 BlockBandedMatrices = "0.10"
-ContinuumArrays = "0.3.3"
+ContinuumArrays = "0.4"
 DomainSets = "0.4"
 FastGaussQuadrature = "0.4.3"
 FastTransforms = "0.10.1, 0.11"
@@ -40,7 +40,7 @@ OrthogonalPolynomialsQuasi = "0.4"
 QuasiArrays = "0.3.4"
 SemiclassicalOrthogonalPolynomials = "0.0.2"
 SpecialFunctions = "0.10, 1"
-StaticArrays = "0.12"
+StaticArrays = "0.12, 1"
 
 [extras]
 BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
