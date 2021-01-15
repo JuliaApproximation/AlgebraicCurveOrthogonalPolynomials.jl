@@ -164,8 +164,7 @@ function jacobimatrix(::Val{2}, P::UltrasphericalArc{T}) where T
     X_T = jacobimatrix(P.T)
     X_U = jacobimatrix(P.U)
     h = P.h
-    # UltrasphericalArcJacobiY((I-X_T)/(1-h), (I-X_U)/(1-h))
-    UltrasphericalArcJacobiY(BroadcastMatrix(-, Eye{T}(∞), X_T)/(1-h), BroadcastMatrix(-, Eye{T}(∞), X_U)/(1-h))
+    UltrasphericalArcJacobiY(I + (h-1)*X_T, I + (h-1)*X_U)
 end
 
 struct UltrasphericalArcConversion{T} <: AbstractBlockBandedMatrix{T}
