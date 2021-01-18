@@ -239,7 +239,7 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
         @test P[xy,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)] ≈ x * P[xy,Block.(1:5)]'
         @test P[xy,Block.(1:6)]' * Y[Block.(1:6),Block.(1:5)] ≈ y * P[xy,Block.(1:5)]'
 
-        X*X + Y*Y
+        @test (X^2 + Y^2)[Block.(1:5), Block.(1:5)] ≈ I
     end
 
     @testset "lowering/raising asymptotics -> symbol" begin
@@ -260,14 +260,16 @@ import OrthogonalPolynomialsQuasi: jacobimatrix
         end
 
         @testset "Other arc" begin
-            h = 0.0
+            h = 0.1
             # map via (1-x)/(1-h) to 0..1 to determine Jacobi operators
-            A_x,B_x = (1-1/2)/(1-h)*Eye(2), -1/(4*(1-h))*Eye(2)
+            A_y,B_y = (1+h)/2 * Eye(2), (h-1)/4 * Eye(2)
             t₀ = 2/(1-h)
             c = -1/(2φ(2*t₀-1))
-            α = sqrt(-(1/(4*(1-h)))^2/c)
+            α = sqrt(-((h-1)/4)^2/c)
+
+            @test α^2 * c ≈ -((h-1)/4)^2
             
-            A_y,B_y = α*(1+c)*[0 1; 1 0], [0 α*c; α 0]
+            A_x,B_x = α*(1+c)*[0 1; 1 0], α*[0 c; 1 0]
             # check X^2 + Y^2 = I
             X = z -> A_x + (B_x'/z + B_x*z)
             Y = z -> A_y + (B_y'/z + B_y*z)

@@ -74,8 +74,8 @@ function getindex(P::UltrasphericalArc{T}, xy::StaticVector{2}, j::BlockIndex{1}
     K,k = block(j),blockindex(j)
     h = P.h
     ỹ = (1-y)/(1-h)
-    K == Block(1) && return P.T[ỹ,1]
-    k == 1 ? x*P.U[ỹ,Int(K)-1] :  P.T[ỹ,Int(K)] 
+    K == Block(1) && return sqrt(1-h) * P.T[ỹ,1]
+    k == 1 ? x*P.U[ỹ,Int(K)-1]/sqrt(1-h) :  sqrt(1-h) * P.T[ỹ,Int(K)] 
 end
 
 function getindex(P::UltrasphericalArc, xy::StaticVector{2}, j::Int)
@@ -103,6 +103,7 @@ function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}
 end
 
 abstract type AbstractUltrasphericalArcJacobi{T} <: AbstractBlockBandedMatrix{T} end
+Base.copy(J::AbstractUltrasphericalArcJacobi) = J # immutable
 
 struct UltrasphericalArcJacobiX{T} <: AbstractUltrasphericalArcJacobi{T}
     R
@@ -156,8 +157,9 @@ blockbandwidths(::AbstractUltrasphericalArcJacobi) = (1,1)
 subblockbandwidths(::AbstractUltrasphericalArcJacobi) = (1,1)
 
 function jacobimatrix(::Val{1}, P::UltrasphericalArc)
-    R = P.U \ P.T;
-    UltrasphericalArcJacobiX(R)
+    R = P.U \ P.T
+    h = P.h
+    UltrasphericalArcJacobiX((1-h)*R)
 end
 
 function jacobimatrix(::Val{2}, P::UltrasphericalArc{T}) where T
