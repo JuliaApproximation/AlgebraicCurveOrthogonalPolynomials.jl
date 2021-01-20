@@ -80,7 +80,7 @@ function in(p::SVector{2}, d::Wedge)
     (x == 1 && 0 ≤ y ≤ 1) || (y == 1 && 0 ≤ x ≤ 1)
 end
 
-struct JacobiWedge{T} <: Basis{T}
+struct JacobiWedge{T} <: AlgebraicOrthogonalPolynomial{2,T}
     a::T
     b::T
     c::T

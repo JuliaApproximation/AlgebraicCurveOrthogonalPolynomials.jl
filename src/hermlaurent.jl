@@ -16,10 +16,10 @@ HermLaurent{T}(A::AbstractVector) where T = HermLaurent{T,typeof(A)}(A)
 HermLaurent(A::AbstractVector{<:AbstractMatrix{T}}) where T = HermLaurent{Hermitian{Complex{T},Matrix{Complex{T}}}}(A)
 HermLaurent(A::AbstractMatrix...) = HermLaurent(SVector(A))
 
-struct UnitCircle <: Domain{ComplexF64} end
-in(x::Number, ::UnitCircle) = abs(x) ≈ 1
+struct ComplexUnitCircle <: Domain{ComplexF64} end
+in(x::Number, ::ComplexUnitCircle) = abs(x) ≈ 1
 
-axes(F::HermLaurent) = (Inclusion(UnitCircle()),)
+axes(F::HermLaurent) = (Inclusion(ComplexUnitCircle()),)
 
 function getindex(F::HermLaurent, z::Number)
     z in axes(F,1) || throw(BoundsError())

@@ -1,20 +1,23 @@
 module OrthogonalPolynomialsAlgebraicCurves
-using FastGaussQuadrature, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
-    ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays
+using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
+    ForwardDiff, OrthogonalPolynomialsQuasi, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays, SemiclassicalOrthogonalPolynomials,
+    MultivariateOrthogonalPolynomials, FillArrays, ArrayLayouts, LazyBandedMatrices, LazyArrays
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
-import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm
+import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
-import QuasiArrays: DefaultQuasiArrayStyle
-import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \
+import QuasiArrays: DefaultQuasiArrayStyle, cardinality
+import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==
+import ContinuumArrays: Weight, grid, ℵ₁
+import OrthogonalPolynomialsQuasi: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix
 
-import BlockArrays: block, blockindex
-import BlockBandedMatrices: BlockTridiagonal
+import BlockArrays: block, blockindex, _BlockedUnitRange
+import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal
+        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate, UltrasphericalArc
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))
@@ -116,7 +119,11 @@ function unroll(x)
     Ax,Bx,Ay,By
 end
 
+abstract type AlgebraicOrthogonalPolynomial{d,T} <: MultivariateOrthogonalPolynomial{d,T} end
 
+
+include("circle.jl")
+include("arc.jl")
 include("wedge.jl")
 include("square.jl")
 
