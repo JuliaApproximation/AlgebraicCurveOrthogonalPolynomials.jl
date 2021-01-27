@@ -1,8 +1,8 @@
-using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi,
+using OrthogonalPolynomialsAlgebraicCurves, ClassicalOrthogonalPolynomials,
     BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, ArrayLayouts,
     SemiclassicalOrthogonalPolynomials, Test, Random, LazyArrays, LazyBandedMatrices
 using ForwardDiff, StaticArrays
-import OrthogonalPolynomialsQuasi: jacobimatrix
+import ClassicalOrthogonalPolynomials: jacobimatrix
 
 
 @testset "arc" begin

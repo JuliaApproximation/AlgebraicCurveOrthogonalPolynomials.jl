@@ -1,2 +1,2 @@
-using OrthogonalPolynomialsQuasi, Test
+using ClassicalOrthogonalPolynomials, Test
 

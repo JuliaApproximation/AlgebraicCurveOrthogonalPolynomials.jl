@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, StaticArrays, BlockArrays, Test
+using OrthogonalPolynomialsAlgebraicCurves, ClassicalOrthogonalPolynomials, StaticArrays, BlockArrays, Test
 
 @testset "Wedge" begin
     @testset "quadrature" begin

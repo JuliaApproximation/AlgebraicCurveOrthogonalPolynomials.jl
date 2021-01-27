@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsAlgebraicCurves, OrthogonalPolynomialsQuasi, Test, QuasiArrays
+using OrthogonalPolynomialsAlgebraicCurves, ClassicalOrthogonalPolynomials, Test, QuasiArrays
 
 @testset "Circle" begin
     @testset "LegendreCircle" begin
