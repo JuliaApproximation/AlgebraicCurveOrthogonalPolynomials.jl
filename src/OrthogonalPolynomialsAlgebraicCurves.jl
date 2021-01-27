@@ -11,13 +11,14 @@ import QuasiArrays: DefaultQuasiArrayStyle, cardinality
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==
 import ContinuumArrays: Weight, grid, ℵ₁
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix
-
+import MultivariateOrthogonalPolynomials: BlockOneTo
 import BlockArrays: block, blockindex, _BlockedUnitRange
 import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate, UltrasphericalArc
+        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate, 
+        UltrasphericalArc, LegendreCubic
 
 function eigvals(A::Symmetric{<:Dual{Tg,T,N}}) where {Tg,T<:Real,N}
     λ,Q = eigen(Symmetric(value.(parent(A))))
@@ -126,7 +127,7 @@ include("circle.jl")
 include("arc.jl")
 include("wedge.jl")
 include("square.jl")
-
+include("cubic.jl")
 include("quartic.jl")
 
 include("algcurvapprox.jl")
