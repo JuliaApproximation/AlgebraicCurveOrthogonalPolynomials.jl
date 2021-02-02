@@ -69,11 +69,7 @@ end
 
 getindex(P::LegendreCubic{T}, xy::StaticVector{2}, Jj::BlockOneTo) where T = layout_getindex(P, xy, Jj)
 
-function getindex(P::LegendreCubic, xy::StaticVector{2}, j::Int)
-    j == 1 && return P[xy, Block(1)[1]]
-    P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
-end
-
+getindex(P::LegendreCubic, xy::StaticVector{2}, j::Int) = P[xy, findblockindex(axes(P,2),j)]
 summary(io::IO, P::LegendreCubic{V}) where V = print(io, "LegendreCubic($(P.t))")
 
 abstract type AbstractLegendreCubicJacobi{T} <: AbstractBlockBandedMatrix{T} end
@@ -92,8 +88,12 @@ struct LegendreCubicJacobiX{T} <: AbstractLegendreCubicJacobi{T}
     X_Q
 end
 
-LegendreCubicJacobiX(X_P, X_Q) = LegendreCubicJacobiX{promote_type(eltype(X_P),eltype(X_Q))}(X_P,X_Q)
+struct LegendreCubicJacobiY{T} <: AbstractLegendreCubicJacobi{T}
+    R
+end
 
+LegendreCubicJacobiX(X_P, X_Q) = LegendreCubicJacobiX{promote_type(eltype(X_P),eltype(X_Q))}(X_P,X_Q)
+LegendreCubicJacobiY(R) = LegendreCubicJacobiY{eltype(R)}(R)
 
 function BlockArrays.viewblock(X::LegendreCubicJacobiX{T}, kj::Block{2}) where T
     k,j = kj.n
@@ -121,7 +121,7 @@ function BlockArrays.viewblock(X::LegendreCubicJacobiX{T}, kj::Block{2}) where T
         end
     elseif k == j+1
         m = 3j ÷ 2
-        if isodd(k) 
+        if iseven(k) 
             return [0        X_Q[m-1,m-2]             0; 
                     0           0                   X_P[m+1,m];
                     0           0                     0]
@@ -132,10 +132,10 @@ function BlockArrays.viewblock(X::LegendreCubicJacobiX{T}, kj::Block{2}) where T
         end
     elseif k+1 == j
         m = 3k ÷ 2
-        if isodd(j) 
+        if iseven(j) 
             return [0           0             0; 
-                    X_Q[m-1,m-2]           0                   0;
-                    0           X_P[m+1,m]                     0]
+                    X_Q[m-2,m-1]           0                   0;
+                    0           X_P[m,m+1]                     0]
         else
             return [0        0             0; 
                     X_P[m,m-1]           0                   0;
@@ -146,3 +146,62 @@ function BlockArrays.viewblock(X::LegendreCubicJacobiX{T}, kj::Block{2}) where T
     end
 end
 
+function BlockArrays.viewblock(Y::LegendreCubicJacobiY{T}, kj::Block{2}) where T
+    k,j = kj.n
+    R = Y.R
+    k == j == 1 && return zeros(T,1,1)
+    (k,j) == (2,1) && return reshape([0,R[1,1]], 2, 1)
+    (k,j) == (1,2) && return [0 R[1,1]]
+    k == 1 && return zeros(T,1,3)
+    j == 1 && return zeros(T,3,1)
+    k == j == 2 && return [ 0       R[1,2]; 
+                            R[1,2]  0]
+    (k,j) == (3,2) && return [  0           R[1,3]; 
+                                R[2,2]      0; 
+                                0            R[1,4]]
+    (k,j) == (2,3) && return [0 R[2,2] 0; 
+                                R[1,3] 0 R[1,4]]
+    k == 2 && return zeros(T,2,3)
+    j == 2 && return zeros(T,3,2)
+    if k == j
+        m = 3k ÷ 2
+        if isodd(k) 
+            return [0           R[m-2,m-1]          0;
+                    R[m-2,m-1]      0               R[m-2,m];
+                    0           R[m-2,m]            0]
+        else
+            return [0           R[m-3,m-1]          0;
+                    R[m-3,m-1]      0               R[m-2,m-1];
+                    0           R[m-2,m-1]          0]
+        end
+    elseif k == j+1
+        m = 3j ÷ 2
+        if iseven(k)
+            return [R[m-1,m-1]      0               R[m-1,m];
+                    0               R[m-2,m+1]      0;
+                    0               0               R[m,m]]
+        else
+            return [R[m-3,m]      0               R[m-2,m];
+                    0               R[m-1,m-1]      0;
+                    0               0               R[m-2,m+1]]
+        end
+    elseif k+1 == j
+        m = 3k ÷ 2
+        if iseven(j) 
+            return [R[m-1,m-1]      0               0;
+                    0                R[m-2,m+1]     0;
+                    R[m-1,m]        0               R[m,m]]
+        else
+            return [R[m-3,m]      0                 0;
+                    0               R[m-1,m-1]      0;
+                    R[m-2,m]       0               R[m-2,m+1]]
+        end
+    else
+        zeros(T, 3, 3)
+    end
+end
+
+
+
+jacobimatrix(::Val{1}, P::LegendreCubic) = LegendreCubicJacobiX(jacobimatrix(P.P), jacobimatrix(P.Q))
+jacobimatrix(::Val{2}, P::LegendreCubic) = LegendreCubicJacobiY(P.Q \ P.P)

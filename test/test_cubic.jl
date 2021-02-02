@@ -1,22 +1,32 @@
 using OrthogonalPolynomialsAlgebraicCurves, ClassicalOrthogonalPolynomials, FillArrays, BlockArrays, LazyBandedMatrices, LazyArrays, Test
-import LazyBandedMatrices: BlockHvcat
 import OrthogonalPolynomialsAlgebraicCurves: LegendreCubicJacobiX
 
 @testset "cubic" begin
     P = LegendreCubic(2)
     xy = axes(P,1)
     x = 0.1
-    xy = SVector(x, sqrt(x*(1-x)*(P.t-x)))
+    y = sqrt(x*(1-x)*(P.t-x))
+    xy = SVector(x, y)
     
+    @testset "evaluation" begin
+        @test P[xy,1] == 1
+        @test P[xy,2] == P.P[x,2]
+        @test P[xy,3] == y*P.Q[x,1]
+        @test P[xy,6] == P.P[x,4]
+    end
+
     @testset "jacobi" begin
         X_P = jacobimatrix(P.P);
         X_Q = jacobimatrix(P.Q);
+        R = P.Q \ P.P;
+        R[1:10,1:10]
 
-        X = LegendreCubicJacobiX(X_P, X_Q)
+        X = jacobimatrix(Val(1), P)
+        Y = jacobimatrix(Val(2), P)
 
-        N = 3
-        x*P[xy,Block.(1:N)]'
-        P[xy,Block.(1:N+1)]' * X[Block.(1:N+1), Block.(1:N)]
+        N = 4
+        @test x*P[xy,Block.(1:N)]' ≈ P[xy,Block.(1:N+1)]' * X[Block.(1:N+1), Block.(1:N)]
+        @test y*P[xy,Block.(1:N)]' ≈ P[xy,Block.(1:N+1)]' * Y[Block.(1:N+1), Block.(1:N)]
 
         # @testset "blocked" begin 
         #     # make 1-blocks
