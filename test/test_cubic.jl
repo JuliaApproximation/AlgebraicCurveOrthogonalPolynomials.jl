@@ -83,7 +83,8 @@ import OrthogonalPolynomialsAlgebraicCurves: LegendreCubicJacobiX
                                         0    0    1] atol =1e-2     
                                         
             @testset "6x6 symbols" begin
-                c = -1/(3+2sqrt(2)) # -1/(2*φ(2t-1))
+                t = 2
+                c = -1/(2*φ(2t-1)) # -1/(3+2sqrt(2))
                 α = sqrt(-1/(64c))
                 X̄_0 = [1/2    0       1/4; 
                         0      1/2     0;
