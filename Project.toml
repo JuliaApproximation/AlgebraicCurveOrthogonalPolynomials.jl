@@ -39,7 +39,7 @@ FillArrays = "0.11"
 ForwardDiff = "0.10.12"
 MultivariateOrthogonalPolynomials = "0.0.4"
 QuasiArrays = "0.4"
-SemiclassicalOrthogonalPolynomials = "0.0.2"
+SemiclassicalOrthogonalPolynomials = "0.0.3"
 SpecialFunctions = "0.10, 1"
 StaticArrays = "0.12, 1"
 
