@@ -51,13 +51,11 @@ z = exp(0.1im)
 @test X(z)Y(z) ≈ Y(z)X(z)
 
 
-
-p = randn(9)
 function qopt(p)
     Q = qr(reshape(p,3,3)).Q
     vec(By1*Q' - Q*By2)
 end
-
+p = randn(9)
 p = p - svd(jacobian(qopt,p)) \ qopt(p); norm(qopt(p))
 
 

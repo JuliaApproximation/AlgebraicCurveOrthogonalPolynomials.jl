@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsQuasi, FillArrays, InfiniteArrays, LazyBandedMatrices, BlockBandedMatrices
+using ClassicalOrthogonalPolynomials, FillArrays, InfiniteArrays, LazyBandedMatrices, BlockBandedMatrices
 
 T = Chebyshev()
 x = axes(T,1)
