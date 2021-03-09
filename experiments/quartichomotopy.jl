@@ -1,5 +1,5 @@
-using OrthogonalPolynomialsAlgebraicCurves, ForwardDiff, Test
-import OrthogonalPolynomialsAlgebraicCurves: checkcommutes
+using AlgebraicCurveOrthogonalPolynomials, ForwardDiff, Test
+import AlgebraicCurveOrthogonalPolynomials: checkcommutes
 import ForwardDiff: gradient, jacobian
 
 

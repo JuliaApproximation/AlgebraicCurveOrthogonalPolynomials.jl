@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsAlgebraicCurves, BandedMatrices, BlockBandedMatrices, BlockArrays, Test
+using AlgebraicCurveOrthogonalPolynomials, BandedMatrices, BlockBandedMatrices, BlockArrays, Test
 using ForwardDiff, StaticArrays
 
 @testset "x^2 + y^4 = 1" begin

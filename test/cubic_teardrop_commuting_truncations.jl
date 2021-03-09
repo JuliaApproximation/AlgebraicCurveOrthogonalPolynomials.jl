@@ -1,4 +1,4 @@
-using LinearAlgebra, BlockBandedMatrices, OrthogonalPolynomialsAlgebraicCurves, Test
+using LinearAlgebra, BlockBandedMatrices, AlgebraicCurveOrthogonalPolynomials, Test
 
 @testset "commuting truncations cubic teardrop upper branch" begin
     γ(x) = 1/2*(1 - x)*sqrt(1 + x)

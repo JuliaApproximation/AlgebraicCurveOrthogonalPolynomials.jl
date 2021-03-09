@@ -1,4 +1,4 @@
-module OrthogonalPolynomialsAlgebraicCurves
+module AlgebraicCurveOrthogonalPolynomials
 using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
     ForwardDiff, ClassicalOrthogonalPolynomials, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays, SemiclassicalOrthogonalPolynomials,
     MultivariateOrthogonalPolynomials, FillArrays, ArrayLayouts, LazyBandedMatrices, LazyArrays

@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsAlgebraicCurves, ClassicalOrthogonalPolynomials,
+using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials,
     BandedMatrices, BlockBandedMatrices, BlockArrays, QuasiArrays, ArrayLayouts,
     SemiclassicalOrthogonalPolynomials, Test, Random, LazyArrays, LazyBandedMatrices
 using ForwardDiff, StaticArrays

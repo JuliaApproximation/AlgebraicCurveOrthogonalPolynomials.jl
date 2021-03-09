@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsAlgebraicCurves, ClassicalOrthogonalPolynomials, FastGaussQuadrature, StaticArrays, BlockArrays, Test
+using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, FastGaussQuadrature, StaticArrays, BlockArrays, Test
 
 @testset "Square" begin
     @testset "quad" begin

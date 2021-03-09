@@ -1,6 +1,6 @@
-using OrthogonalPolynomialsAlgebraicCurves, Plots, ForwardDiff
+using AlgebraicCurveOrthogonalPolynomials, Plots, ForwardDiff
 import ForwardDiff: jacobian
-import OrthogonalPolynomialsAlgebraicCurves: cm
+import AlgebraicCurveOrthogonalPolynomials: cm
 
 Z = zeros(4,4)
 B₁ˣ = [3/4 1/4 0 0; 1/4 3/4 0 0; 0 0 1/4 -1/4; 0 0 -1/4 1/4]

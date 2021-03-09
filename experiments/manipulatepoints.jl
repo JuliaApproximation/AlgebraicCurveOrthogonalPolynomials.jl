@@ -1,4 +1,4 @@
-using Pkg, ClassicalOrthogonalPolynomials, OrthogonalPolynomialsAlgebraicCurves, Plots, LinearAlgebra, Interact, InfiniteLinearAlgebra
+using Pkg, ClassicalOrthogonalPolynomials, AlgebraicCurveOrthogonalPolynomials, Plots, LinearAlgebra, Interact, InfiniteLinearAlgebra
 
 # Semicircle
 

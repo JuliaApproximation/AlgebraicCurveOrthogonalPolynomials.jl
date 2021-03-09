@@ -1,5 +1,5 @@
-using OrthogonalPolynomialsAlgebraicCurves, ForwardDiff, Test, Plots
-import OrthogonalPolynomialsAlgebraicCurves: symunroll, comunroll, cm, speccurvemat, spec2alg, evalmonbasis, symroll
+using AlgebraicCurveOrthogonalPolynomials, ForwardDiff, Test, Plots
+import AlgebraicCurveOrthogonalPolynomials: symunroll, comunroll, cm, speccurvemat, spec2alg, evalmonbasis, symroll
 import ForwardDiff: jacobian
 
 # explore 2 x 2 commuting Laurent polynomials,

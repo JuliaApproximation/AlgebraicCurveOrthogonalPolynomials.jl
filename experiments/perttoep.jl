@@ -1,5 +1,5 @@
-using OrthogonalPolynomialsAlgebraicCurves, Plots, ForwardDiff
-import OrthogonalPolynomialsAlgebraicCurves: cm, jacobian
+using AlgebraicCurveOrthogonalPolynomials, Plots, ForwardDiff
+import AlgebraicCurveOrthogonalPolynomials: cm, jacobian
 
 
 ###
@@ -18,7 +18,7 @@ V*Diagonal(λˣ)*inv(V)
 
 c = K \ [fill(0.5,4)...; symroll(zeros(4,4))...]
 
-OrthogonalPolynomialsAlgebraicCurves.comunroll(V,K*c)[1]
+AlgebraicCurveOrthogonalPolynomials.comunroll(V,K*c)[1]
 
 (Aˣ,Bˣ),(Aʸ,Bʸ) = (t -> real.(t)).(speccurvemat(Symmetric(zeros(4,4)), (λˣ, V), c .+ randn.()))
 
@@ -103,7 +103,7 @@ spec2alg(X,Y)
 # comjac
 ####
 using BlockArrays
-import OrthogonalPolynomialsAlgebraicCurves: cmjac, symjac, trjac
+import AlgebraicCurveOrthogonalPolynomials: cmjac, symjac, trjac
 
 function comunroll(p) 
     m = length(p)

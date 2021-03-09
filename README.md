@@ -1,4 +1,4 @@
-## OrthogonalPolynomialsAlgebraicCurves.jl
+## AlgebraicCurveOrthogonalPolynomials.jl
 A Julia package for orthogonal polynomials on algebraic curves
 
 

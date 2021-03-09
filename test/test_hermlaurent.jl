@@ -1,4 +1,4 @@
-using OrthogonalPolynomialsAlgebraicCurves, StaticArrays, Test
+using AlgebraicCurveOrthogonalPolynomials, StaticArrays, Test
 
 @testset "HermLaurent" begin
     @testset "UniformScaling" begin

@@ -1,4 +1,4 @@
-name = "OrthogonalPolynomialsAlgebraicCurves"
+name = "AlgebraicCurveOrthogonalPolynomials"
 uuid = "b2d6dd58-be48-4100-8375-7f7d22241ed8"
 authors = ["Sheehan Olver <solver@mac.com>"]
 version = "0.0.1"

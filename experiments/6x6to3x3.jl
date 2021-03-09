@@ -1,6 +1,6 @@
-using OrthogonalPolynomialsAlgebraicCurves, Plots, ForwardDiff
+using AlgebraicCurveOrthogonalPolynomials, Plots, ForwardDiff
 import ForwardDiff: jacobian
-import OrthogonalPolynomialsAlgebraicCurves: cm
+import AlgebraicCurveOrthogonalPolynomials: cm
 
 # Optimise
 

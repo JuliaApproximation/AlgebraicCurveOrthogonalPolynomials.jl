@@ -1,5 +1,5 @@
-using OrthogonalPolynomialsAlgebraicCurves, ClassicalOrthogonalPolynomials, FillArrays, BlockArrays, LazyBandedMatrices, LazyArrays, Test
-import OrthogonalPolynomialsAlgebraicCurves: LegendreCubicJacobiX
+using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, FillArrays, BlockArrays, LazyBandedMatrices, LazyArrays, Test
+import AlgebraicCurveOrthogonalPolynomials: LegendreCubicJacobiX
 
 @testset "cubic" begin
     P = LegendreCubic(2)
