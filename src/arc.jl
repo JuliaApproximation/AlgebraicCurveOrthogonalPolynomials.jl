@@ -69,18 +69,20 @@ axes(P::UltrasphericalArc{T}) where T = (ArcInclusion(P.h), _BlockedUnitRange(1:
 
 ==(P::UltrasphericalArc, Q::UltrasphericalArc) = P.a == Q.a
 
-function getindex(P::UltrasphericalArc{T}, xy::StaticVector{2}, j::BlockIndex{1}) where T
+
+function getindex(P::UltrasphericalArc{T}, xy::StaticVector{2}, JR::BlockOneTo) where T
+    ret = PseudoBlockVector{T}(undef, (axes(P,2)[JR],))
+    isempty(ret) && return ret
+
+
     x,y = xy
-    K,k = block(j),blockindex(j)
     h = P.h
     ỹ = (1-y)/(1-h)
-    K == Block(1) && return sqrt(1-h) * P.T[ỹ,1]
-    k == 1 ? x*P.U[ỹ,Int(K)-1]/sqrt(1-h) :  sqrt(1-h) * P.T[ỹ,Int(K)] 
-end
-
-function getindex(P::UltrasphericalArc, xy::StaticVector{2}, j::Int)
-    j == 1 && return P[xy, Block(1)[1]]
-    P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
+    ret[1] = sqrt(1-h) * P.T[ỹ,1]
+    for J in Block(2):JR[end]
+        ret[J] = [x*P.U[ỹ,Int(J)-1]/sqrt(1-h) ,  sqrt(1-h)*P.T[ỹ,Int(J)]]
+    end
+    ret    
 end
 
 summary(io::IO, P::UltrasphericalArc{V}) where V = print(io, "UltrasphericalArc($(P.h), $(P.a))")
