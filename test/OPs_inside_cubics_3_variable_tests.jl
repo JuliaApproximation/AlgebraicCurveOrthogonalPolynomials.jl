@@ -255,3 +255,25 @@ end
     commutator = X*Y - Y*X
     @test norm(commutator[1:nki2ind(n,n,3),1:nki2ind(n,n,3)]) < 5E-14
 end
+
+@testset "Connection and Jacobi matrices" begin
+    nmax = 10
+    α₁ = 0
+    β₁ = 0
+    α₂ = 0
+    β₂ = 0
+    b = 2.0
+    tol = 5E-14
+    C, Jx, Jy, Cinds = LanczosCubic3DPolys(nmax,α₁,β₁,α₂,β₂,b)
+    Cm = C[1:nk2ind(1,1),1:Cinds[nk2ind(1,1),2]]
+    commutator = Jx*Jy - Jy*Jx
+    @test norm(Cm*Cm'-I) < tol
+    Cm = C[1:nk2ind(2,2),1:Cinds[nk2ind(2,1),2]]
+    @test norm(Cm*Cm'-I) < tol
+    for d = 3:nmax
+        right = maximum(Cinds[nk2ind(d,0):nk2ind(d,d),2])
+        Cm = C[1:nk2ind(d,d),1:right]
+        @test norm(Cm*Cm'-I) < tol
+        @test norm(commutator[1:nk2ind(d-1,d-1),:]) < tol
+    end
+end
