@@ -31,6 +31,7 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
+ArrayLayouts = "0.7"
 BlockArrays = "0.15"
 BlockBandedMatrices = "0.10"
 ClassicalOrthogonalPolynomials = "0.4"
