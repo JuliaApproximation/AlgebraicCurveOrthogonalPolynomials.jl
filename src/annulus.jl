@@ -36,14 +36,12 @@ struct ZernikeAnnulus{T} <: BivariateOrthogonalPolynomial{T}
     ρ::T
     a::T
     b::T
-    ZernikeAnnulus{T}(a::T, b::T) where T = new{T}(a, b)
+    ZernikeAnnulus{T}(ρ::T, a::T, b::T) where T = new{T}(ρ, a, b)
 end
-ZernikeAnnulus{T}(a, b) where T = ZernikeAnnulus{T}(convert(T,a), convert(T,b))
-ZernikeAnnulus(a::T, b::V) where {T,V} = ZernikeAnnulus{float(promote_type(T,V))}(a, b)
-ZernikeAnnulus{T}(b) where T = ZernikeAnnulus{T}(zero(b), b)
-ZernikeAnnulus{T}() where T = ZernikeAnnulus{T}(zero(T))
-
-ZernikeAnnulus() = ZernikeAnnulus{Float64}()
+ZernikeAnnulus{T}(ρ, a, b) where T = ZernikeAnnulus{T}(convert(T,ρ), convert(T,a), convert(T,b))
+ZernikeAnnulus(ρ::R, a::T, b::V) where {R,T,V} = ZernikeAnnulus{float(promote_type(R,T,V))}(ρ, a, b)
+ZernikeAnnulus{T}(ρ) where T = ZernikeAnnulus{T}(ρ, zero(ρ), zero(ρ))
+ZernikeAnnulus(ρ) = ZernikeAnnulus(ρ, zero(ρ), zero(ρ))
 
 axes(P::ZernikeAnnulus{T}) where T = (Inclusion(annulus(P.ρ)),blockedrange(oneto(∞)))
 
@@ -53,22 +51,22 @@ copy(A::ZernikeAnnulus) = A
 
 orthogonalityweight(Z::ZernikeAnnulus) = AnnulusWeight(Z.ρ, Z.a, Z.b)
 
-zernikeannulusr(ρ, ℓ, m, a, b, r::T) where T = sqrt(convert(T,2)^(m+a+b+2-iszero(m))/π) * r^m * SemiclassicalJacobi(b,a,m)[(r^2 - 1)/(ρ^2 - 1), (ℓ-m) ÷ 2 + 1]
-function zernikeannulusz(ℓ, ms, a, b, rθ::RadialCoordinate{T}) where T
+zernikeannulusr(ρ, ℓ, m, a, b, r::T) where T = sqrt(convert(T,2)^(m+a+b+2-iszero(m))/π) * r^m * SemiclassicalJacobi(inv(1-ρ^2),b,a,m)[(r^2 - 1)/(ρ^2 - 1), (ℓ-m) ÷ 2 + 1]
+function zernikeannulusz(ρ, ℓ, ms, a, b, rθ::RadialCoordinate{T}) where T
     r,θ = rθ.r,rθ.θ
     m = abs(ms)
-    zernikeannulusr(ℓ, m, a, b, r) * (signbit(ms) ? sin(m*θ) : cos(m*θ))
+    zernikeannulusr(ρ, ℓ, m, a, b, r) * (signbit(ms) ? sin(m*θ) : cos(m*θ))
 end
 
-zernikeannulusz(ℓ, ms, a, b, xy::StaticVector{2}) = zernikeannulusz(ℓ, ms, a, b, RadialCoordinate(xy))
-zernikeannulusz(ℓ, ms, b, xy::StaticVector{2}) = zernikeannulusz(ℓ, ms, zero(b), b, xy)
-zernikeannulusz(ℓ, ms, xy::StaticVector{2,T}) where T = zernikeannulusz(ℓ, ms, zero(T), xy)
+zernikeannulusz(ρ, ℓ, ms, a, b, xy::StaticVector{2}) = zernikeannulusz(ρ, ℓ, ms, a, b, RadialCoordinate(xy))
+zernikeannulusz(ρ, ℓ, ms, b, xy::StaticVector{2}) = zernikeannulusz(ρ, ℓ, ms, zero(b), b, xy)
+zernikeannulusz(ρ, ℓ, ms, xy::StaticVector{2,T}) where T = zernikeannulusz(ρ, ℓ, ms, zero(T), xy)
 
 function getindex(Z::ZernikeAnnulus{T}, rθ::RadialCoordinate, B::BlockIndex{1}) where T
     ℓ = Int(block(B))-1
     k = blockindex(B)
     m = iseven(ℓ) ? k-isodd(k) : k-iseven(k)
-    zernikeannulusz(ℓ, (isodd(k+ℓ) ? 1 : -1) * m, Z.a, Z.b, rθ)
+    zernikeannulusz(Z.ρ, ℓ, (isodd(k+ℓ) ? 1 : -1) * m, Z.a, Z.b, rθ)
 end
 
 
@@ -78,13 +76,13 @@ getindex(Z::ZernikeAnnulus, xy::StaticVector{2}, JR::BlockOneTo) = mortar([Z[xy,
 
 
 
-# function \(A::ZernikeAnnulus{T}, B::ZernikeAnnulus{V}) where {T,V}
-#     TV = promote_type(T,V)
-#     A.a == B.a && A.b == B.b && return Eye{TV}(∞)
-#     @assert A.a == 0 && A.b == 1
-#     @assert B.a == 0 && B.b == 0
-#     ModalInterlace{TV}((Normalized.(Jacobi{TV}.(1,0:∞)) .\ Normalized.(Jacobi{TV}.(0,0:∞))) ./ sqrt(convert(TV, 2)), (0,2))
-# end
+function \(A::ZernikeAnnulus{T}, B::ZernikeAnnulus{V}) where {T,V}
+    TV = promote_type(T,V)
+    A.a == B.a && A.b == B.b && return Eye{TV}(∞)
+    t = inv(1-A.ρ^2)
+    c = 2^((B.a-A.a+B.b-A.b)/2)
+    ModalInterlace{TV}(c .* (SemiclassicalJacobi{TV}.(t,A.b,A.a,0:∞) .\ SemiclassicalJacobi{TV}.(t,B.b,B.a,0:∞)), (ℵ₀,ℵ₀), (0,2*Int(max(A.b-B.b,A.a-B.a))))
+end
 
 # function \(A::ZernikeAnnulus{T}, B::Weighted{V,ZernikeAnnulus{V}}) where {T,V}
 #     TV = promote_type(T,V)

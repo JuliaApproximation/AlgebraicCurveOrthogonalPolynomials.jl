@@ -8,17 +8,17 @@ import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality
-import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==
-import ContinuumArrays: Weight, grid, ℵ₁
+import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto
+import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix
-import MultivariateOrthogonalPolynomials: BlockOneTo
+import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace
 import BlockArrays: block, blockindex, _BlockedUnitRange
 import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
         HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate, 
-        UltrasphericalArc, LegendreCubic
+        UltrasphericalArc, LegendreCubic, ZernikeAnnulus
 
 
 
@@ -101,6 +101,7 @@ include("wedge.jl")
 include("square.jl")
 include("cubic.jl")
 include("quartic.jl")
+include("annulus.jl")
 
 include("algcurvapprox.jl")
 
