@@ -9,7 +9,7 @@ function LanczosCubic3DPolys(nmax,α₁,β₁,α₂,β₂,b)
 
     # store the leftmost and rightmost nonzero columns of each row of C in Cinds
 
-    Cinds = zeros(Int64,Int64((nmax+1)*(nmax+2)/2),2)
+    Cinds = zeros(Int, (nmax+1)*(nmax+2) ÷ 2, 2)
     # Jacobi operators of the OPs
     l,u = 1,1
     rows = 1:nmax+1
@@ -298,77 +298,79 @@ function XP(nmax,α₁,β₁,α₂,β₂,b)
     pϕw = Normalized(SemiclassicalJacobi((b+1)/2, β₁+1, α₁+1, 1))
     Jϕw = jacobimatrix(pϕw)
 
-    k = 0
+    begin
+        k = 0
+        pzk = Normalized(SemiclassicalJacobi((b+1)/2, 2k+1+β₂, α₂, 0.0))
+        Jzk = jacobimatrix(pzk)
+        pzk1 = Normalized(SemiclassicalJacobi((b+1)/2,2k+3+β₂, α₂, 0.0))
+        Jzk1 = jacobimatrix(pzk1)
+        Ck1 = pzk1\pzk
 
-    pzk = Normalized(SemiclassicalJacobi((b+1)/2, 2k+1+β₂, α₂, 0.0))
-    Jzk = jacobimatrix(pzk)
-    pzk1 = Normalized(SemiclassicalJacobi((b+1)/2,2k+3+β₂, α₂, 0.0))
-    Jzk1 = jacobimatrix(pzk1)
-    Ck1 = pzk1\pzk
+        for n = k:nmax
+            row = Block(n+1)[1]
+            kient = 2*Jw[k+1,k+1] - 1
+            X[row,row] = Jzk[n+1,n+1]*kient
+            col = Block(n+2)[1]
+            X[row,col] = X[col,row] = Jzk[n+1,n+2]*kient
 
-    for n = k:nmax
-        row = nki2ind(n,k,1)
-        kient = 2*Jw[k+1,k+1] - 1
-        X[row,row] = Jzk[n+1,n+1]*kient
-        col = nki2ind(n+1,k,1)
-        X[row,col] = X[col,row] = Jzk[n+1,n+2]*kient
-
-        kient = 2*Jw[k+1,k+2]
-        col = nki2ind(n+1,k+1,1)
-        X[row,col] = X[col,row] = Ck1[n+1,n+1]*kient
-        if n > 0
-            col = nki2ind(n,k+1,1)
-            X[row,col] = X[col,row] = Ck1[n,n+1]*kient
+            kient = 2*Jw[k+1,k+2]
+            col = Block(n+2)[2]
+            X[row,col] = X[col,row] = Ck1[n+1,n+1]*kient
+            if n > 0
+                col = Block(n+1)[2]
+                X[row,col] = X[col,row] = Ck1[n,n+1]*kient
+            end
         end
+
+        Jzk = Jzk1
+        pzk = pzk1
+        Ck = Ck1
     end
 
-    Jzk = Jzk1
-    pzk = pzk1
-    Ck = Ck1
+    begin
+        k = 1
+        pzk1 = Normalized(SemiclassicalJacobi((b+1)/2,2k+3+β₂, α₂, 0.0))
+        Jzk1 = jacobimatrix(pzk1)
+        Ck1 = pzk1\pzk
 
-    k = 1
+        for n = k:nmax
+            # (n,1,1)
+            row = nki2ind(n,k,1)
 
-    pzk1 = Normalized(SemiclassicalJacobi((b+1)/2,2k+3+β₂, α₂, 0.0))
-    Jzk1 = jacobimatrix(pzk1)
-    Ck1 = pzk1\pzk
+            kient = 2*Jw[k,k+1]
+            col = nki2ind(n+1,0,1)
+            X[row,col] = X[col,row] = Ck[n,n+2]*kient
 
-    for n = k:nmax
-        # (n,1,1)
-        row = nki2ind(n,k,1)
+            kient = 2*Jw[k+1,k+1] - 1
+            X[row,row] = Jzk[n,n]*kient
+            col = nki2ind(n+1,k,1)
+            X[row,col] = X[col,row] = Jzk[n,n+1]*kient
 
-        kient = 2*Jw[k,k+1]
-        col = nki2ind(n+1,0,1)
-        X[row,col] = X[col,row] = Ck[n,n+2]*kient
+            kient = 2*Jw[k+1,k+2]
+            col = nki2ind(n+1,k+1,2)
+            X[row,col] = X[col,row] = Ck1[n,n]*kient
+            if n > 1
+                col = nki2ind(n,k+1,2)
+                X[row,col] = X[col,row] = Ck1[n-1,n]*kient
+            end
 
-        kient = 2*Jw[k+1,k+1] - 1
-        X[row,row] = Jzk[n,n]*kient
-        col = nki2ind(n+1,k,1)
-        X[row,col] = X[col,row] = Jzk[n,n+1]*kient
+            # (n,1,2)
+            row = nki2ind(n,k,2)
 
-        kient = 2*Jw[k+1,k+2]
-        col = nki2ind(n+1,k+1,2)
-        X[row,col] = X[col,row] = Ck1[n,n]*kient
-        if n > 1
-            col = nki2ind(n,k+1,2)
-            X[row,col] = X[col,row] = Ck1[n-1,n]*kient
+            kient = 2*Jϕw[k,k] - 1
+            X[row,row] = Jzk[n,n]*kient
+            col = nki2ind(n+1,k,2)
+            X[row,col] = X[col,row] = Jzk[n,n+1]*kient
+
+            kient = 2*Jϕw[k,k+1]
+            col = nki2ind(n+1,k+1,3)
+            X[row,col] = X[col,row] = Ck1[n,n]*kient
+            if n > 1
+                col = nki2ind(n,k+1,3)
+                X[row,col] = X[col,row] = Ck1[n-1,n]*kient
+            end
+
         end
-
-        # (n,1,2)
-        row = nki2ind(n,k,2)
-
-        kient = 2*Jϕw[k,k] - 1
-        X[row,row] = Jzk[n,n]*kient
-        col = nki2ind(n+1,k,2)
-        X[row,col] = X[col,row] = Jzk[n,n+1]*kient
-
-        kient = 2*Jϕw[k,k+1]
-        col = nki2ind(n+1,k+1,3)
-        X[row,col] = X[col,row] = Ck1[n,n]*kient
-        if n > 1
-            col = nki2ind(n,k+1,3)
-            X[row,col] = X[col,row] = Ck1[n-1,n]*kient
-        end
-
     end
 
     for k = 2:nmax
@@ -800,7 +802,7 @@ function nki2ind(n,k,i)
     if n == 0
         ind = 1
     else
-        prev = Int64(1 + 3*(n-1)*n/2) # number of polys of deg <= n-1
+        prev = 1 + 3*(n-1)*n ÷ 2 # number of polys of deg <= n-1
         if k == 0
             ind = prev + 1
         elseif k == 1

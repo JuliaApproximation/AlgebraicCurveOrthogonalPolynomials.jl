@@ -1,4 +1,4 @@
-using ClassicalOrthogonalPolynomials, ContinuumArrays, SemiclassicalOrthogonalPolynomials, LinearAlgebra, BlockBandedMatrices, BandedMatrices, GenericSVD, GenericLinearAlgebra, Test
+using ClassicalOrthogonalPolynomials, ContinuumArrays, SemiclassicalOrthogonalPolynomials, LinearAlgebra, BlockBandedMatrices, BandedMatrices, Test
 
 include("OPs_inside_cubics_3_variable.jl")
 
