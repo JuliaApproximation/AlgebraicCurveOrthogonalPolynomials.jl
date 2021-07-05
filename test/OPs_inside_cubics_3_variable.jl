@@ -812,7 +812,7 @@ function nki2ind(n,k,i)
     ind
 end
 
-deg(k,i) = Int64(3*floor(k/2)) + mod(k,2) + 1-i
+deg(k,i) = 3*(k ÷ 2) + mod(k,2) + 1-i
 
 function Xinds(row)
     # For a given row, find the indices of the leftmost and rightmost nonzero entries of X
