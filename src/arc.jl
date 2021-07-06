@@ -1,7 +1,7 @@
 """
 The arc y ≥ h
 """
-struct Arc{T} <: Domain{T} 
+struct Arc{T} <: Domain{SVector{2,T}} 
     h::T
 end
 Arc{T}() where T = Arc{T}(zero(T))
@@ -19,6 +19,8 @@ function in(xy::StaticVector{2}, d::Arc)
     x,y = xy
     norm(xy) == 1 && y ≥ d.h
 end
+
+==(a::Arc, b::Arc) = a.h == b.h
 
 const ArcInclusion{T} = Inclusion{CircleCoordinate{T},Arc{T}}
 ArcInclusion{T}() where T = Inclusion{CircleCoordinate{T},Arc{T}}(Arc{T}())

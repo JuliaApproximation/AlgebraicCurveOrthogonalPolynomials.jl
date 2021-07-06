@@ -6,7 +6,7 @@ function gausssquare(n)
     [2w[1]; w[2:end]; w[2:end]; 2w[1]; w[2:end]; w[2:end]])
 end
 
-struct Square{T} <: EuclideanDomain{2,T} end
+struct Square{T} <: Domain{SVector{2,T}} end
 Square() = Square{Float64}()
 
 function in(p::SVector{2}, d::Square)
