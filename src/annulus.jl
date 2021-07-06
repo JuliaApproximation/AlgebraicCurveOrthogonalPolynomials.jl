@@ -51,7 +51,7 @@ copy(A::ZernikeAnnulus) = A
 
 orthogonalityweight(Z::ZernikeAnnulus) = AnnulusWeight(Z.ρ, Z.a, Z.b)
 
-zernikeannulusr(ρ, ℓ, m, a, b, r::T) where T = sqrt(convert(T,2)^(m+a+b+2-iszero(m))/π) * r^m * SemiclassicalJacobi(inv(1-ρ^2),b,a,m)[(r^2 - 1)/(ρ^2 - 1), (ℓ-m) ÷ 2 + 1]
+zernikeannulusr(ρ, ℓ, m, a, b, r::T) where T = sqrt(convert(T,2)^(m+a+b+2-iszero(m))/π) * r^m * SemiclassicalJacobi{T}(inv(1-ρ^2),b,a,m)[(r^2 - 1)/(ρ^2 - 1), (ℓ-m) ÷ 2 + 1]
 function zernikeannulusz(ρ, ℓ, ms, a, b, rθ::RadialCoordinate{T}) where T
     r,θ = rθ.r,rθ.θ
     m = abs(ms)
