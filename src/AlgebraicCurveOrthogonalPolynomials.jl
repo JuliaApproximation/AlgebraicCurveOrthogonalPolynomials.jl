@@ -18,7 +18,7 @@ import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockba
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
         HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate, 
-        UltrasphericalArc, LegendreCubic, ZernikeAnnulus
+        UltrasphericalArc, LegendreCubic, ZernikeAnnulus, ComplexZernikeAnnulus
 
 
 
