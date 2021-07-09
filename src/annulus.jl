@@ -72,7 +72,7 @@ copy(A::AbstractZernikeAnnulus) = A
 
 orthogonalityweight(Z::AbstractZernikeAnnulus) = AnnulusWeight(Z.ρ, Z.a, Z.b)
 
-zernikeannulusr(ρ, ℓ, m, a, b, r::T) where T = sqrt(convert(T,2)^(m+a+b+2-iszero(m))/π) * r^m * SemiclassicalJacobi{T}(inv(1-ρ^2),b,a,m)[(r^2 - 1)/(ρ^2 - 1), (ℓ-m) ÷ 2 + 1]
+zernikeannulusr(ρ, ℓ, m, a, b, r::T) where T = r^m * SemiclassicalJacobi{T}(inv(1-ρ^2),b,a,m)[(r^2 - 1)/(ρ^2 - 1), (ℓ-m) ÷ 2 + 1]
 function zernikeannulusz(ρ, ℓ, ms, a, b, rθ::RadialCoordinate{T}) where T
     r,θ = rθ.r,rθ.θ
     m = abs(ms)
@@ -120,8 +120,7 @@ function \(A::AbstractZernikeAnnulus{T}, B::AbstractZernikeAnnulus{V}) where {T,
     TV = promote_type(T,V)
     A.a == B.a && A.b == B.b && return Eye{TV}(∞)
     t = inv(1-A.ρ^2)
-    c = 2^((B.a-A.a+B.b-A.b)/2)
-    ModalInterlace{TV}(c .* (SemiclassicalJacobi{TV}.(t,A.b,A.a,0:∞) .\ SemiclassicalJacobi{TV}.(t,B.b,B.a,0:∞)), (ℵ₀,ℵ₀), (0,2*Int(max(A.b-B.b,A.a-B.a))))
+    ModalInterlace{TV}((SemiclassicalJacobi{TV}.(t,A.b,A.a,0:∞) .\ SemiclassicalJacobi{TV}.(t,B.b,B.a,0:∞)), (ℵ₀,ℵ₀), (0,2*Int(max(A.b-B.b,A.a-B.a))))
 end
 
 # function \(A::ZernikeAnnulus{T}, B::Weighted{V,ZernikeAnnulus{V}}) where {T,V}

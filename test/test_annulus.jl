@@ -2,6 +2,7 @@ using AlgebraicCurveOrthogonalPolynomials, MultivariateOrthogonalPolynomials, Se
 import AlgebraicCurveOrthogonalPolynomials: zernikeannulusr, complexzernikeannulusz, UnitInterval, ModalInterlace
 using LazyArrays
 import ForwardDiff: derivative, hessian, gradient
+import SemiclassicalOrthogonalPolynomials: HalfWeighted
 
 
 @testset "Annulus" begin
@@ -100,6 +101,55 @@ import ForwardDiff: derivative, hessian, gradient
     end
 
     @testset "Real" begin
+        ρ  = 0.5; t = inv(1-ρ^2)
+
+        @testset "Unweighted" begin
+            A = ZernikeAnnulus(ρ)
+            C = ZernikeAnnulus(ρ,2,2)
+            a,b = 0,0
+            x = Inclusion(UnitInterval())
+            D = Derivative(x)
+
+            Δs = BroadcastVector{AbstractMatrix{Float64}}((C,B,A) -> 4t*(HalfWeighted{:c}(C)\(D*HalfWeighted{:c}(B)))*(B\(D*A)), SemiclassicalJacobi.(t,b+2,a+2,0:∞), SemiclassicalJacobi.(t,b+1,a+1,1:∞), SemiclassicalJacobi.(t,b,a,0:∞))
+
+            Δ = ModalInterlace(Δs, size(Δs[1]), (-2,6))
+
+            xy = SVector(0.5,0.1)
+            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,4], xy)) ≈ C[xy,1] * Δ[1,4]
+            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,7], xy)) ≈ C[xy,2] * Δ[2,7]
+            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,8], xy)) ≈ C[xy,3] * Δ[3,8]
+            tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,10], xy))
+            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,11], xy)) ≈ C[xy,1:4]' * Δ[1:4,11]
+
+            c = randn(20)
+            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,1:20]'*c, xy)) ≈ (C * (Δ * [c; zeros(∞)]))[xy]
+        end
+        
+        r = norm(xy)
+        zernikeannulusr(ρ, 4, 0, 0, 0, r)
+        T = Float64
+        s = r^2
+        τ = (1-s)/(1-ρ^2)
+        m = 0
+        g = τ -> SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),0,0,0)[τ, 3]
+        g(τ)
+        C,B,A = SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),2,2,0),SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),1,1,1),SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),0,0,0)
+
+        Δ_ex = tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,11], xy))
+        D1 = (B\(D*A))
+        B[τ,1:2]'*D1[1:2,3]
+        (D * HalfWeighted{:c}(B))[τ,1:2]'*D1[1:2,3]
+
+        D2 = HalfWeighted{:c}(C) \ (D * HalfWeighted{:c}(B))
+
+        Δ_ex ≈ C[τ,1:2]'*(4t*D2*D1)[1:2,3]
+
+        r^m * 4t*(t-τ)^(-m) * derivative(τ -> (t-τ)^(m+1) * derivative(g, τ), τ)
+
+
+        4t*cos(m*θ) * r^m * (t-τ)^(-m) * derivative(τ -> (t-τ)^(m+1) * derivative(g, τ), τ)
+
+
         
     end
 
