@@ -1,4 +1,5 @@
-using ForwardDiff: derivative
+using LazyArrays: eltype
+using ForwardDiff: derivative, hessian
 using Base: beginsym
 using AlgebraicCurveOrthogonalPolynomials, LinearAlgebra, BlockBandedMatrices, BlockArrays, FillArrays, Test
 

@@ -124,6 +124,12 @@ import SemiclassicalOrthogonalPolynomials: HalfWeighted
             c = randn(20)
             @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,1:20]'*c, xy)) ≈ (C * (Δ * [c; zeros(∞)]))[xy]
         end
+
+        @testset "Weighted" begin
+            W = Weighted(ZernikeAnnulus(ρ,1,1))
+
+            Δs = BroadcastVector{AbstractMatrix{Float64}}((C,B,A) -> 4t*(HalfWeighted{:c}(C)\(D*HalfWeighted{:c}(B)))*(B\(D*A)), SemiclassicalJacobi.(t,1,1,0:∞), SemiclassicalJacobi.(t,0,0,1:∞), SemiclassicalJacobi.(t,1,1,0:∞))
+        end
         
         r = norm(xy)
         zernikeannulusr(ρ, 4, 0, 0, 0, r)
