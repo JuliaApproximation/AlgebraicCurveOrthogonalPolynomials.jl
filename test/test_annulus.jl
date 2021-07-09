@@ -8,35 +8,95 @@ import ForwardDiff: derivative, hessian, gradient
     @testset "Complex calculus" begin
         ρ = 0.5; t = inv(1-ρ^2)
         g = τ -> exp(τ*cos(τ))
-        m = 1
+        m = 2
         f = s -> g((1-s)/(1-ρ^2))
-        h = r -> r^m * f(r^2)
+        v = r -> f(r^2)
+        h = r -> r^m * v(r)
 
 
         F = (r,θ) -> exp(im*m*θ) * h(r)
         xy = SVector(0.5,0.1)
         (x,y) = xy; (r,θ) = (norm(xy),atan(y,x));
 
-        Δ = tr(hessian(xy -> ((x,y) = xy; (r,θ) = (norm(xy),atan(y,x)); real(F(r,θ))), xy)) + im * tr(hessian(xy -> ((x,y) = xy; (r,θ) = (norm(xy),atan(y,x)); imag(F(r,θ))), xy))
+
+        Δ = tr(hessian(xy -> ((x,y) = xy; (r,θ) = (norm(xy),atan(y,x)); real(F(r,θ))), xy)) + 
+                im * tr(hessian(xy -> ((x,y) = xy; (r,θ) = (norm(xy),atan(y,x)); imag(F(r,θ))), xy))
 
 
+        s = r^2
+        τ = (1-s)/(1-ρ^2)
+
+        @test s ≈ 1-τ/t
 
         h_r = derivative(h,r)
         h_rr = derivative(r -> derivative(h,r), r)
-
-        r^m * exp(im*m*θ) * (h_rr + r \ h_r - m^2 * r^2 \ h(r))
-
-
-        f_s = derivative(f,r^2)
-        f_ss = derivative(s -> derivative(f,s), r^2)
-
-        r^m * exp(im*m*θ) * ((m+1) * f_s + r^2 * f_ss)
-        
-        
-        τ = (1-r^2) / (1-ρ^2)
-        g_τ = derivative(g,τ)
+        v_r = derivative(v,r)
+        v_rr = derivative(r -> derivative(v,r), r)
+        f_s = derivative(f, s)
+        f_ss = derivative(s -> derivative(f,s), s)
+        g_τ = derivative(g, τ)
         g_ττ = derivative(τ -> derivative(g,τ), τ)
-        t * r^m * cos(m*θ) * ((m+1) * g_τ + (t-τ) * g_ττ)
+
+        @test h_r ≈ m*r^(m-1)*v(r) + r^m * v_r
+        @test h_rr ≈ m*(m-1)*r^(m-2)*v(r) + 2m*r^(m-1)*v_r + r^m * v_rr
+
+        @test v_r ≈ 2r*f_s
+        @test v_rr ≈ 2f_s + 4r^2*f_ss
+
+        @test f_s ≈ -t*g_τ
+        @test f_ss ≈ t^2*g_ττ
+
+        @test Δ ≈ exp(im*m*θ) * (h_rr + r \ h_r - m^2 * (r^2 \ h(r))) ≈
+                    exp(im*m*θ) * r^m * ((2m+1)*r^(-1)*v_r + v_rr) ≈
+                    4exp(im*m*θ) * r^m * (s*f_ss + (1+m)*f_s) ≈
+                    4t*exp(im*m*θ) * r^m * ((t-τ)*g_ττ - (1+m)*g_τ) ≈
+                    4t*exp(im*m*θ) * r^m * (t-τ)^(-m) * derivative(τ -> (t-τ)^(m+1) * derivative(g, τ), τ)
+    end
+
+    @testset "calculus" begin
+        ρ = 0.5; t = inv(1-ρ^2)
+        g = τ -> exp(τ*cos(τ))
+        m = 2
+        f = s -> g((1-s)/(1-ρ^2))
+        v = r -> f(r^2)
+        h = r -> r^m * v(r)
+
+
+        F = (r,θ) -> cos(m*θ) * h(r)
+        xy = SVector(0.5,0.1)
+        (x,y) = xy; (r,θ) = (norm(xy),atan(y,x));
+
+
+        Δ = tr(hessian(xy -> ((x,y) = xy; (r,θ) = (norm(xy),atan(y,x)); F(r,θ)), xy))
+
+        s = r^2
+        τ = (1-s)/(1-ρ^2)
+
+        @test s ≈ 1-τ/t
+
+        h_r = derivative(h,r)
+        h_rr = derivative(r -> derivative(h,r), r)
+        v_r = derivative(v,r)
+        v_rr = derivative(r -> derivative(v,r), r)
+        f_s = derivative(f, s)
+        f_ss = derivative(s -> derivative(f,s), s)
+        g_τ = derivative(g, τ)
+        g_ττ = derivative(τ -> derivative(g,τ), τ)
+
+        @test h_r ≈ m*r^(m-1)*v(r) + r^m * v_r
+        @test h_rr ≈ m*(m-1)*r^(m-2)*v(r) + 2m*r^(m-1)*v_r + r^m * v_rr
+
+        @test v_r ≈ 2r*f_s
+        @test v_rr ≈ 2f_s + 4r^2*f_ss
+
+        @test f_s ≈ -t*g_τ
+        @test f_ss ≈ t^2*g_ττ
+
+        @test Δ ≈ cos(m*θ) * (h_rr + r \ h_r - m^2 * (r^2 \ h(r))) ≈
+                    cos(m*θ) * r^m * ((2m+1)*r^(-1)*v_r + v_rr) ≈
+                    4cos(m*θ) * r^m * (s*f_ss + (1+m)*f_s) ≈
+                    4t*cos(m*θ) * r^m * ((t-τ)*g_ττ - (1+m)*g_τ) ≈
+                    4t*cos(m*θ) * r^m * (t-τ)^(-m) * derivative(τ -> (t-τ)^(m+1) * derivative(g, τ), τ)
     end
 
     @testset "Real" begin
