@@ -2,7 +2,7 @@ using AlgebraicCurveOrthogonalPolynomials, MultivariateOrthogonalPolynomials, Se
 import AlgebraicCurveOrthogonalPolynomials: zernikeannulusr, complexzernikeannulusz, UnitInterval, ModalInterlace
 using LazyArrays
 import ForwardDiff: derivative, hessian, gradient
-import SemiclassicalOrthogonalPolynomials: HalfWeighted
+import SemiclassicalOrthogonalPolynomials: HalfWeighted, divmul
 
 
 @testset "Annulus" begin
@@ -130,7 +130,7 @@ import SemiclassicalOrthogonalPolynomials: HalfWeighted
             W = Weighted(P)
             x = Inclusion(UnitInterval())
             D = Derivative(x)
-            Δs = BroadcastVector{AbstractMatrix{Float64}}((C,B,A) -> 4t*(1-ρ^2)^2*(HalfWeighted{:c}(C)\(D*HalfWeighted{:c}(B)))*(B\(D*HalfWeighted{:ab}(A))), SemiclassicalJacobi.(t,1,1,0:∞), SemiclassicalJacobi.(t,0,0,1:∞), SemiclassicalJacobi.(t,1,1,0:∞))
+            Δs = BroadcastVector{AbstractMatrix{Float64}}((C,B,A) -> 4t*(1-ρ^2)^2*divmul(HalfWeighted{:c}(C),D,HalfWeighted{:c}(B))*divmul(HalfWeighted{:ab}(B),D,HalfWeighted{:ab}(A)), SemiclassicalJacobi.(t,1,1,0:∞), SemiclassicalJacobi.(t,0,0,1:∞), SemiclassicalJacobi.(t,1,1,0:∞))
             Δ = ModalInterlace(Δs, size(Δs[1]), (2,2))
             xy = SVector(0.5,0.1); r = norm(xy); τ = (1-r^2)/(1-ρ^2)
             @test Weighted(ZernikeAnnulus{eltype(xy)}(ρ,1,1))[xy,1] ≈ (1-r^2) * (r^2-ρ^2) * ZernikeAnnulus{eltype(xy)}(ρ,1,1)[xy,1] ≈ (1-ρ^2)^2 * HalfWeighted{:ab}(SemiclassicalJacobi.(t,1,1,0:∞)[1])[τ,1]
@@ -138,6 +138,9 @@ import SemiclassicalOrthogonalPolynomials: HalfWeighted
 
             c = [randn(100); zeros(∞)]
             @test tr(hessian(xy -> (Weighted(ZernikeAnnulus{eltype(xy)}(ρ,1,1))*c)[xy], xy)) ≈ (P*(Δ*c))[xy]
+
+
+            plot(P*c)
         end
 
         r = norm(xy)
