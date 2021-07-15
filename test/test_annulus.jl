@@ -106,21 +106,13 @@ import SemiclassicalOrthogonalPolynomials: HalfWeighted, divmul
         @testset "Unweighted" begin
             A = ZernikeAnnulus(ρ)
             C = ZernikeAnnulus(ρ,2,2)
-            a,b = 0,0
-            x = Inclusion(UnitInterval())
-            D = Derivative(x)
-
-            Δs = BroadcastVector{AbstractMatrix{Float64}}((C,B,A) -> 4t*(HalfWeighted{:c}(C)\(D*HalfWeighted{:c}(B)))*(B\(D*A)), SemiclassicalJacobi.(t,b+2,a+2,0:∞), SemiclassicalJacobi.(t,b+1,a+1,1:∞), SemiclassicalJacobi.(t,b,a,0:∞))
-
-            Δ = ModalInterlace(Δs, size(Δs[1]), (-2,6))
+            Δ  = C \ (Laplacian(axes(A,1)) * A)
 
             xy = SVector(0.5,0.1)
-            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,4], xy)) ≈ C[xy,1] * Δ[1,4]
-            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,7], xy)) ≈ C[xy,2] * Δ[2,7]
-            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,8], xy)) ≈ C[xy,3] * Δ[3,8]
-            tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,10], xy))
-            @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,11], xy)) ≈ C[xy,1:4]' * Δ[1:4,11]
-
+            # @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,4], xy)) ≈ C[xy,1] * Δ[1,4]
+            # @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,7], xy)) ≈ C[xy,2] * Δ[2,7]
+            # @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,8], xy)) ≈ C[xy,3] * Δ[3,8]
+            # @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,11], xy)) ≈ C[xy,1:4]' * Δ[1:4,11]
             c = randn(20)
             @test tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,1:20]'*c, xy)) ≈ (C * (Δ * [c; zeros(∞)]))[xy]
         end
@@ -128,47 +120,18 @@ import SemiclassicalOrthogonalPolynomials: HalfWeighted, divmul
         @testset "Weighted" begin
             P = ZernikeAnnulus(ρ,1,1)
             W = Weighted(P)
+            Δ  = P \ (Laplacian(axes(P,1)) * W)
+
             x = Inclusion(UnitInterval())
             D = Derivative(x)
-            Δs = BroadcastVector{AbstractMatrix{Float64}}((C,B,A) -> 4t*(1-ρ^2)^2*divmul(HalfWeighted{:c}(C),D,HalfWeighted{:c}(B))*divmul(HalfWeighted{:ab}(B),D,HalfWeighted{:ab}(A)), SemiclassicalJacobi.(t,1,1,0:∞), SemiclassicalJacobi.(t,0,0,1:∞), SemiclassicalJacobi.(t,1,1,0:∞))
-            Δ = ModalInterlace(Δs, size(Δs[1]), (2,2))
+            Δ = P \ (Laplacian(axes(P,1)) * W)
             xy = SVector(0.5,0.1); r = norm(xy); τ = (1-r^2)/(1-ρ^2)
             @test Weighted(ZernikeAnnulus{eltype(xy)}(ρ,1,1))[xy,1] ≈ (1-r^2) * (r^2-ρ^2) * ZernikeAnnulus{eltype(xy)}(ρ,1,1)[xy,1] ≈ (1-ρ^2)^2 * HalfWeighted{:ab}(SemiclassicalJacobi.(t,1,1,0:∞)[1])[τ,1]
             @test tr(hessian(xy -> Weighted(ZernikeAnnulus{eltype(xy)}(ρ,1,1))[xy,1], xy)) ≈ P[xy,1:4]'* Δ[1:4,1]
 
             c = [randn(100); zeros(∞)]
             @test tr(hessian(xy -> (Weighted(ZernikeAnnulus{eltype(xy)}(ρ,1,1))*c)[xy], xy)) ≈ (P*(Δ*c))[xy]
-
-
-            plot(P*c)
         end
-
-        r = norm(xy)
-        zernikeannulusr(ρ, 4, 0, 0, 0, r)
-        T = Float64
-        s = r^2
-        τ = (1-s)/(1-ρ^2)
-        m = 0
-        g = τ -> SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),0,0,0)[τ, 3]
-        g(τ)
-        C,B,A = SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),2,2,0),SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),1,1,1),SemiclassicalJacobi{typeof(τ)}(inv(1-ρ^2),0,0,0)
-
-        Δ_ex = tr(hessian(xy -> ZernikeAnnulus{eltype(xy)}(ρ)[xy,11], xy))
-        D1 = (B\(D*A))
-        B[τ,1:2]'*D1[1:2,3]
-        (D * HalfWeighted{:c}(B))[τ,1:2]'*D1[1:2,3]
-
-        D2 = HalfWeighted{:c}(C) \ (D * HalfWeighted{:c}(B))
-
-        Δ_ex ≈ C[τ,1:2]'*(4t*D2*D1)[1:2,3]
-
-        r^m * 4t*(t-τ)^(-m) * derivative(τ -> (t-τ)^(m+1) * derivative(g, τ), τ)
-
-
-        4t*cos(m*θ) * r^m * (t-τ)^(-m) * derivative(τ -> (t-τ)^(m+1) * derivative(g, τ), τ)
-
-
-
     end
 
 

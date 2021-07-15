@@ -130,3 +130,30 @@ end
 #     @assert B.P.a == 0 && B.P.b == 1
 #     ModalInterlace{TV}((Normalized.(Jacobi{TV}.(0, 0:∞)) .\ HalfWeighted{:a}.(Normalized.(Jacobi{TV}.(1, 0:∞)))) ./ sqrt(convert(TV, 2)), (2,0))
 # end
+
+
+###
+# Laplacian
+###
+
+
+@simplify function *(Δ::Laplacian, W::Weighted{<:Any,<:ZernikeAnnulus})
+    P = W.P
+    @assert P.a == P.b == 1
+    ρ = P.ρ; t = inv(1-ρ^2)
+    T = eltype(P)
+    Ps = SemiclassicalJacobi{T}.(t,1,1,0:∞)
+    D = Derivative(axes(Ps[1],1))
+    Δs = BroadcastVector{AbstractMatrix{T}}((C,B,A) -> 4t*(1-ρ^2)^2*divmul(HalfWeighted{:c}(C),D,HalfWeighted{:c}(B))*divmul(HalfWeighted{:ab}(B),D,HalfWeighted{:ab}(A)), Ps, SemiclassicalJacobi.(t,0,0,1:∞), Ps)
+    P * ModalInterlace(Δs, (ℵ₀,ℵ₀), (2,2))
+end
+
+@simplify function *(Δ::Laplacian, P::ZernikeAnnulus)
+    ρ,a,b = P.ρ,P.a,P.b
+    t = inv(1-ρ^2)
+    T = eltype(P)
+    Ps = SemiclassicalJacobi.(t,b,a,0:∞)
+    D = Derivative(axes(Ps[1],1))
+    Δs = BroadcastVector{AbstractMatrix{T}}((C,B,A) -> 4t*divmul(HalfWeighted{:c}(C),D,HalfWeighted{:c}(B))*divmul(B,D,A), SemiclassicalJacobi.(t,b+2,a+2,0:∞), SemiclassicalJacobi.(t,b+1,a+1,1:∞), Ps)
+    ZernikeAnnulus(ρ,a+2,b+2) * ModalInterlace(Δs, (ℵ₀,ℵ₀), (-2,6))
+end
