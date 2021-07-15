@@ -24,7 +24,7 @@ axes(w::AnnulusWeight{T}) where T = (Inclusion(annulus(w.ρ)),)
 
 function getindex(w::AnnulusWeight, xy::StaticVector{2})
     r = norm(xy)
-    (r^2- ρ^2)^w.a * (1-r^2)^w.b
+    (r^2- w.ρ^2)^w.a * (1-r^2)^w.b
 end
 
 
