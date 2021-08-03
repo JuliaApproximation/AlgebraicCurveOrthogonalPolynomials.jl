@@ -1,0 +1,151 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 12.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      4664,        141]
+NotebookOptionsPosition[      3477,        115]
+NotebookOutlinePosition[      3815,        130]
+CellTagsIndexPosition[      3772,        127]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"a", ":=", 
+   RowBox[{"{", 
+    RowBox[{"y", ",", 
+     RowBox[{"-", "x"}], ",", "0"}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"b", ":=", 
+   RowBox[{"{", 
+    RowBox[{"z", ",", "0", ",", 
+     RowBox[{"-", "x"}]}], "}"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"c", ":=", 
+   RowBox[{"{", 
+    RowBox[{"0", ",", "z", ",", 
+     RowBox[{"-", "y"}]}], "}"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.836902208695265*^9, 3.836902260863937*^9}},
+ CellLabel->"In[9]:=",ExpressionUUID->"e6aac2ec-b902-455f-b384-606dcb3e42b6"],
+
+Cell["\<\
+Claim: all vector-polynomials in tangent space can be written
+
+\[Psi] = p(x,y,z) a + q(x,y,z) b + r(x,y,z) c
+
+where p,q,r are (scalar) polynomials\
+\>", "Text",
+ CellChangeTimes->{{3.836902317215597*^9, 3.8369023484480553`*^9}, {
+  3.8369025907646027`*^9, 
+  3.836902591537815*^9}},ExpressionUUID->"d9fc3e02-7ce8-4d65-9029-\
+258301dc68c1"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"z", " ", "a"}], " ", "-", 
+   RowBox[{"y", " ", "b"}], "+", 
+   RowBox[{"x", " ", "c"}]}], "\[Equal]", 
+  RowBox[{"{", 
+   RowBox[{"0", ",", "0", ",", "0"}], "}"}]}]], "Input",
+ CellChangeTimes->{{3.8369023592415457`*^9, 3.8369023790450068`*^9}},
+ CellLabel->"In[15]:=",ExpressionUUID->"254ff788-c3ed-4778-b8f5-5b39443fd9cb"],
+
+Cell[BoxData["True"], "Output",
+ CellChangeTimes->{{3.836902369098345*^9, 3.836902379264103*^9}},
+ CellLabel->"Out[15]=",ExpressionUUID->"5cd18a7b-389e-4bd9-bf16-04cf00e8035b"]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   SuperscriptBox["x", "2"], "+", 
+   SuperscriptBox["y", "2"], "+", 
+   SuperscriptBox["z", "2"]}], "\[Equal]", "1"}]], "Input",
+ CellChangeTimes->{{3.8369024105234623`*^9, 
+  3.836902417954894*^9}},ExpressionUUID->"1aa8642e-ff4d-42d6-945f-\
+47c8bb03be6a"],
+
+Cell["\<\
+Idea: write OPs in terms of Spherical Cap OPs times a,b,c to write OPs for \
+the tangent space\
+\>", "Text",
+ CellChangeTimes->{{3.836902463498633*^9, 
+  3.836902515255862*^9}},ExpressionUUID->"0593fb0e-3ce1-40dc-9361-\
+c5a122411505"],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.836902520157074*^9, 
+  3.836902530965828*^9}},ExpressionUUID->"a193308d-37fa-4d7a-aabd-\
+2ff0379ab481"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"\[Psi]", "'"}], "\[CurlyPhi]"}], " ", "=="}]], "Input",
+ CellChangeTimes->{{3.836902594615465*^9, 
+  3.836902610065123*^9}},ExpressionUUID->"fe6b9cfb-a975-4b89-a41f-\
+02fa445772aa"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"a", ".", "a"}]], "Input",
+ CellChangeTimes->{{3.8369026255374117`*^9, 3.836902625912416*^9}},
+ CellLabel->"In[16]:=",ExpressionUUID->"e8e76369-ac09-4ec0-8b41-1b023255e26b"],
+
+Cell[BoxData[
+ RowBox[{
+  SuperscriptBox["x", "2"], "+", 
+  SuperscriptBox["y", "2"]}]], "Output",
+ CellChangeTimes->{3.836902626311069*^9},
+ CellLabel->"Out[16]=",ExpressionUUID->"f8d384ff-7573-47a5-a3c5-2917ff9a318d"]
+}, Open  ]]
+},
+WindowSize->{808, 897},
+WindowMargins->{{330, Automatic}, {11, Automatic}},
+FrontEndVersion->"12.0 for Mac OS X x86 (64-bit) (April 8, 2019)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 592, 17, 73, "Input",ExpressionUUID->"e6aac2ec-b902-455f-b384-606dcb3e42b6"],
+Cell[1153, 39, 349, 10, 127, "Text",ExpressionUUID->"d9fc3e02-7ce8-4d65-9029-258301dc68c1"],
+Cell[CellGroupData[{
+Cell[1527, 53, 372, 9, 30, "Input",ExpressionUUID->"254ff788-c3ed-4778-b8f5-5b39443fd9cb"],
+Cell[1902, 64, 176, 2, 34, "Output",ExpressionUUID->"5cd18a7b-389e-4bd9-bf16-04cf00e8035b"]
+}, Open  ]],
+Cell[2093, 69, 292, 8, 30, "Input",ExpressionUUID->"1aa8642e-ff4d-42d6-945f-47c8bb03be6a"],
+Cell[2388, 79, 244, 6, 35, "Text",ExpressionUUID->"0593fb0e-3ce1-40dc-9361-c5a122411505"],
+Cell[2635, 87, 152, 3, 30, "Input",ExpressionUUID->"a193308d-37fa-4d7a-aabd-2ff0379ab481"],
+Cell[2790, 92, 228, 6, 30, "Input",ExpressionUUID->"fe6b9cfb-a975-4b89-a41f-02fa445772aa"],
+Cell[CellGroupData[{
+Cell[3043, 102, 196, 3, 30, "Input",ExpressionUUID->"e8e76369-ac09-4ec0-8b41-1b023255e26b"],
+Cell[3242, 107, 219, 5, 34, "Output",ExpressionUUID->"f8d384ff-7573-47a5-a3c5-2917ff9a318d"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
