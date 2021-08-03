@@ -72,7 +72,7 @@ wedgetransform(v::AbstractVector) = plan_wedgetransform(length(v) ÷ 2 + 1) * v
 
 
 
-struct Wedge{T} <: EuclideanDomain{2,T} end
+struct Wedge{T} <: Domain{SVector{2,T}} end
 Wedge() = Wedge{Float64}()
 
 function in(p::SVector{2}, d::Wedge)

@@ -44,7 +44,7 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                     xy = CircleCoordinate(0.1)
                     x,y = xy
                     @test y*T[y,1:3]' ≈ T[y,1:4]'*X_T[1:4,1:3]
-                    @test (1-y) * P[xy, 1] == P[xy,[1,3]]'* X_T[1:2, 1]
+                    @test (1-y) * P[xy, 1] ≈ P[xy,[1,3]]'* X_T[1:2, 1]
                     X̃_T = BroadcastMatrix(-, Eye(∞), X_T);
                     X̃_U = BroadcastMatrix(-, Eye(∞), X_U);
                     @test x * P[xy, 1] ≈ P[xy,2] * R[1,1]
