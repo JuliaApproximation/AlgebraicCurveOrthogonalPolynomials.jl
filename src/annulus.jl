@@ -116,11 +116,11 @@ getindex(Z::AbstractZernikeAnnulus, xy::StaticVector{2}, JR::BlockOneTo) = morta
 
 
 
-function \(A::AbstractZernikeAnnulus{T}, B::AbstractZernikeAnnulus{V}) where {T,V}
-    TV = promote_type(T,V)
+function \(A::AbstractZernikeAnnulus, B::AbstractZernikeAnnulus)
+    TV = promote_type(eltype(A),eltype(B))
     A.a == B.a && A.b == B.b && return Eye{TV}(∞)
     t = inv(1-A.ρ^2)
-    ModalInterlace{TV}((SemiclassicalJacobi{TV}.(t,A.b,A.a,0:∞) .\ SemiclassicalJacobi{TV}.(t,B.b,B.a,0:∞)), (ℵ₀,ℵ₀), (0,2*Int(max(A.b-B.b,A.a-B.a))))
+    ModalInterlace{TV}((SemiclassicalJacobi{real(TV)}.(t,A.b,A.a,0:∞) .\ SemiclassicalJacobi{real(TV)}.(t,B.b,B.a,0:∞)), (ℵ₀,ℵ₀), (0,2*Int(max(A.b-B.b,A.a-B.a))))
 end
 
 # function \(A::ZernikeAnnulus{T}, B::Weighted{V,ZernikeAnnulus{V}}) where {T,V}
