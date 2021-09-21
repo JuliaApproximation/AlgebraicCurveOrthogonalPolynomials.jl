@@ -18,21 +18,21 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                 @test P[CircleCoordinate(0.1),4] ≈ x*P.U[1-y,2]
                 @test P[CircleCoordinate(0.1),5] ≈ P.T[1-y,3]
 
-                # @testset "expansion" begin
-                #     xy = axes(P,1)
-                #     x,y = first.(xy),last.(xy)
-                #     f = exp.(cos.(y) .+ exp.(x))
-                #     u = P * [P[:,Base.OneTo(40)] \ f; Zeros(∞)];
-                #     @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
-                #     u = P * (P \ f)
-                #     @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
+                @testset "expansion" begin
+                    xy = axes(P,1)
+                    x,y = first.(xy),last.(xy)
+                    f = exp.(cos.(y) .+ exp.(x))
+                    u = P * [P[:,Base.OneTo(40)] \ f; Zeros(∞)];
+                    @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
+                    u = P * (P \ f)
+                    @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
 
-                #     U = UltrasphericalArc(1)
-                #     @test norm((U \ P[:,10])[Block.(1:4)]) ≤ 10eps()
+                    @test P == P
+                    @test P \ P ≡ Eye((axes(P,2),))
 
-                #     @test P == P
-                #     @test P \ P ≡ Eye((axes(P,2),))
-                # end
+                    u = P / P \ @.(sqrt((x+2)^2-1))
+                    @test u[CircleCoordinate(acos(0.1))] ≈ sqrt(2.1^2 - 1)
+                end
 
                 @testset "Jacobi" begin
                     T,U = P.T,P.U;
@@ -45,8 +45,8 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                     x,y = xy
                     @test y*T[y,1:3]' ≈ T[y,1:4]'*X_T[1:4,1:3]
                     @test (1-y) * P[xy, 1] ≈ P[xy,[1,3]]'* X_T[1:2, 1]
-                    X̃_T = BroadcastMatrix(-, Eye(∞), X_T);
-                    X̃_U = BroadcastMatrix(-, Eye(∞), X_U);
+                    X̃_T = I-X_T;
+                    X̃_U = I-X_U;
                     @test x * P[xy, 1] ≈ P[xy,2] * R[1,1]
                     @test x * P[xy, 2] ≈ P[xy,1:2:5]' * R[1,1:3]
                     @test x * P[xy, 3] ≈ P[xy,2:2:4]' * R[1:2,2]
@@ -81,7 +81,9 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                 end
             end
             @testset "a = 1" begin
-                @test_broken P = UltrasphericalArc(1)
+                P = UltrasphericalArc()
+                U = UltrasphericalArc(2)
+                @test norm((U \ P[:,10])[Block.(1:3)]) ≤ 100eps()
             end
         end
 
@@ -226,7 +228,7 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
 
     @testset "other arc" begin
         h = 0.1
-        P = UltrasphericalArc(h)
+        P = UltrasphericalArc(h, 0)
         @test_throws BoundsError P[CircleCoordinate(0.0),1]
         @test P[CircleCoordinate(0.4),1] ≈ sqrt(1-h)*P.T[0.1,1] # 0.1 is arbitray
 

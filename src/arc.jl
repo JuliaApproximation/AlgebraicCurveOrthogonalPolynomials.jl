@@ -51,8 +51,8 @@ end
 UltrasphericalArc{V}(h, a, T::TT, U::UU) where {V,TT,UU} = UltrasphericalArc{V,TT,UU}(h,a,T,U)
 
 function UltrasphericalArc{V}(h,a=zero(h)) where V
-    T = SemiclassicalJacobi(2/(1-h), -one(a)/2+a/2, 0, -one(a)/2+a/2)
-    U = SemiclassicalJacobi(2/(1-h),  one(a)/2+a/2, 0, one(a)/2+a/2, T)
+    T = SemiclassicalJacobi(2/(1-h), -one(a)/2+a/2, zero(a), -one(a)/2+a/2)
+    U = SemiclassicalJacobi(2/(1-h),  one(a)/2+a/2, zero(a), one(a)/2+a/2, T)
     UltrasphericalArc{V}(h, a, Normalized(T), Normalized(U))
 end
 
@@ -63,8 +63,9 @@ function UltrasphericalArc{V}(h, a, P) where V
 end
 
 
-UltrasphericalArc(h, a=zero(h)) = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a)
+UltrasphericalArc(h, a) = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a)
 UltrasphericalArc(h, a, P) where T = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a, P)
+UltrasphericalArc(a) = UltrasphericalArc(zero(a), a)
 UltrasphericalArc() = UltrasphericalArc(0)
 
 axes(P::UltrasphericalArc{T}) where T = (ArcInclusion(P.h), _BlockedUnitRange(1:2:∞))
@@ -177,10 +178,13 @@ struct UltrasphericalArcConversion{T} <: AbstractBlockBandedMatrix{T}
     R_T
     R_U
 end
+UltrasphericalArcConversion(R_T::AbstractMatrix{T}, R_U::AbstractMatrix{U}) where {T,U} = UltrasphericalArcConversion{promote_type(T,U)}(R_T, R_U)
 
 axes(::UltrasphericalArcConversion) = (_BlockedUnitRange(1:2:∞),_BlockedUnitRange(1:2:∞))
 
-function UltrasphericalArcConversion(P, Q)
+blockbandwidths(::UltrasphericalArcConversion) = (0,2)
+
+function UltrasphericalArcConversion(P::AbstractQuasiMatrix, Q::AbstractQuasiMatrix)
     @assert Q.a == P.a + 2
     R_T = Q.T \ P.T
     R_U = Q.U \ P.U
@@ -203,7 +207,7 @@ function getindex(X::UltrasphericalArcConversion, k::Int, j::Int)
 end
 
 
-ArrayLayouts.MemoryLayout(::Type{<:UltrasphericalArcConversion}) = BlockBandedMatrices.LazyBlockBandedLayout()
+ArrayLayouts.MemoryLayout(::Type{<:UltrasphericalArcConversion}) = LazyBandedMatrices.LazyBlockBandedLayout()
 ArrayLayouts.MemoryLayout(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyBlockBandedLayout()
 Base.BroadcastStyle(::Type{<:AbstractUltrasphericalArcJacobi}) = LazyBandedMatrices.LazyArrayStyle{2}()
 
