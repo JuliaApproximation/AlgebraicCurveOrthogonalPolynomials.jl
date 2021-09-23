@@ -14,6 +14,7 @@ using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, Test,
         end
 
         @testset "axes" begin
+            x = 0.1; y = sqrt(1-x^2)
             @test xy[SVector(x,y)] == SVector(x,y)
             @test xy[SVector(x,y)] isa CircleCoordinate
             @test xy[CircleCoordinate(0.1)] ≡ CircleCoordinate(0.1)
@@ -36,6 +37,16 @@ using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, Test,
 
             u = P * (P \ cos.(x .+ exp.(y)))
             @test u[CircleCoordinate(0.1)] ≈ cos(cos(0.1) + exp(sin(0.1)))
+        end
+
+        @testset "Jacobi operator" begin
+            x,y = first.(xy),last.(xy)
+            X = P \ (x .* P)
+            Y = P \ (y .* P)
+            s = CircleCoordinate(0.1)
+            x̃,ỹ = s
+            @test x̃*P[s,Block.(1:10)]' ≈ P[s,Block.(1:11)]' * X[Block.(1:11),Block.(1:10)]
+            @test ỹ*P[s,Block.(1:10)]' ≈ P[s,Block.(1:11)]' * Y[Block.(1:11),Block.(1:10)]
         end
     end
 
