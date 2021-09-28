@@ -2,13 +2,46 @@ using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, Stati
 import ClassicalOrthogonalPolynomials: SetindexInterlace
 
 @testset "HermLaurent" begin
-    @testset "UniformScaling" begin
-        X = HermLaurent((A = randn(2,2); A+A'),randn(2,2))
+    @testset "basics" begin
+        F = HermLaurent{2}()
         z = exp(0.1im)
-        @test (X + I)[z] ≈ X[z] + I
-        @test (I + X)[z] ≈ I + X[z]
-        @test (X - I)[z] ≈ X[z] - I
-        @test (I - X)[z] ≈ I - X[z]
+        @test F[z,Block(1)] ≈ [[1 0; 0 0],[0 1; 1 0],[0 0; 0 1]]
+        @test F[z,Block(2)] ≈ [[z+inv(z) 0; 0 0],[0 z; inv(z) 0],[0 inv(z); z 0],[0 0; 0 z+inv(z)]]
+        @test F[z,Block(3)] ≈ [[z^2+z^(-2) 0; 0 0],[0 z^2; z^(-2) 0],[0 z^(-2); z^2 0],[0 0; 0 z^2+z^(-2)]]
+
+        f = F * [1:7; zeros(∞)]
+        A = [1 2; 2 3]
+        B = [4 6; 5 7]
+        @test f[z] ≈ A + B/z + B'*z
+    end
+
+    @testset "Expansion" begin
+        A = Hermitian(randn(2,2)); B = randn(2,2)
+        X = z -> SHermitianCompact{2}(B/z + A + z*B')
+        
+
+        F = Fourier{ComplexF64}()
+        M = SetindexInterlace(SMatrix{2,2,ComplexF64},fill(F,4)...)
+        θ = axes(M,1)
+        c = M \ BroadcastQuasiVector{SMatrix{2,2,ComplexF64,4}}(θ -> X(exp(im*θ)), θ)
+        @test reshape(c[Block(1)],2,2) ≈ A
+        @test reshape(c[Block(2)],2,2) ≈ im*(B'-B)
+        @test reshape(c[Block(3)],2,2) ≈ B'+B
+        @test B ≈ (im*reshape(c[Block(2)],2,2) + reshape(c[Block(3)],2,2))/2
+
+        L = HermLaurent{2}()
+        z = axes(L,1)
+        c = L \ BroadcastQuasiVector{SHermitianCompact{2,ComplexF64,3}}(X,z)
+        @test (L * c)[exp(0.1im)] ≈ X(exp(0.1im))
+    end
+
+    @testset "UniformScaling" begin
+        X = HermLaurent{2}() * [randn(7); zeros(∞)]
+        z = exp(0.1im)
+        @test (X .+ I)[z] ≈ X[z] + I
+        @test (I .+ X)[z] ≈ I + X[z]
+        @test (X .- I)[z] ≈ X[z] - I
+        @test (I .- X)[z] ≈ I - X[z]
     end
 
     @testset "quadratic" begin
@@ -19,8 +52,8 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         Aʸ = [0 -0.5; -0.5 0]
         Bʸ = [0 a₁₂; a₂₁ 0]
 
-        X = HermLaurent(Aˣ,Bˣ)
-        Y = HermLaurent(Aʸ,Bʸ)
+        X = hermlaurent(Aˣ,Bˣ)
+        Y = hermlaurent(Aʸ,Bʸ)
         z = exp(0.1im)
         @test X[z]*Y[z] ≈ Y[z]*X[z]
         @test X[z]^2 + Y[z]^2 ≈ I
@@ -82,22 +115,5 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         Y = HermLaurent(zeros(4,4), Bʸ)
         @test checkcommutes(X, Y)
         @test norm((I - X.^2) .* (I - Y.^2)) ≤ 10eps()
-    end
-
-    @testset "Expansion" begin
-        A = Hermitian(randn(2,2)); B = randn(2,2)
-        X = z -> SMatrix{2,2,ComplexF64,4}(B/z + A + z*B')
-        
-
-        F = Fourier{ComplexF64}()
-        M = SetindexInterlace(SMatrix{2,2,ComplexF64},fill(F,4)...)
-        θ = axes(M,1)
-        c = M \ BroadcastQuasiVector{SMatrix{2,2,ComplexF64,4}}(θ -> X(exp(im*θ)), θ)
-        @test reshape(c[Block(1)],2,2) ≈ A
-        @test reshape(c[Block(2)],2,2) ≈ im*(B'-B)
-        @test reshape(c[Block(3)],2,2) ≈ B'+B
-        @test B ≈ (im*reshape(c[Block(2)],2,2) + reshape(c[Block(3)],2,2))/2
-
-        @test HermLaurent(X)[exp(0.1im)] ≈ X(exp(0.1im))
     end
 end

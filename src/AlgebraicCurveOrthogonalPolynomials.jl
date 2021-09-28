@@ -7,9 +7,9 @@ import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
-import QuasiArrays: DefaultQuasiArrayStyle, cardinality
+import QuasiArrays: DefaultQuasiArrayStyle, cardinality, LazyQuasiArrayStyle
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto, diff
-import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify
+import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, Expansion
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
 import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace
 import BlockArrays: block, blockindex, _BlockedUnitRange
@@ -19,7 +19,7 @@ import SemiclassicalOrthogonalPolynomials: divmul, HalfWeighted
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
         HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate, 
-        UltrasphericalArc, LegendreCubic, ZernikeAnnulus, ComplexZernikeAnnulus
+        UltrasphericalArc, LegendreCubic, ZernikeAnnulus, ComplexZernikeAnnulus, hermlaurent
 
 
 
