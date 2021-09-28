@@ -8,7 +8,7 @@ import ForwardDiff: jacobian, Dual, gradient, value, partials
 import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality
-import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto
+import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto, diff
 import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
 import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace

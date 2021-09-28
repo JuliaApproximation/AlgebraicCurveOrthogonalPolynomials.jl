@@ -7,14 +7,19 @@ using AlgebraicCurveOrthogonalPolynomials, FillArrays, Test, Plots
 #   Y(z) = [0 1; -1 0]*z/2 + [0 -1; 1 0]/2z
 ##
 
-X = z -> Eye(2) * (z/2 + 1/2z)
-Y = z -> [0 z/2-1/2z; 1/2z-z/2 0]
+X = HermLaurent(Zeros(2,2), Eye(2)/2) # z -> Eye(2) * (z/2 + 1/2z)
+Y = HermLaurent(Zeros(2,2), [0 -1/2; 1/2 0]) #z -> [0 z/2-1/2z; 1/2z-z/2 0]
 
 # The tangent is defined by taking derivatives. But it will be derivatives w.r.t.
 # θ where z = exp(im*θ).
 
-Ẋ = z -> Eye(2) * im*(z/2 - 1/2z)
-Ẏ = z -> [0 im*(z/2 + 1/2z); -im*(z/2 + 1/2z) 0]
+Ẋ = diff(X) # z -> Eye(2) * im*(z/2 - 1/2z)
+Ẏ = diff(Y) # z -> [0 im*(z/2 + 1/2z); -im*(z/2 + 1/2z) 0]
+
+function tangentcurvature(X, Y)
+    Ẋ,Ẏ = diff(X),diff(Y)
+    Ẋ .^ 2
+end
 
 T = function(z)
     Xd = Ẋ(z)
@@ -71,3 +76,9 @@ end
 for k=1:2
     plot!([x[k],x[k]-κs[k]*t_y[k]],[y[k],y[k]+κs[k]*t_x[k]]; arrow=true, label="normal $k")
 end; p
+
+
+X
+
+HermLaurent(z -> -κ(z) * T(z)[2])
+HermLaurent(z -> κ(z) * T(z)[1]).A

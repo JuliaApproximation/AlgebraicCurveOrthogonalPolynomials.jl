@@ -13,8 +13,10 @@ struct HermLaurent{T, Coeffs<:AbstractVector} <: AbstractQuasiVector{T}
 end
 
 HermLaurent{T}(A::AbstractVector) where T = HermLaurent{T,typeof(A)}(A)
-HermLaurent(A::AbstractVector{<:AbstractMatrix{T}}) where T = HermLaurent{Hermitian{Complex{T},Matrix{Complex{T}}}}(A)
+HermLaurent(A::AbstractVector{<:AbstractMatrix{T}}) where T = HermLaurent{Hermitian{complex(T),Matrix{complex(T)}}}(A)
 HermLaurent(A::AbstractMatrix...) = HermLaurent(SVector(A))
+
+summary(io::IO, H::HermLaurent) = print(io, "HermLaurent of length $(length(H.A))")
 
 function HermLaurent(f::Function)
     N = size(f(1.0),1)
@@ -36,9 +38,9 @@ in(x::Number, ::ComplexUnitCircle) = abs(x) ≈ 1
 
 axes(F::HermLaurent) = (Inclusion(ComplexUnitCircle()),)
 
-function getindex(F::HermLaurent, z::Number)
+function getindex(F::HermLaurent{<:Hermitian{<:Any,M}}, z::Number) where M
     z in axes(F,1) || throw(BoundsError())
-    ret = complex(F.A[1])
+    ret = convert(M, complex(F.A[1]))
     for k = 2:length(F.A)
         ret .+= F.A[k] ./ z^(k-1) .+ F.A[k]' .* z^(k-1)
     end
@@ -145,6 +147,10 @@ end
 broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, F::HermLaurent{<:Any,<:SVector{2}}, ::Base.RefValue{Val{4}}) = (F.^2).^2
 
 
+broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, F::HermLaurent, ::Base.RefValue{Val{N}}) where N = 
+    HermLaurent(z -> F[z]^N)
+
+
 
 
 padbroadcast(F, A::SVector{N}, B::SVector{N}) where N = broadcast(F, A, B)
@@ -186,3 +192,9 @@ function BlockTridiagonal(X::HermLaurent)
     A,B = X.A
     mortar(Tridiagonal(Fill(Matrix(B'),∞), Fill(A,∞), Fill(B,∞)))
 end
+
+###
+# Operators
+###
+# note it's difff w.r.t. θ.
+diff(X::HermLaurent) = HermLaurent(-im .* (0:length(X.A)-1) .* X.A)
