@@ -1,4 +1,5 @@
-using AlgebraicCurveOrthogonalPolynomials, StaticArrays, Test
+using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, StaticArrays, QuasiArrays, Test
+import ClassicalOrthogonalPolynomials: SetindexInterlace
 
 @testset "HermLaurent" begin
     @testset "UniformScaling" begin
@@ -81,5 +82,22 @@ using AlgebraicCurveOrthogonalPolynomials, StaticArrays, Test
         Y = HermLaurent(zeros(4,4), Bʸ)
         @test checkcommutes(X, Y)
         @test norm((I - X.^2) .* (I - Y.^2)) ≤ 10eps()
+    end
+
+    @testset "Expansion" begin
+        A = Hermitian(randn(2,2)); B = randn(2,2)
+        X = z -> SMatrix{2,2,ComplexF64,4}(B/z + A + z*B')
+        
+
+        F = Fourier{ComplexF64}()
+        M = SetindexInterlace(SMatrix{2,2,ComplexF64},fill(F,4)...)
+        θ = axes(M,1)
+        c = M \ BroadcastQuasiVector{SMatrix{2,2,ComplexF64,4}}(θ -> X(exp(im*θ)), θ)
+        @test reshape(c[Block(1)],2,2) ≈ A
+        @test reshape(c[Block(2)],2,2) ≈ im*(B'-B)
+        @test reshape(c[Block(3)],2,2) ≈ B'+B
+        @test B ≈ (im*reshape(c[Block(2)],2,2) + reshape(c[Block(3)],2,2))/2
+
+        @test HermLaurent(X)[exp(0.1im)] ≈ X(exp(0.1im))
     end
 end

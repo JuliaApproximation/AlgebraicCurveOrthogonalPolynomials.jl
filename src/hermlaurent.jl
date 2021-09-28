@@ -16,6 +16,21 @@ HermLaurent{T}(A::AbstractVector) where T = HermLaurent{T,typeof(A)}(A)
 HermLaurent(A::AbstractVector{<:AbstractMatrix{T}}) where T = HermLaurent{Hermitian{Complex{T},Matrix{Complex{T}}}}(A)
 HermLaurent(A::AbstractMatrix...) = HermLaurent(SVector(A))
 
+function HermLaurent(f::Function)
+    N = size(f(1.0),1)
+    F = Fourier{ComplexF64}()
+    M = SetindexInterlace(SMatrix{N,N,ComplexF64},fill(F,N^2)...)
+    θ = axes(M,1)
+    c = M \ BroadcastQuasiVector{eltype(M)}(θ -> f(exp(im*θ)), θ)
+    N = Int(BlockArrays.blockcolsupport(c,1)[end])
+
+    ret = Vector{Matrix{Float64}}(undef,N)
+    ret[1] = real(reshape(c[Block(1)],2,2))
+    for K = 2:N
+        ret[K] = reshape(real(im*c[Block(2K-2)] + c[Block(2K-1)])/2,2,2)
+    end
+    HermLaurent(ret)
+end
 struct ComplexUnitCircle <: Domain{ComplexF64} end
 in(x::Number, ::ComplexUnitCircle) = abs(x) ≈ 1
 

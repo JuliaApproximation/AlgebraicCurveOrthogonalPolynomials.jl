@@ -10,7 +10,7 @@ import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto
 import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify
-import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight
+import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
 import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace
 import BlockArrays: block, blockindex, _BlockedUnitRange
 import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
