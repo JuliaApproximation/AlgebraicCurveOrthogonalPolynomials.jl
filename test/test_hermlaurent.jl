@@ -66,10 +66,10 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         @test X⁴[z] ≈ X[z]^4
 
         XY = X .* Y
-        @test all(XY.A .≈ (Y .* X).A)
+        Y .* X - XY
         @test XY[z] ≈ X[z]Y[z]
 
-        @test X.^2 .+ Y.^2 ≈ I
+        @test norm(X.^2 .+ Y.^2 .- I) ≤ 10eps()
     end
     @testset "cubic" begin
         v = 1/(4*sqrt(2))
@@ -77,8 +77,8 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         Bˣ = [0 0 -0.5; 0 0 0; 0 -0.5 0]
         Aʸ = [0 0 -v; 0 0 -v; -v -v 0]
         Bʸ = [-v v 0; 0 -v 0; 0 0 -v]
-        X = HermLaurent(Aˣ,Bˣ)
-        Y = HermLaurent(Aʸ,Bʸ)
+        X = hermlaurent(Aˣ,Bˣ)
+        Y = hermlaurent(Aʸ,Bʸ)
     
         X² = X.^2
         X³ = X.^3
@@ -88,32 +88,32 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         @test X⁴[z] ≈ X[z]^4
 
         @test X .* Y ≈ Y .* X
-        @test Y.^2 ≈ ((I - X).^2 .* (I + X))/4
+        @test Y.^2 ≈ ((I .- X).^2 .* (I .+ X))/4
     end
 
     @testset "square" begin
         Bˣ = [-1/4 1/4 1/2 1/2; 1/4 -1/4 1/2 1/2; 0 0 -1/4 1/4; 0 0 1/4 -1/4]
         Bʸ = [1/4 1/4 -1/2 1/2; 1/4 1/4 1/2 -1/2; 0 0 1/4 1/4; 0 0 1/4 1/4]
-        X = HermLaurent(zero.(Bˣ), Bˣ)
-        Y = HermLaurent(zero.(Bʸ), Bʸ)
+        X = hermlaurent(zero.(Bˣ), Bˣ)
+        Y = hermlaurent(zero.(Bʸ), Bʸ)
         @test X .* Y ≈ Y .* X
-        @test (I - X.^2) .* (I - Y.^2) ≈ 0I
+        @test norm((I .- X.^2) .* (I .- Y.^2)) ≤ 10eps()
     
 
         # simplify
         _,Q = eigen(Bˣ[1:2,1:2]); Q=[Q zeros(2,2); zeros(2,2) Q]; 
         Bˣ = Q'Bˣ*Q; Bʸ = Q'Bʸ*Q;
-        X = HermLaurent(zeros(4,4), Bˣ)
-        Y = HermLaurent(zeros(4,4), Bʸ)
+        X = hermlaurent(zeros(4,4), Bˣ)
+        Y = hermlaurent(zeros(4,4), Bʸ)
         @test checkcommutes(X, Y)
-        @test norm((I - X.^2) .* (I - Y.^2)) ≤ 10eps()
+        @test norm((I .- X.^2) .* (I .- Y.^2)) ≤ 10eps()
 
         # explicit simple
         Bˣ = [-0.5 0 0 0; 0 0 0 1; 0 0 -0.5 0; 0 0 0 0]
         Bʸ = [0 0 -1 0; 0 0.5 0 0; 0 0 0 0; 0 0 0 0.5]
-        X = HermLaurent(zeros(4,4), Bˣ)
-        Y = HermLaurent(zeros(4,4), Bʸ)
+        X = hermlaurent(zeros(4,4), Bˣ)
+        Y = hermlaurent(zeros(4,4), Bʸ)
         @test checkcommutes(X, Y)
-        @test norm((I - X.^2) .* (I - Y.^2)) ≤ 10eps()
+        @test norm((I .- X.^2) .* (I .- Y.^2)) ≤ 10eps()
     end
 end

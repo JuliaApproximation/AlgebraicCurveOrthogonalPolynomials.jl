@@ -17,7 +17,7 @@ HermLaurent{N}() where N = HermLaurent{N,ComplexF64,sum(1:N)}()
 function hermlaurent(A, B)
     N = size(A,1)
     H = HermLaurent{N}()
-    H * [SHermitianCompact{N}(A).lowertriangle; vec(B); Zeros(∞)]
+    H * PseudoBlockVector([SHermitianCompact{N}(A).lowertriangle; vec(B); Zeros(∞)],(axes(H,2),))
 end
 
 axes(F::HermLaurent{N}) where N = (Inclusion(ComplexUnitCircle()),blockedrange([sum(1:N); Fill(N^2,∞)]))
@@ -64,7 +64,7 @@ end
 
 getindex(F::HermLaurent, z::Number, j::Integer) = F[z, findblockindex(axes(F,2),j)]
 
-summary(io::IO, H::HermLaurent{<:Any,N}) where N = print(io, "$(N)-dimensional HermLaurent")
+summary(io::IO, H::HermLaurent{N}) where N = print(io, "$(N)-dimensional HermLaurent")
 
 function ldiv(H::HermLaurent{N}, f::AbstractQuasiVector) where N
     F = Fourier{ComplexF64}()
@@ -75,7 +75,7 @@ function ldiv(H::HermLaurent{N}, f::AbstractQuasiVector) where N
 
     ret = PseudoBlockVector([Vector{Float64}(undef,last(axes(H,2)[M])); Zeros(∞)], (axes(H,2),))
     
-    ret[Block(1)] = real(SHermitianCompact{N}(reshape(c[Block(1)],2,2)).lowertriangle)
+    ret[Block(1)] = real(SHermitianCompact{N}(reshape(c[Block(1)],N,N)).lowertriangle)
     for K = Block(2):M
         ret[K] = real(im*c[2K-2] + c[2K-1])/2
     end
@@ -140,7 +140,7 @@ end
 # # 1/z^3 * (B*G + C*F) + …
 # # 1/z^4 * (C*G)
 
-# norm(A::HermLaurent) = norm(map(norm,A.A))
+norm(A::Expansion{<:Any,<:HermLaurent}) = norm(A.args[2])
 
 # function padisapprox(X::AbstractVector, Y::AbstractVector)
 #     tol = 10*(norm(map(norm,X)) + norm(map(norm,Y)))*eps()
@@ -161,10 +161,11 @@ end
 # checkcommutes(X::HermLaurent, Y::HermLaurent) =
 #     padisapprox(_mul_hermlaurent_terms(X.A,Y.A), _mul_hermlaurent_terms(Y.A,X.A)) || throw(ArgumentError("Do not commute"))
 
-# function broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(*), X::Expansion{<:Any,<:HermLaurent{N}},  Y::Expansion{<:Any,<:HermLaurent{N}}) where N
-#     # checkcommutes(X, Y)
-#     HermLaurent{N}() / HermLaurent{N}() \ BroadcastQuasiVector{promote_type(eltype(X),eltype(Y))}(*, X, Y)
-# end
+function broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(*), X::Expansion{<:Any,<:HermLaurent{N}},  Y::Expansion{<:Any,<:HermLaurent{N}}) where N
+    # checkcommutes(X, Y)
+    H = HermLaurent{N}()
+    H * (H \ BroadcastQuasiVector{promote_type(eltype(X),eltype(Y))}(z -> X[z]*Y[z], axes(H,1)))
+end
 
 
 # # Special cases for powers. We have commutation for free. (I didn't just use A .* B because some more cases were known)
