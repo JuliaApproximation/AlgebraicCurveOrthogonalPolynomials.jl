@@ -18,7 +18,7 @@ Ẏ = diff(Y) # z -> [0 im*(z/2 + 1/2z); -im*(z/2 + 1/2z) 0]
 
 function tangentcurvature(X, Y)
     Ẋ,Ẏ = diff(X),diff(Y)
-    Ẋ .^ 2
+    Ẋ .^ 2 + Ẏ .^ 2
 end
 
 T = function(z)
