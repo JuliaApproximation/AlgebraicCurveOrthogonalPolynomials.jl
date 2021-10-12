@@ -51,8 +51,9 @@ using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, Test,
     end
 
     @testset "UltrasphericalCircle" begin
+        P = UltrasphericalCircle(0)
+        
         @testset "Legendre as UltrasphericalCircle" begin
-            P = UltrasphericalCircle(0)
             x = 0.1; y = sqrt(1-x^2)
             
             T,U = Jacobi(-1/2,-1/2),Jacobi(1/2,1/2)

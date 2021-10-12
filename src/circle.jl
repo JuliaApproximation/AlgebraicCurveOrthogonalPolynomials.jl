@@ -67,6 +67,10 @@ grid(Pn::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:AbstractUnitRa
     CircleCoordinate.(grid(Fourier{T}()[:,parentindices(Pn)[2]]))
 factorize(Pn::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:OneTo}}) where T =
     TransformFactorization(grid(Pn), ShuffledRFFT{T}(size(Pn,2)))
+
+factorize(L::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:BlockSlice{BlockRange1{OneTo{Int}}}}},d...) where T =
+    ProjectionFactorization(factorize(parent(L)[:,OneTo(size(L,2))],d...),parentindices(L)[2])
+
     
 
 function jacobimatrix(::Val{1}, ::LegendreCircle{T}) where T

@@ -9,10 +9,10 @@ import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto
-import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify
+import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, ProjectionFactorization
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight
-import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace
-import BlockArrays: block, blockindex, _BlockedUnitRange
+import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace, BlockRange1
+import BlockArrays: block, blockindex, _BlockedUnitRange, BlockSlice
 import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
 import SemiclassicalOrthogonalPolynomials: divmul, HalfWeighted
 
