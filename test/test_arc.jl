@@ -74,6 +74,7 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                         @test MemoryLayout(X) isa LazyBandedMatrices.LazyBlockBandedLayout
                         Base.BroadcastStyle(typeof(X))
                         X = P \ (x .* P)
+                        Y = P \ (y .* P)
                         # TODO: overload broadcasted(*, ::Ones, ...) for this case
 
                         @test X[Block.(1:5),Block.(1:5)] == jacobimatrix(Val(1), P)[Block.(1:5),Block.(1:5)]
