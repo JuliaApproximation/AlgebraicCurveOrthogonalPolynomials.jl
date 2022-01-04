@@ -53,7 +53,7 @@ MultivariateOrthogonalPolynomials = "0.2.4"
 QuasiArrays = "0.9"
 SemiclassicalOrthogonalPolynomials = "0.2.3"
 SemiseparableMatrices = "0.3"
-SpecialFunctions = "1"
+SpecialFunctions = "1, 2"
 StaticArrays = "1"
 julia = "1.6"
 
