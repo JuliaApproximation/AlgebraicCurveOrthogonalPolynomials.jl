@@ -31,7 +31,7 @@ SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-ArrayLayouts = "0.7"
+ArrayLayouts = "0.7, 0.8"
 BandedMatrices = "0.16"
 BlockArrays = "0.16"
 BlockBandedMatrices = "0.11"
