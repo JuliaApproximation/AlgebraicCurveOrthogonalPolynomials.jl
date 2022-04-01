@@ -82,11 +82,13 @@ function ldiv(H::HermLaurent{N}, f::AbstractQuasiVector) where N
     ret
 end
 
+const HermLaurentExpansion{N} = ApplyQuasiVector{<:Any,typeof(*),<:Tuple{HermLaurent{N},Any}}
+
 for op in (:+, :-)
     @eval begin
-        broadcasted(::typeof($op), A::UniformScaling, B::Expansion{<:Any,<:HermLaurent{N}}) where N =
+        broadcasted(::typeof($op), A::UniformScaling, B::HermLaurentExpansion{N}) where N =
             $op(B.args[1] * [SHermitianCompact{N}(A(N)).lowertriangle; Zeros(∞)], B)
-        broadcasted(::typeof($op), A::Expansion{<:Any,<:HermLaurent{N}}, B::UniformScaling) where N =
+        broadcasted(::typeof($op), A::HermLaurentExpansion{N}, B::UniformScaling) where N =
             $op(A, A.args[1] * [SHermitianCompact{N}(B(N)).lowertriangle; Zeros(∞)])
     end
 end
@@ -140,7 +142,7 @@ end
 # # 1/z^3 * (B*G + C*F) + …
 # # 1/z^4 * (C*G)
 
-norm(A::Expansion{<:Any,<:HermLaurent}) = norm(A.args[2])
+norm(A::HermLaurentExpansion) = norm(A.args[2])
 
 # function padisapprox(X::AbstractVector, Y::AbstractVector)
 #     tol = 10*(norm(map(norm,X)) + norm(map(norm,Y)))*eps()
@@ -161,7 +163,7 @@ norm(A::Expansion{<:Any,<:HermLaurent}) = norm(A.args[2])
 # checkcommutes(X::HermLaurent, Y::HermLaurent) =
 #     padisapprox(_mul_hermlaurent_terms(X.A,Y.A), _mul_hermlaurent_terms(Y.A,X.A)) || throw(ArgumentError("Do not commute"))
 
-function broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(*), X::Expansion{<:Any,<:HermLaurent{N}},  Y::Expansion{<:Any,<:HermLaurent{N}}) where N
+function broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(*), X::HermLaurentExpansion{N},  Y::HermLaurentExpansion{N}) where N
     # checkcommutes(X, Y)
     H = HermLaurent{N}()
     H * (H \ BroadcastQuasiVector{promote_type(eltype(X),eltype(Y))}(z -> X[z]*Y[z], axes(H,1)))
@@ -195,7 +197,7 @@ end
 # broadcasted(::DefaultQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, F::HermLaurent{<:Any,<:SVector{2}}, ::Base.RefValue{Val{4}}) = (F.^2).^2
 
 
-broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, f::Expansion{<:Any,<:HermLaurent}, ::Base.RefValue{Val{N}}) where N = 
+broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, f::HermLaurentExpansion, ::Base.RefValue{Val{N}}) where N = 
     f.args[1] / f.args[1] \ (f.^N)
 
 

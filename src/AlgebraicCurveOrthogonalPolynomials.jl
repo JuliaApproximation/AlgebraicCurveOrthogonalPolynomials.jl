@@ -9,7 +9,7 @@ import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality, LazyQuasiArrayStyle
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto, diff
-import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, Expansion, ProjectionFactorization
+import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, ProjectionFactorization
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
 import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace, BlockRange1
 import BlockArrays: block, blockindex, _BlockedUnitRange, BlockSlice
