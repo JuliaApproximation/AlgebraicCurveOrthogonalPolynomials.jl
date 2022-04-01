@@ -1,4 +1,4 @@
-using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, StaticArrays, QuasiArrays, Test
+using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, StaticArrays, QuasiArrays, FillArrays, Test
 import ClassicalOrthogonalPolynomials: SetindexInterlace
 
 @testset "HermLaurent" begin
@@ -115,5 +115,57 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         Y = hermlaurent(zeros(4,4), Bʸ)
         @test checkcommutes(X, Y)
         @test norm((I .- X.^2) .* (I .- Y.^2)) ≤ 10eps()
+    end
+
+    @testset "mean curvature flow" begin
+        X = hermlaurent(Zeros(2,2), Eye(2)/2) # z -> Eye(2) * (z/2 + 1/2z)
+        Y = hermlaurent(Zeros(2,2), [0 -1/2; 1/2 0]) #z -> [0 z/2-1/2z; 1/2z-z/2 0]
+        
+        @testset "diff" begin
+            z = exp(0.1im)
+            Ẋ,Ẏ = diff(X),diff(Y)
+            @test Ẋ[z] ≈ Eye(2)/2 * im*(z - 1/z)
+            @test Ẏ[z] ≈ im/2*[0 z+1/z; -(z+1/z) 0]
+
+            @test (Ẋ .^ 2)[z] ≈ Ẋ[z]^2
+            @test (Ẏ .^ 2)[z] ≈ Ẏ[z]^2
+
+            T = function(z)
+                Xd = Ẋ[z]
+                Yd = Ẏ[z]
+                N = sqrt(Xd^2 + Yd^2)
+                (Xd/N, Yd/N)
+            end
+            ##
+            # the joint eigenvectors of Q tell us how to relate T to the 2 tangent vectors
+            ##
+            
+            x,y,Q = jointeigen(X[z],Y[z])
+
+            @test (Q'T(z)[1]*Q) ≈ real(Diagonal(Q'T(z)[1]*Q))
+            @test (Q'T(z)[2]*Q) ≈ real(Diagonal(Q'T(z)[2]*Q))
+
+            Ẍ,Ÿ = diff(Ẋ),diff(Ẏ)
+            @test Ẍ[z] ≈ -Eye(2)/2 * (z + 1/z)
+            @test Ÿ[z] ≈ -1/2*[0 z-1/z; -(z-1/z) 0]
+
+            ##
+            # The curvature is defined as `norm(Ṫ)`. 
+            # or equivalentally
+            #
+            # (ẋ*ÿ - ẏ*ẍ)/(ẋ^2 + ẏ^2)^(3/2)
+            κ = function(z)
+                Xd = Ẋ[z]; X2 = Ẍ[z]
+                Yd = Ẏ[z]; Y2 = Ÿ[z]
+                @assert Xd^2 + Yd^2 ≈ real(Xd^2 + Yd^2)
+                N = Symmetric(real(Xd^2 + Yd^2))^(3/2)
+                (Xd * Y2 - Yd * X2)/N
+            end
+
+            # note the direction of movement of the two points is different
+            # so the curvature is opposite sign. This is balenced by the direction
+            # of the normal
+            @test Q'*κ(exp(0.1im))*Q ≈ Q'*κ(exp(0.5im))*Q ≈ Diagonal([-1,1])
+        end
     end
 end

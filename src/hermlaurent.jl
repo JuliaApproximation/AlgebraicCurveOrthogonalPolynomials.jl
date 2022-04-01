@@ -3,15 +3,32 @@ in(x::Number, ::ComplexUnitCircle) = abs(x) ≈ 1
 cardinality(::ComplexUnitCircle) = ℵ₁
 checkpoints(::ComplexUnitCircle) = [exp(0.1im),exp(-0.7im)]
 
+
+abstract type AbstractHermLaurent{N,T,N₂} <: Basis{SHermitianCompact{N,T,N₂}} end
+
 """
 Represents Hermitian-valued Laurent series of the form
 
     A[1] + A[2]/z + A[2]'z + A[3]/z^2 + A[3]'z^2 + …
-"""
 
-struct HermLaurent{N,T,N₂} <: Basis{SHermitianCompact{N,T,N₂}} end
+where A[k] is real. Reduces to cosine series when A[k] is 1x1.
+"""
+struct HermLaurent{N,T,N₂} <: AbstractHermLaurent{N,T,N₂} end
+
+"""
+Represents Hermitian-valued Laurent series of the form
+
+    im*(A[1]/z - A[1]'z) + im*(A[2]/z^2 - A[2]'z^2) + …
+
+where A[k] is real. Reduces to sine series when A[k] is 1x1.
+"""
+struct ImHermLaurent{N,T,N₂} <: AbstractHermLaurent{N,T,N₂} end
 
 HermLaurent{N}() where N = HermLaurent{N,ComplexF64,sum(1:N)}()
+ImHermLaurent{N}() where N = ImHermLaurent{N,ComplexF64,sum(1:N)}()
+
+HermLaurent(::ImHermLaurent{N,T,N₂}) where {N,T,N₂} = HermLaurent{N,T,N₂}()
+ImHermLaurent(::HermLaurent{N,T,N₂}) where {N,T,N₂} = ImHermLaurent{N,T,N₂}()
 
 
 function hermlaurent(A, B)
@@ -20,9 +37,12 @@ function hermlaurent(A, B)
     H * PseudoBlockVector([SHermitianCompact{N}(A).lowertriangle; vec(B); Zeros(∞)],(axes(H,2),))
 end
 
-axes(F::HermLaurent{N}) where N = (Inclusion(ComplexUnitCircle()),blockedrange([sum(1:N); Fill(N^2,∞)]))
+axes(F::HermLaurent{N,T,N₂}) where {N,T,N₂} = (Inclusion(ComplexUnitCircle()),blockedrange([N₂; Fill(N^2,∞)]))
+axes(F::ImHermLaurent{N,T,N₂}) where {N,T,N₂} = (Inclusion(ComplexUnitCircle()),blockedrange(Fill(N^2,∞)))
+
 
 ==(::HermLaurent{N}, ::HermLaurent{N}) where N = true
+==(::ImHermLaurent{N}, ::ImHermLaurent{N}) where N = true
 
 """
     returns a tuple which tells if an entry lies on the diag
@@ -62,9 +82,32 @@ function getindex(F::HermLaurent{N,T,N₂}, z::Number, Jj::BlockIndex{1}) where 
     SHermitianCompact{N,T,N₂}(ret)
 end
 
-getindex(F::HermLaurent, z::Number, j::Integer) = F[z, findblockindex(axes(F,2),j)]
+function getindex(F::ImHermLaurent{N,T,N₂}, z::Number, Jj::BlockIndex{1}) where {N,T,N₂}
+    z in axes(F,1) || throw(BoundsError())
+    J,j = block(Jj),blockindex(Jj)
+    isd = _hermitian_isdiag(Val(N))
+    
+    ret = zero(SVector{N₂,T})
+    k = Int(J)
+    ind = StaticArrays._hermitian_compact_indices(Val(N))
+    j̃,lower = ind[j]
+    ret = if isd[j̃]
+        setindex(ret, im*(z^(-k) - z^k), j̃)
+    elseif lower
+        setindex(ret, im*z^(-k), j̃)
+    else
+        setindex(ret, -im*z^k, j̃)
+    end
+    SHermitianCompact{N,T,N₂}(ret)
+end
+
+getindex(F::AbstractHermLaurent, z::Number, j::Integer) = F[z, findblockindex(axes(F,2),j)]
 
 summary(io::IO, H::HermLaurent{N}) where N = print(io, "$(N)-dimensional HermLaurent")
+summary(io::IO, H::ImHermLaurent{N}) where N = print(io, "$(N)-dimensional ImHermLaurent")
+
+# preserve real coefficients
+ldiv(H::HermLaurent{N,T}, ::HermLaurent{N,V}) where {T,V,N} = SquareEye{real(promote_type(T,V))}((axes(H,2),))
 
 function ldiv(H::HermLaurent{N}, f::AbstractQuasiVector) where N
     F = Fourier{ComplexF64}()
@@ -83,6 +126,7 @@ function ldiv(H::HermLaurent{N}, f::AbstractQuasiVector) where N
 end
 
 const HermLaurentExpansion{N} = ApplyQuasiVector{<:Any,typeof(*),<:Tuple{HermLaurent{N},Any}}
+const ImHermLaurentExpansion{N} = ApplyQuasiVector{<:Any,typeof(*),<:Tuple{ImHermLaurent{N},Any}}
 
 for op in (:+, :-)
     @eval begin
@@ -200,6 +244,11 @@ end
 broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, f::HermLaurentExpansion, ::Base.RefValue{Val{N}}) where N = 
     f.args[1] / f.args[1] \ (f.^N)
 
+function broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValue{typeof(^)}, f::ImHermLaurentExpansion, ::Base.RefValue{Val{N}}) where N
+    H = HermLaurent(f.args[1])
+    H / H \ (f.^N)
+end
+
 
 
 
@@ -239,3 +288,22 @@ broadcasted(::LazyQuasiArrayStyle{1}, ::typeof(Base.literal_pow), ::Base.RefValu
 # ###
 # # note it's difff w.r.t. θ.
 # diff(X::HermLaurent) = HermLaurent(-im .* (0:length(X.A)-1) .* X.A)
+
+_hermlaurent_size(::AbstractHermLaurent{N}) where N = N
+_hermlaurent_size2(::AbstractHermLaurent{N,T,N₂}) where {N,T,N₂} = N₂
+
+@simplify function *(D::Derivative, H::HermLaurent)
+    N = _hermlaurent_size(H)
+    N₂ = _hermlaurent_size2(H)
+    iH = ImHermLaurent(H)
+    T = real(eltype(eltype(H)))
+    iH * _BandedBlockBandedMatrix(BlockVcat(Zeros{T}(N₂), mortar(Fill.((-one(T))*oneto(∞), N^2)))', (axes(iH,2),axes(H,2)), (-1,1), (0,0))
+end
+
+@simplify function *(D::Derivative, iH::ImHermLaurent)
+    N = _hermlaurent_size(iH)
+    N₂ = _hermlaurent_size2(iH)
+    H = HermLaurent(iH)
+    T = real(eltype(eltype(H)))
+    H * _BandedBlockBandedMatrix(mortar(Fill.((one(T))*oneto(∞), N^2))', (axes(H,2),axes(iH,2)), (1,-1), (0,0))
+end

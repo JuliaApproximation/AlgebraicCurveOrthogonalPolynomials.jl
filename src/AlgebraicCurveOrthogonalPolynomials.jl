@@ -5,6 +5,7 @@ using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, Bloc
 
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
+import FillArrays: SquareEye
 import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality, LazyQuasiArrayStyle
@@ -13,12 +14,12 @@ import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, ProjectionFacto
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
 import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace, BlockRange1
 import BlockArrays: block, blockindex, _BlockedUnitRange, BlockSlice
-import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
+import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths, _BandedBlockBandedMatrix
 import SemiclassicalOrthogonalPolynomials: divmul, HalfWeighted
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate,
+        HermLaurent, ImHermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate,
         UltrasphericalArc, LegendreCubic, ZernikeAnnulus, ComplexZernikeAnnulus, hermlaurent
 
 

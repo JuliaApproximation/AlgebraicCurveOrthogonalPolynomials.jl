@@ -1,4 +1,4 @@
-using AlgebraicCurveOrthogonalPolynomials, FillArrays, Test, Plots
+using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, FillArrays, Test, Plots
 
 ##
 # Let's start with the circle, parameterised by symbols:
@@ -7,8 +7,8 @@ using AlgebraicCurveOrthogonalPolynomials, FillArrays, Test, Plots
 #   Y(z) = [0 1; -1 0]*z/2 + [0 -1; 1 0]/2z
 ##
 
-X = HermLaurent(Zeros(2,2), Eye(2)/2) # z -> Eye(2) * (z/2 + 1/2z)
-Y = HermLaurent(Zeros(2,2), [0 -1/2; 1/2 0]) #z -> [0 z/2-1/2z; 1/2z-z/2 0]
+X = hermlaurent(Zeros(2,2), Eye(2)/2) # z -> Eye(2) * (z/2 + 1/2z)
+Y = hermlaurent(Zeros(2,2), [0 -1/2; 1/2 0]) #z -> [0 z/2-1/2z; 1/2z-z/2 0]
 
 # The tangent is defined by taking derivatives. But it will be derivatives w.r.t.
 # θ where z = exp(im*θ).
@@ -22,8 +22,8 @@ function tangentcurvature(X, Y)
 end
 
 T = function(z)
-    Xd = Ẋ(z)
-    Yd = Ẏ(z)
+    Xd = Ẋ[z]
+    Yd = Ẏ[z]
     N = sqrt(Xd^2 + Yd^2)
     (Xd/N, Yd/N)
 end
@@ -32,7 +32,7 @@ end
 # the joint eigenvectors of Q tell us how to relate T to the 2 tangent vectors
 ##
 z = exp(0.6im)
-x,y,Q = jointeigen(X(z),Y(z))
+x,y,Q = jointeigen(X[z],Y[z])
 
 @test (Q'T(z)[1]*Q) ≈ real(Diagonal(Q'T(z)[1]*Q))
 @test (Q'T(z)[2]*Q) ≈ real(Diagonal(Q'T(z)[2]*Q))
@@ -43,13 +43,12 @@ x,y,Q = jointeigen(X(z),Y(z))
 #
 # (ẋ*ÿ - ẏ*ẍ)/(ẋ^2 + ẏ^2)^(3/2)
 
-Ẍ = z -> Eye(2) * (-(z/2 + 1/2z))
-Ÿ = z -> [0 (-z/2 + 1/2z); (z/2 - 1/2z) 0]
-
+Ẍ,Ÿ = diff(Ẋ),diff(Ẏ)
 κ = function(z)
-    Xd = Ẋ(z); X2 = Ẍ(z)
-    Yd = Ẏ(z); Y2 = Ÿ(z)
-    N = (Xd^2 + Yd^2)^(3/2)
+    Xd = Ẋ[z]; X2 = Ẍ[z]
+    Yd = Ẏ[z]; Y2 = Ÿ[z]
+    @assert Xd^2 + Yd^2 ≈ real(Xd^2 + Yd^2)
+    N = Symmetric(real(Xd^2 + Yd^2))^(3/2)
     (Xd * Y2 - Yd * X2)/N
 end
 
@@ -78,7 +77,44 @@ for k=1:2
 end; p
 
 
-X
 
-HermLaurent(z -> -κ(z) * T(z)[2])
-HermLaurent(z -> κ(z) * T(z)[1]).A
+
+H \ (-κ .* Ẏ)
+
+
+H = HermLaurent{2}()
+z = axes(H,1)
+h = 0.01
+
+X₀ = hermlaurent(Zeros(2,2), Eye(2)/2) # z -> Eye(2) * (z/2 + 1/2z)
+Y₀ = hermlaurent(Zeros(2,2), [0 -1/2; 1/2 0]) #z -> [0 z/2-1/2z; 1/2z-z/2 0]
+
+Xs = [X₀]
+Ys = [Y₀]
+
+for _ = 1:100
+    X,Y = Xs[end],Ys[end]
+    κ = (Ẋ .* Ÿ .- Ẏ .* Ẍ) .* Symmetric.(real.(Ẋ .^2 .+ Ẏ .^2)) .^ (-3/2)
+    ΔX = H / H \ (-κ .* Ẏ)
+    ΔY = H / H \ (κ .* Ẋ)
+    push!(Xs, X + h*ΔX)
+    push!(Ys, Y + h*ΔY)
+end
+
+function jointplot!(X, Y)
+    θ = range(0,2π;length=100)
+    z = exp.(im*θ)
+    xy = jointeigvals.(X[z], Y[z])
+    x,y = first.(xy),last.(xy)
+    n = length(x[1])
+    for k=1:n
+        plot!(getindex.(x,k), getindex.(y,k))
+    end
+end
+
+p = plot(;legend=false)
+jointplot!(Xs[1], Ys[1])
+jointplot!(Xs[11], Ys[11])
+jointplot!(Xs[21], Ys[21])
+jointplot!(Xs[31], Ys[31])
+jointplot!(Xs[41], Ys[41])
