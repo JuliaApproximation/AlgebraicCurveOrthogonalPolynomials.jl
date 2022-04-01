@@ -1,5 +1,5 @@
 module AlgebraicCurveOrthogonalPolynomials
-using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays, 
+using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, BlockBandedMatrices, BlockArrays,
     ForwardDiff, ClassicalOrthogonalPolynomials, DomainSets, StaticArrays, ContinuumArrays, QuasiArrays, SemiclassicalOrthogonalPolynomials,
     MultivariateOrthogonalPolynomials, FillArrays, ArrayLayouts, LazyBandedMatrices, LazyArrays
 
@@ -9,16 +9,16 @@ import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality, LazyQuasiArrayStyle
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto, diff
-import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, Expansion
+import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, Expansion, ProjectionFactorization
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
-import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace
-import BlockArrays: block, blockindex, _BlockedUnitRange
+import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace, BlockRange1
+import BlockArrays: block, blockindex, _BlockedUnitRange, BlockSlice
 import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths
 import SemiclassicalOrthogonalPolynomials: divmul, HalfWeighted
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
-        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate, 
+        HermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate,
         UltrasphericalArc, LegendreCubic, ZernikeAnnulus, ComplexZernikeAnnulus, hermlaurent
 
 
@@ -33,12 +33,12 @@ blocks A and off-diagonal block B.
 function blocksymtricirculant(A, B, N)
     M = size(A,1)
     ret = BlockMatrix(zeros(eltype(A),M*N,M*N), Fill(M,N), Fill(M,N))
-    for K = 1:N 
-        ret[Block(K,K)] = A 
+    for K = 1:N
+        ret[Block(K,K)] = A
     end
-    for K = 1:N-1 
+    for K = 1:N-1
         ret[Block(K,K+1)] = B
-        ret[Block(K+1,K)] = B' 
+        ret[Block(K+1,K)] = B'
     end
     ret[Block(1,N)] = B'
     ret[Block(N,1)] = B

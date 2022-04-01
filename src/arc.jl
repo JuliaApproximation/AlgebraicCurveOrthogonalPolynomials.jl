@@ -107,6 +107,10 @@ function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}
     ldiv!(2,ret)
 end
 
+function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,<:BlockSlice}}, f::AbstractQuasiVector{V}) where {T,V}
+    parent(Pn)[:,OneTo(size(Pn,2))] \ f
+end
+
 abstract type AbstractUltrasphericalArcJacobi{T} <: AbstractBlockBandedMatrix{T} end
 Base.copy(J::AbstractUltrasphericalArcJacobi) = J # immutable
 
