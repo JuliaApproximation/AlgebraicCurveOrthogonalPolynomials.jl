@@ -83,6 +83,7 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         X² = X.^2
         X³ = X.^3
         X⁴ = X.^4
+        z = exp(0.1im)
         @test X²[z] ≈ X[z]^2
         @test X³[z] ≈ X[z]^3
         @test X⁴[z] ≈ X[z]^4

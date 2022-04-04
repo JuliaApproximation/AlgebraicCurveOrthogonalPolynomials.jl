@@ -114,7 +114,7 @@ function ldiv(H::HermLaurent{N}, f::AbstractQuasiVector) where N
     M = SetindexInterlace(SMatrix{N,N,ComplexF64},fill(F,N^2)...)
     θ = axes(M,1)
     c = M \ BroadcastQuasiVector{eltype(M)}(θ -> f[exp(im*θ)], θ)
-    M = BlockArrays.blockcolsupport(c,1)[end]
+    M = BlockArrays.blockcolsupport(c,Block(1))[end]
 
     ret = PseudoBlockVector([Vector{Float64}(undef,last(axes(H,2)[M])); Zeros(∞)], (axes(H,2),))
     
