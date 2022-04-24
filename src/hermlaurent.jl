@@ -114,13 +114,17 @@ function ldiv(H::HermLaurent{N}, f::AbstractQuasiVector) where N
     M = SetindexInterlace(SMatrix{N,N,ComplexF64},fill(F,N^2)...)
     θ = axes(M,1)
     c = M \ BroadcastQuasiVector{eltype(M)}(θ -> f[exp(im*θ)], θ)
-    M = BlockArrays.blockcolsupport(c,Block(1))[end]
-
-    ret = PseudoBlockVector([Vector{Float64}(undef,last(axes(H,2)[M])); Zeros(∞)], (axes(H,2),))
-    
-    ret[Block(1)] = real(SHermitianCompact{N}(reshape(c[Block(1)],N,N)).lowertriangle)
-    for K = Block(2):M
-        ret[K] = real(im*c[2K-2] + c[2K-1])/2
+    BS = BlockArrays.blockcolsupport(c,Block(1))
+    if isempty(BS)
+        ret = PseudoBlockVector([Vector{Float64}(); Zeros(∞)], (axes(H,2),))        
+    else
+        M = BS[end]
+        ret = PseudoBlockVector([Vector{Float64}(undef,last(axes(H,2)[M])); Zeros(∞)], (axes(H,2),))
+        
+        ret[Block(1)] = real(SHermitianCompact{N}(reshape(c[Block(1)],N,N)).lowertriangle)
+        for K = Block(2):M
+            ret[K] = real(im*c[2K-2] + c[2K-1])/2
+        end
     end
     ret
 end
@@ -130,10 +134,14 @@ const ImHermLaurentExpansion{N} = ApplyQuasiVector{<:Any,typeof(*),<:Tuple{ImHer
 
 for op in (:+, :-)
     @eval begin
-        broadcasted(::typeof($op), A::UniformScaling, B::HermLaurentExpansion{N}) where N =
-            $op(B.args[1] * [SHermitianCompact{N}(A(N)).lowertriangle; Zeros(∞)], B)
-        broadcasted(::typeof($op), A::HermLaurentExpansion{N}, B::UniformScaling) where N =
-            $op(A, A.args[1] * [SHermitianCompact{N}(B(N)).lowertriangle; Zeros(∞)])
+        function broadcasted(::typeof($op), A::UniformScaling, B::HermLaurentExpansion{N}) where N
+            H,_ = B.args
+            $op(H * PseudoBlockArray([SHermitianCompact{N}(A(N)).lowertriangle; Zeros(∞)], (axes(H,2),)), B)
+        end
+        function broadcasted(::typeof($op), A::HermLaurentExpansion{N}, B::UniformScaling) where N
+            H,_ = A.args
+            $op(A, H * PseudoBlockArray([SHermitianCompact{N}(B(N)).lowertriangle; Zeros(∞)], (axes(H,2),)))
+        end
     end
 end
 
