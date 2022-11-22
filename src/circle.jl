@@ -35,7 +35,7 @@ struct LegendreCircle{T} <: AlgebraicOrthogonalPolynomial{2,T} end
 LegendreCircle() = LegendreCircle{Float64}()
 
 
-
+==(::LegendreCircle, ::LegendreCircle) = true
 axes(P::LegendreCircle{T}) where T = (CircleInclusion{T}(), _BlockedUnitRange(1:2:∞))
 
 function getindex(P::LegendreCircle{T}, xy::StaticVector{2}, j::BlockIndex{1}) where T
@@ -51,13 +51,39 @@ function getindex(P::LegendreCircle, xy::StaticVector{2}, j::Int)
     P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
 end
 
+function getindex(P::LegendreCircle{T}, xy::StaticVector{2}, JR::BlockOneTo) where T
+    N = Int(maximum(JR))
+    ret = PseudoBlockVector{T}(undef, Vcat(1, Fill(2,N-1)))
+    isempty(JR) && return ret
+    x,y = xy
+    copyto!(view(ret.blocks,1:2:2N-1), view(ChebyshevT{T}(),x,OneTo(N)))
+    copyto!(view(ret.blocks,2:2:2N-1), view(ChebyshevU{T}(),x,OneTo(N-1)))
+    lmul!(y, view(ret.blocks,2:2:2N-1))
+    ret
+end
+
 checkpoints(::LegendreCircle{T}) where T = CircleCoordinate.(checkpoints(Fourier{T}()))
 grid(Pn::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:AbstractUnitRange}}) where T = 
     CircleCoordinate.(grid(Fourier{T}()[:,parentindices(Pn)[2]]))
 factorize(Pn::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:OneTo}}) where T =
     TransformFactorization(grid(Pn), ShuffledRFFT{T}(size(Pn,2)))
+
+factorize(L::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:BlockSlice{BlockRange1{OneTo{Int}}}}},d...) where T =
+    ProjectionFactorization(factorize(parent(L)[:,OneTo(size(L,2))],d...),parentindices(L)[2])
+
     
 
+function jacobimatrix(::Val{1}, ::LegendreCircle{T}) where T
+    F = Fourier{T}()
+    θ = axes(F,1)
+    F \ (cos.(θ) .* F)
+end
+
+function jacobimatrix(::Val{2}, ::LegendreCircle{T}) where T
+    F = Fourier{T}()
+    θ = axes(F,1)
+    F \ (sin.(θ) .* F)
+end
 
 """
 Ortogonal polynomials w.r.t. y^a
@@ -81,6 +107,17 @@ end
 function getindex(P::UltrasphericalCircle, xy::StaticVector{2}, j::Int)
     j == 1 && return P[xy, Block(1)[1]]
     P[xy, Block((j ÷ 2)+1)[1+isodd(j)]]
+end
+
+function getindex(P::UltrasphericalCircle{T}, xy::StaticVector{2}, JR::BlockOneTo) where T
+    N = Int(maximum(JR))
+    ret = PseudoBlockVector{T}(undef, Vcat(1, Fill(2,N-1)))
+    isempty(JR) && return ret
+    x,y = xy
+    copyto!(view(ret.blocks,1:2:2N-1), view(Jacobi((P.a - 1)/2, (P.a - 1)/2),x,OneTo(N)))
+    copyto!(view(ret.blocks,2:2:2N-1), view(Jacobi((P.a + 1)/2, (P.a + 1)/2),x,OneTo(N-1)))
+    lmul!(y, view(ret.blocks,2:2:2N-1))
+    ret
 end
 
 

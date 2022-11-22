@@ -137,6 +137,7 @@ randspeccurve(N) = speccurve(randn(N,N), randn(N,N), randn(3))
 
 
 function jointeigen(A, B)
+    @assert A*B ≈ B*A
     _,Q = eigen(A + 1.23409304233B)
     x,y = real.(diag(Q'A*Q)), real.(diag(Q'B*Q))
     x,y,Q
