@@ -1,5 +1,5 @@
-using AlgebraicCurveOrthogonalPolynomials, Plots, ForwardDiff
-import ForwardDiff: jacobian
+using AlgebraicCurveOrthogonalPolynomials, Plots, ForwardDiff, BlockArrays
+import ForwardDiff: jacobian, gradient
 import AlgebraicCurveOrthogonalPolynomials: cm
 
 # Optimise
@@ -166,3 +166,49 @@ Bx
 
 Ay
 By
+
+
+
+###
+# cubic perturbed circle
+###
+
+Ax = PseudoBlockArray(Symmetric(diagm(2 => 0.5*[1,1,1,1])), fill(3,2), fill(3,2))
+Bx = PseudoBlockArray(diagm(-4 => 0.5*[1,1]), fill(3,2), fill(3,2))
+ε = 0.1
+ϕ = asin(ε)/2
+c0 = cos(ϕ)/2
+c1 = sin(ϕ)/2
+c2 = -c0
+c3 = -c1
+Ay = PseudoBlockArray(Symmetric(diagm(1 => [c1,c2,c1,c2,c1],3 => [c0,c3,c0])), fill(3,2), fill(3,2))
+By = PseudoBlockArray(diagm(-3 => [c3,c0,c3]), fill(3,2), fill(3,2))
+By[6,1] = c2
+
+
+
+Ax1 = Ax[Block(1,1)]
+Ax2 = Ax[Block(2,2)]
+Bx1 = Ax[Block(1,2)]
+Bx2 = Bx[Block(2,1)]
+
+Ay1 = Ay[Block(1,1)]
+Ay2 = Ay[Block(2,2)]
+By1 = Ay[Block(1,2)]
+By2 = By[Block(2,1)]
+
+
+# We want to conjugate by Q = Diagonal([…,I,Q,I,Q,…])
+# so that B1*Q' == Q*B2
+#
+function qopt(p)
+    Q = qr(reshape(p,3,3)).Q
+    [vec(By1*Q' - Q*By2); vec(Bx1*Q' - Q*Bx2)]
+end
+p = randn(9)
+p = p - 0.1*gradient(qopt,p); p /= norm(p); qopt(p)
+
+
+
+
+p = p - svd(jacobian(qopt,p)) \ qopt(p); p /= norm(p); norm(qopt(p))

@@ -1,5 +1,28 @@
 using AlgebraicCurveOrthogonalPolynomials, ClassicalOrthogonalPolynomials, FillArrays, Test, Plots
 
+function jointplot!(X, Y)
+    θ = range(0,2π;length=100)
+    z = exp.(im*θ)
+    xy = jointeigvals.(X[z], Y[z])
+    x,y = first.(xy),last.(xy)
+    n = length(x[1])
+    for k=1:n
+        plot!(getindex.(x,k), getindex.(y,k))
+    end
+end
+
+function jointscatter!(X, Y)
+    θ = range(0,2π;length=100)
+    z = exp.(im*θ)
+    xy = jointeigvals.(X[z], Y[z])
+    x,y = first.(xy),last.(xy)
+    n = length(x[1])
+    for k=1:n
+        scatter!(getindex.(x,k), getindex.(y,k))
+    end
+end
+
+
 ##
 # Let's start with the circle, parameterised by symbols:
 #
@@ -94,6 +117,8 @@ Ys = [Y₀]
 
 for _ = 1:100
     X,Y = Xs[end],Ys[end]
+    Ẋ,Ẏ = diff(X), diff(Y)
+    Ẍ,Ÿ = diff(Ẋ),diff(Ẏ)
     κ = (Ẋ .* Ÿ .- Ẏ .* Ẍ) .* Symmetric.(real.(Ẋ .^2 .+ Ẏ .^2)) .^ (-3/2)
     ΔX = H / H \ (-κ .* Ẏ)
     ΔY = H / H \ (κ .* Ẋ)
@@ -101,20 +126,85 @@ for _ = 1:100
     push!(Ys, Y + h*ΔY)
 end
 
-function jointplot!(X, Y)
-    θ = range(0,2π;length=100)
-    z = exp.(im*θ)
-    xy = jointeigvals.(X[z], Y[z])
-    x,y = first.(xy),last.(xy)
-    n = length(x[1])
-    for k=1:n
-        plot!(getindex.(x,k), getindex.(y,k))
-    end
-end
+
 
 p = plot(;legend=false)
-jointplot!(Xs[1], Ys[1])
-jointplot!(Xs[11], Ys[11])
-jointplot!(Xs[21], Ys[21])
-jointplot!(Xs[31], Ys[31])
-jointplot!(Xs[41], Ys[41])
+for k = 1:10:length(Xs)
+    jointplot!(Xs[k], Ys[k])
+end; p
+
+
+###
+# cubic perturbed circle
+###
+
+Ax = Symmetric(diagm(2 => 0.5*[1,1,1,1]))
+Bx = diagm(-4 => 0.5*[1,1])
+ε = 0.5
+ϕ = asin(ε)/2
+c0 = cos(ϕ)/2
+c1 = sin(ϕ)/2
+c2 = -c0
+c3 = -c1
+Ay = Symmetric(diagm(1 => [c1,c2,c1,c2,c1],3 => [c0,c3,c0]))
+By = diagm(-3 => [c3,c0,c3])
+By[6,1] = c2
+
+X = hermlaurent(Ax, Bx)
+Y = hermlaurent(Ay, By)
+
+
+p = plot(); jointplot!(X, Y); p
+
+θ = range(0,2π; length=1000); plot!(cos.(θ), sin.(θ))
+
+
+
+H = HermLaurent{6}()
+z = axes(H,1)
+h = 0.01
+
+X₀ = hermlaurent(Ax, Bx)
+Y₀ = hermlaurent(Ay, By)
+
+Xs = [X₀]
+Ys = [Y₀]
+
+for k = 1:10
+    @show k
+    X,Y = Xs[end],Ys[end]
+    Ẋ,Ẏ = diff(X), diff(Y)
+    Ẍ,Ÿ = diff(Ẋ),diff(Ẏ)
+    κ = (Ẋ .* Ÿ .- Ẏ .* Ẍ) .* Symmetric.(real.(Ẋ .^2 .+ Ẏ .^2)) .^ (-3/2)
+    ΔX = H / H \ (-κ .* Ẏ)
+    ΔY = H / H \ (κ .* Ẋ)
+    push!(Xs, X + h*ΔX)
+    push!(Ys, Y + h*ΔY)
+end
+
+
+p = plot(;legend=false)
+for k = 1:length(Xs)
+    jointplot!(Xs[k], Ys[k])
+end; p
+
+
+θ = range(0,2π;length=100); z = exp.(im*θ)
+Ẋ,Ẏ = diff(X), diff(Y)
+
+p = plot()
+
+
+
+j = 1
+p = plot()
+for k=1:6
+    x,y = jointeigvals(X[z[j]], Y[z[j]])
+    t_x,t_y = jointeigvals(Ẋ[z[j]], Ẏ[z[j]])
+    plot!([x[k],x[k]+t_x[k]],[y[k],y[k]+t_y[k]]; arrow=true, label="tangent $k")
+end; p
+
+κs = real(diag(Q'*κ(z)*Q))
+for k=1:2
+    plot!([x[k],x[k]-κs[k]*t_y[k]],[y[k],y[k]+κs[k]*t_x[k]]; arrow=true, label="normal $k")
+end; p
