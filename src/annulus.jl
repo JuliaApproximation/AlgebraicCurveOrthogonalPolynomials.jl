@@ -123,13 +123,21 @@ function \(A::AbstractZernikeAnnulus, B::AbstractZernikeAnnulus)
     ModalInterlace{TV}((SemiclassicalJacobi{real(TV)}.(t,A.b,A.a,0:∞) .\ SemiclassicalJacobi{real(TV)}.(t,B.b,B.a,0:∞)), (ℵ₀,ℵ₀), (0,2*Int(max(A.b-B.b,A.a-B.a))))
 end
 
-# function \(A::ZernikeAnnulus{T}, B::Weighted{V,ZernikeAnnulus{V}}) where {T,V}
-#     TV = promote_type(T,V)
-#     A.a == B.P.a == A.b == B.P.b == 0 && return Eye{TV}(∞)
-#     @assert A.a == A.b == 0
-#     @assert B.P.a == 0 && B.P.b == 1
-#     ModalInterlace{TV}((Normalized.(Jacobi{TV}.(0, 0:∞)) .\ HalfWeighted{:a}.(Normalized.(Jacobi{TV}.(1, 0:∞)))) ./ sqrt(convert(TV, 2)), (2,0))
-# end
+function \(A::ZernikeAnnulus{T}, B::Weighted{V,ZernikeAnnulus{V}}) where {T,V}
+    TV = promote_type(T,V)
+    A.a == B.P.a == A.b == B.P.b == 0 && return Eye{TV}(∞)
+    @assert A.a == A.b == 1
+    @assert B.P.a == B.P.b == 1
+    @assert A.ρ == B.P.ρ
+
+    ρ = A.ρ; t=inv(1-ρ^2)
+
+    L₁ = Weighted.(SemiclassicalJacobi{real(TV)}.(t,0,0,0:∞)) .\ Weighted.(SemiclassicalJacobi{real(TV)}.(t,1,1,0:∞))
+    L₂ = SemiclassicalJacobi{real(TV)}.(t,1,1,0:∞) .\ SemiclassicalJacobi{real(TV)}.(t,0,0,0:∞)
+
+    L = (1-ρ^2)^2 .* (L₂ .* L₁)
+    ModalInterlace{TV}(L, (ℵ₀,ℵ₀), (4, 4))
+end
 
 
 ###

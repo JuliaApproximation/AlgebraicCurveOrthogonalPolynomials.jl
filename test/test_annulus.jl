@@ -131,6 +131,9 @@ import SemiclassicalOrthogonalPolynomials: HalfWeighted, divmul
 
             c = [randn(100); zeros(∞)]
             @test tr(hessian(xy -> (Weighted(ZernikeAnnulus{eltype(xy)}(ρ,1,1))*c)[xy], xy)) ≈ (P*(Δ*c))[xy]
+
+            L = P \ W
+            @test W[xy, 1:10] ≈ (P[xy, 1:50]'*L[1:50,1:50])[1:10]
         end
     end
 
