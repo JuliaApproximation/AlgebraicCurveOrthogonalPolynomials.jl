@@ -12,7 +12,7 @@ import QuasiArrays: DefaultQuasiArrayStyle, cardinality, LazyQuasiArrayStyle
 import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto, diff
 import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, ProjectionFactorization
 import ClassicalOrthogonalPolynomials: checkpoints, ShuffledRFFT, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
-import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace, BlockRange1
+import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace, BlockRange1, Plan, ModalTrav
 import BlockArrays: block, blockindex, _BlockedUnitRange, BlockSlice
 import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths, _BandedBlockBandedMatrix
 import SemiclassicalOrthogonalPolynomials: divmul, HalfWeighted
