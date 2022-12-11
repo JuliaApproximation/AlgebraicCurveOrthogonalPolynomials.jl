@@ -169,10 +169,8 @@ end
 # Transforms
 ###
 
-const FiniteZernikeAnnulus{T} = SubQuasiArray{T,2,ZernikeAnnulus{T},<:Tuple{<:Inclusion,<:BlockSlice{BlockRange1{OneTo{Int}}}}}
-
-function grid(S::FiniteZernikeAnnulus{T}) where T
-    N = blocksize(S,2) ÷ 2 + 1 # polynomial degree
+function grid(S::ZernikeAnnulus{T}, B::Block{1}) where T
+    N = Int(B) ÷ 2 + 1 # polynomial degree
     M = 4N-3
     ρ = parent(S).ρ
 
@@ -242,4 +240,4 @@ end
 *(P::ZernikeAnnulusTransform{T}, f::Matrix{T}) where T = denormalize_annulus(ModalTrav(P.ann2cxf \ (P.analysis * f)), P.a, P.b, P.c, P.ρ)
 # *(P::ZernikeAnnulusITransform, f::AbstractVector) = P.synthesis * (P.ann2cxf * ModalTrav(f).matrix)
 
-factorize(S::FiniteZernikeAnnulus{T}) where T = TransformFactorization(grid(S), ZernikeAnnulusTransform{T}(blocksize(S,2), parent(S).a, parent(S).b, zero(T), parent(S).ρ))
+plan_grid_transform(S::ZernikeAnnulus{T}, B::Tuple{Block{1}}, dims=1:1) where T = grid(S, B[1]), ZernikeAnnulusTransform{T}(Int(B[1]), S.a, S.b, zero(T), S.ρ)
