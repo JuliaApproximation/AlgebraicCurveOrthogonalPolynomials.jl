@@ -66,7 +66,7 @@ checkpoints(::LegendreCircle{T}) where T = CircleCoordinate.(checkpoints(Fourier
 grid(Pn::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:AbstractUnitRange}}) where T = 
     CircleCoordinate.(grid(Fourier{T}()[:,parentindices(Pn)[2]]))
 factorize(Pn::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:OneTo}}) where T =
-    TransformFactorization(grid(Pn), ShuffledRFFT{T}(size(Pn,2)))
+    TransformFactorization(grid(Pn), ShuffledR2HC{T}(size(Pn,2)))
 
 factorize(L::SubQuasiArray{T,2,<:LegendreCircle,<:Tuple{<:Inclusion,<:BlockSlice{BlockRange1{OneTo{Int}}}}},d...) where T =
     ProjectionFactorization(factorize(parent(L)[:,OneTo(size(L,2))],d...),parentindices(L)[2])

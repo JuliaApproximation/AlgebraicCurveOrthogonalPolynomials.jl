@@ -64,7 +64,7 @@ end
 
 
 UltrasphericalArc(h, a) = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a)
-UltrasphericalArc(h, a, P) where T = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a, P)
+UltrasphericalArc(h, a, P) = UltrasphericalArc{float(promote_type(typeof(h),typeof(a)))}(h, a, P)
 UltrasphericalArc(a) = UltrasphericalArc(zero(a), a)
 UltrasphericalArc() = UltrasphericalArc(0)
 
