@@ -179,7 +179,7 @@ function grid(S::ZernikeAnnulus{T}, B::Block{1}) where T
 
     # The angular grid:
     θ = (0:M-1)*convert(T,2)/M
-    RadialCoordinate.(r, π*θ')
+    RadialCoordinate.(r, convert(T,π)*θ')
 end
 
 _angle(rθ::RadialCoordinate) = rθ.θ
@@ -188,7 +188,7 @@ function plotgrid(S::ZernikeAnnulus{T}, B::Block{1}) where T
     N = Int(B) ÷ 2 + 1  # polynomial degree
     g = grid(S[:,Block.(OneTo(2N))]) # double sampling
     θ = [map(_angle,g[1,:]); 0]
-    ρ = S.ρ + eps()
+    ρ = S.ρ + eps(T)
     [permutedims(RadialCoordinate.(1,θ)); g g[:,1]; permutedims(RadialCoordinate.(ρ,θ))]
 end
 plotgrid(wS::Weighted{<:Any,<:ZernikeAnnulus}, B::Block{1}) = plotgrid(unweighted(wS), B)
@@ -235,7 +235,7 @@ function denormalize_annulus(A::AbstractVector, a, b, c, ρ, analysis=true)
     constants = normalize_mmodes(w)[1:l] # m-mode constants
     d = [inv(constants[mm+1]*ss) for (mm, ss) in zip(m, s)] # multiply by relevant (-1)
     analysis && return d.*A # multiply vector by denormalization if analysis
-    A ./ d # divde vector by denormalization if synthesis
+    A ./ d # divide vector by denormalization if synthesis
 end
 
 struct ZernikeAnnulusTransform{T} <: Plan{T}
