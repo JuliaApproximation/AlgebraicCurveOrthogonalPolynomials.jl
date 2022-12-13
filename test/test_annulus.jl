@@ -1,8 +1,9 @@
 using AlgebraicCurveOrthogonalPolynomials, MultivariateOrthogonalPolynomials, SemiclassicalOrthogonalPolynomials, ContinuumArrays, LinearAlgebra, ForwardDiff, InfiniteArrays, Test
-import AlgebraicCurveOrthogonalPolynomials: zernikeannulusr, complexzernikeannulusz, UnitInterval, ModalInterlace
+import AlgebraicCurveOrthogonalPolynomials: zernikeannulusr, complexzernikeannulusz, UnitInterval, ModalInterlace, plotgrid, plotvalues, ZernikeAnnulusTransform, ZernikeAnnulusITransform
 using LazyArrays
 import ForwardDiff: derivative, hessian, gradient
 import SemiclassicalOrthogonalPolynomials: HalfWeighted, divmul
+import BlockArrays: PseudoBlockArray, blockcolsupport
 
 
 @testset "Annulus" begin
@@ -148,6 +149,22 @@ import SemiclassicalOrthogonalPolynomials: HalfWeighted, divmul
                 end
             end
         end
+
+        N = 5
+        T = ZernikeAnnulusTransform{Float64}(N,0,0,0,0.5)
+        Ti = ZernikeAnnulusITransform{Float64}(N,0,0,0,0.5)
+
+        v = PseudoBlockArray(randn(sum(1:N)),1:N)
+        @test T * (Ti * v) ≈ v
+        @test_throws MethodError T * randn(15)
+
+        Z = ZernikeAnnulus(0.5, 1, 1); c = [1;2;zeros(∞)]
+        u = Z * c
+        Bs = last(blockcolsupport(u.args[2]))
+        g = plotgrid(Z, Bs)
+        @test g == plotgrid(Weighted(Z), Bs)
+        @test norm(plotvalues(u, g)) ≈ 10.087120500916006
+        @test norm(plotvalues(Weighted(Z)*c, g)) ≈ 0.6875721286737169 
     end
 
     @testset "Complex" begin
