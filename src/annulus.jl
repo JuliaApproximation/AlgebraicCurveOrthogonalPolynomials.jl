@@ -188,7 +188,7 @@ function plotgrid(S::ZernikeAnnulus{T}, B::Block{1}) where T
     N = Int(B) ÷ 2 + 1  # polynomial degree
     g = grid(S[:,Block.(OneTo(2N))]) # double sampling
     θ = [map(_angle,g[1,:]); 0]
-    ρ = S.ρ + eps(T)
+    ρ = S.ρ + eps(T) # Without the eps, it sporadically throws a BoundsError.
     [permutedims(RadialCoordinate.(1,θ)); g g[:,1]; permutedims(RadialCoordinate.(ρ,θ))]
 end
 plotgrid(wS::Weighted{<:Any,<:ZernikeAnnulus}, B::Block{1}) = plotgrid(unweighted(wS), B)
