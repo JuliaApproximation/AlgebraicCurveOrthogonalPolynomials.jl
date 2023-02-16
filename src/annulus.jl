@@ -179,7 +179,35 @@ function grid(S::ZernikeAnnulus{T}, B::Block{1}) where T
 
     # The angular grid:
     θ = (0:M-1)*convert(T,2)/M
-    RadialCoordinate.(r, π*θ')
+    RadialCoordinate.(r, convert(T,π)*θ')
+end
+
+_angle(rθ::RadialCoordinate) = rθ.θ
+
+function plotgrid(S::ZernikeAnnulus{T}, B::Block{1}) where T
+    N = Int(B) ÷ 2 + 1  # polynomial degree
+    g = grid(S[:,Block.(OneTo(2N))]) # double sampling
+    θ = [map(_angle,g[1,:]); 0]
+    ρ = S.ρ + eps(T) # Without the eps, it sporadically throws a BoundsError.
+    [permutedims(RadialCoordinate.(1,θ)); g g[:,1]; permutedims(RadialCoordinate.(ρ,θ))]
+end
+plotgrid(wS::Weighted{<:Any,<:ZernikeAnnulus}, B::Block{1}) = plotgrid(unweighted(wS), B)
+
+function plotvalues(u::ApplyQuasiVector{T,typeof(*),<:Tuple{ZernikeAnnulus, AbstractVector}}, x) where T
+    Z,c = u.args
+    CS = blockcolsupport(c)
+    N = Int(last(CS)) ÷ 2 + 1 # polynomial degree
+    F = ZernikeAnnulusITransform{T}(2N, Z.a, Z.b, 0, Z.ρ) # 0 should be Z.c if implemented.
+    C = F * c[Block.(OneTo(2N))] # transform to grid
+    [permutedims(u[x[1,:]]); # evaluate on edge of disk
+     C C[:,1];
+     fill(u[x[end,1]], 1, size(x,2))] # evaluate at edge of annulus and repeat
+end
+
+function plotvalues(u::ApplyQuasiVector{T,typeof(*),<:Tuple{Weighted{<:Any,<:ZernikeAnnulus}, AbstractVector}}, x) where T
+    U = plotvalues(unweighted(u), x)
+    w = weight(u.args[1])
+    w[x] .* U
 end
 
 # FastTransforms uses orthonormalized annulus OPs so we need to correct the normalization
@@ -196,7 +224,7 @@ end
 
 # Creates vector correctly interlacing the denormalization
 # constants for each m-mode.
-function denormalize_annulus(A::AbstractVector, a, b, c, ρ)
+function denormalize_annulus(A::AbstractVector, a, b, c, ρ, analysis=true)
     l = length(A)
     bl = [findblockindex(blockedrange(oneto(∞)), j) for j in 1:l]
     ℓ = [bl[j].I[1]-1 for j in 1:l] # degree
@@ -206,7 +234,8 @@ function denormalize_annulus(A::AbstractVector, a, b, c, ρ)
     w = AnnulusWeight(ρ, a, b)
     constants = normalize_mmodes(w)[1:l] # m-mode constants
     d = [inv(constants[mm+1]*ss) for (mm, ss) in zip(m, s)] # multiply by relevant (-1)
-    d.*A # multiply vector by denormalization
+    analysis && return d.*A # multiply vector by denormalization if analysis
+    A ./ d # divide vector by denormalization if synthesis
 end
 
 struct ZernikeAnnulusTransform{T} <: Plan{T}
@@ -219,25 +248,29 @@ struct ZernikeAnnulusTransform{T} <: Plan{T}
     ρ::T
 end
 
-# struct ZernikeAnnulusITransform{T} <: Plan{T}
-#     N::Int
-#     ann2cxf::FastTransforms.FTPlan{T,2,FastTransforms.ANNULUS}
-#     synthesis::FastTransforms.FTPlan{T,2,FastTransforms.ANNULUSSYNTHESIS}
-# end
+struct ZernikeAnnulusITransform{T} <: Plan{T}
+    N::Int
+    ann2cxf::FastTransforms.FTPlan{T,2,FastTransforms.ANNULUS}
+    synthesis::FastTransforms.FTPlan{T,2,FastTransforms.ANNULUSSYNTHESIS}
+    a::T
+    b::T
+    c::T
+    ρ::T
+end
 
 function ZernikeAnnulusTransform{T}(N::Int, a::Number, b::Number, c::Number, ρ::Number) where T<:Real
     @assert c == 0 # Remove when/if the weight r^(2c) is added.
     Ñ = N ÷ 2 + 1
     ZernikeAnnulusTransform{T}(N, plan_ann2cxf(T, Ñ, a, b, c, ρ), plan_annulus_analysis(T, Ñ, 4Ñ-3, ρ), a, b, c, ρ)
 end
-# function ZernikeAnnulusITransform{T}(N::Int, a::Number, b::Number, c::Number, ρ::Number) where T<:Real
-#     @assert c == 0 # Remove when/if the weight r^c is added.
-#     Ñ = N ÷ 2 + 1
-#     ZernikeAnnulusITransform{T}(N, plan_ann2cxf(T, Ñ, a, b, c, ρ), plan_annulus_synthesis(T, Ñ, 4Ñ-3, ρ))
-# end
+function ZernikeAnnulusITransform{T}(N::Int, a::Number, b::Number, c::Number, ρ::Number) where T<:Real
+    @assert c == 0 # Remove when/if the weight r^c is added.
+    Ñ = N ÷ 2 + 1
+    ZernikeAnnulusITransform{T}(N, plan_ann2cxf(T, Ñ, a, b, c, ρ), plan_annulus_synthesis(T, Ñ, 4Ñ-3, ρ), a, b, c, ρ)
+end
 
 *(P::ZernikeAnnulusTransform{T}, f::AbstractArray) where T = P * convert(Matrix{T}, f)
 *(P::ZernikeAnnulusTransform{T}, f::Matrix{T}) where T = denormalize_annulus(ModalTrav(P.ann2cxf \ (P.analysis * f)), P.a, P.b, P.c, P.ρ)
-# *(P::ZernikeAnnulusITransform, f::AbstractVector) = P.synthesis * (P.ann2cxf * ModalTrav(f).matrix)
+*(P::ZernikeAnnulusITransform, f::AbstractVector) = P.synthesis * (P.ann2cxf * ModalTrav(denormalize_annulus(f, P.a, P.b, P.c, P.ρ, false)).matrix)
 
 plan_grid_transform(S::ZernikeAnnulus{T}, B::Tuple{Block{1}}, dims=1:1) where T = grid(S, B[1]), ZernikeAnnulusTransform{T}(Int(B[1]), S.a, S.b, zero(T), S.ρ)
