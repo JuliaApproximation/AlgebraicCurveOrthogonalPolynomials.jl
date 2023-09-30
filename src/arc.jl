@@ -96,9 +96,9 @@ function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}
     @assert P.h == 0
     N = maximum(jr)
     ret = Array{T}(undef, N)
-    ret[1:2:end] = P.T[:,Base.OneTo((N+1) ÷ 2)] \ BroadcastQuasiVector{Float64}(y -> f[CircleCoordinate(asin(1-y))] + f[CircleCoordinate(π-asin(1-y))], axes(P.T,1))
+    ret[1:2:end] = P.T[:,Base.OneTo((N+1) ÷ 2)] \ BroadcastQuasiVector{T}(y -> f[CircleCoordinate(asin(1-y))] + f[CircleCoordinate(π-asin(1-y))], axes(P.T,1))
     if N > 1
-        ret[2:2:end] = P.U[:,Base.OneTo(N÷2)] \ BroadcastQuasiVector{Float64}(function(y)
+        ret[2:2:end] = P.U[:,Base.OneTo(N÷2)] \ BroadcastQuasiVector{T}(function(y)
             xy = CircleCoordinate(asin(1-y))
             xỹ = CircleCoordinate(π-asin(1-y))
             (f[xy] - f[xỹ])/xy[1]
