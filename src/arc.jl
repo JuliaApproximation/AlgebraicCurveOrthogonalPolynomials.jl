@@ -50,6 +50,8 @@ struct UltrasphericalArc{V,TT,UU} <: AlgebraicOrthogonalPolynomial{2,V}
 end
 UltrasphericalArc{V}(h, a, T::TT, U::UU) where {V,TT,UU} = UltrasphericalArc{V,TT,UU}(h,a,T,U)
 
+show(io::IO, P::UltrasphericalArc) = print(io, "UltrasphericalArc($(P.h), $(P.a))")
+
 function UltrasphericalArc{V}(h,a=zero(h)) where V
     T = SemiclassicalJacobi(2/(1-h), -one(a)/2+a/2, zero(a), -one(a)/2+a/2)
     U = SemiclassicalJacobi(2/(1-h),  one(a)/2+a/2, zero(a), one(a)/2+a/2, T)
@@ -90,7 +92,7 @@ end
 
 summary(io::IO, P::UltrasphericalArc{V}) where V = print(io, "UltrasphericalArc($(P.h), $(P.a))")
 
-function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}}, f::AbstractQuasiVector{V}) where {T,V}
+function transform_ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}}, f::AbstractQuasiVector{V}) where {T,V}
     _,jr = parentindices(Pn)
     P = parent(Pn)
     @assert P.h == 0
@@ -107,7 +109,7 @@ function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,OneTo}
     ldiv!(2,ret)
 end
 
-function ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,<:BlockSlice}}, f::AbstractQuasiVector{V}) where {T,V}
+function transform_ldiv(Pn::SubQuasiArray{T,2,<:UltrasphericalArc,<:Tuple{Inclusion,<:BlockSlice}}, f::AbstractQuasiVector{V}) where {T,V}
     parent(Pn)[:,OneTo(size(Pn,2))] \ f
 end
 

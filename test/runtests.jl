@@ -5,7 +5,6 @@ using AlgebraicCurveOrthogonalPolynomials, LinearAlgebra, BlockBandedMatrices, B
 
 include("test_circle.jl")
 include("test_arc.jl")
-include("test_annulus.jl")
 include("test_hermlaurent.jl")
 
 

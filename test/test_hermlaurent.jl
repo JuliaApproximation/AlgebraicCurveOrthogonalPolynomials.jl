@@ -66,7 +66,7 @@ import ClassicalOrthogonalPolynomials: SetindexInterlace
         @test X⁴[z] ≈ X[z]^4
 
         XY = X .* Y
-        Y .* X - XY
+        # Y .* X - XY
         @test XY[z] ≈ X[z]Y[z]
 
         @test norm(X.^2 .+ Y.^2 .- I) ≤ 10eps()
