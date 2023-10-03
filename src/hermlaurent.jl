@@ -300,7 +300,7 @@ end
 _hermlaurent_size(::AbstractHermLaurent{N}) where N = N
 _hermlaurent_size2(::AbstractHermLaurent{N,T,N₂}) where {N,T,N₂} = N₂
 
-@simplify function *(D::Derivative, H::HermLaurent)
+function diff(H::HermLaurent; dims=1)
     N = _hermlaurent_size(H)
     N₂ = _hermlaurent_size2(H)
     iH = ImHermLaurent(H)
@@ -308,7 +308,7 @@ _hermlaurent_size2(::AbstractHermLaurent{N,T,N₂}) where {N,T,N₂} = N₂
     iH * _BandedBlockBandedMatrix(BlockVcat(Zeros{T}(N₂), mortar(Fill.((-one(T))*oneto(∞), N^2)))', (axes(iH,2),axes(H,2)), (-1,1), (0,0))
 end
 
-@simplify function *(D::Derivative, iH::ImHermLaurent)
+function diff(iH::ImHermLaurent; dims=1)
     N = _hermlaurent_size(iH)
     N₂ = _hermlaurent_size2(iH)
     H = HermLaurent(iH)

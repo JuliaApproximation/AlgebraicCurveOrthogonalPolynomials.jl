@@ -19,8 +19,8 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                 @test P[CircleCoordinate(0.1),5] ≈ P.T[1-y,3]
 
                 @testset "expansion" begin
-                    xy = axes(P,1)
-                    x,y = first.(xy),last.(xy)
+                    𝐱 = axes(P,1)
+                    x,y = first.(𝐱),last.(𝐱)
                     f = exp.(cos.(y) .+ exp.(x))
                     u = P * [P[:,Base.OneTo(40)] \ f; Zeros(∞)];
                     @test u[CircleCoordinate(0.1)] ≈ f[CircleCoordinate(0.1)]
@@ -36,26 +36,26 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
 
                 @testset "Jacobi" begin
                     T,U = P.T,P.U;
-                    X_T = jacobimatrix(T);
-                    X_U = jacobimatrix(U);
+                    X_T = jacobimatrix(T)
+                    X_U = jacobimatrix(U)
                     R = U \ T;
                     L = T \ (SemiclassicalJacobiWeight(2,1,0,1) .* U);
                     @test L[1:10,1:10]' ≈ R[1:10,1:10]
-                    xy = CircleCoordinate(0.1)
-                    x,y = xy
+                    𝐱 = CircleCoordinate(0.1)
+                    x,y = 𝐱
                     @test y*T[y,1:3]' ≈ T[y,1:4]'*X_T[1:4,1:3]
-                    @test (1-y) * P[xy, 1] ≈ P[xy,[1,3]]'* X_T[1:2, 1]
+                    @test (1-y) * P[𝐱, 1] ≈ P[𝐱,[1,3]]'* X_T[1:2, 1]
                     X̃_T = I-X_T;
                     X̃_U = I-X_U;
-                    @test x * P[xy, 1] ≈ P[xy,2] * R[1,1]
-                    @test x * P[xy, 2] ≈ P[xy,1:2:5]' * R[1,1:3]
-                    @test x * P[xy, 3] ≈ P[xy,2:2:4]' * R[1:2,2]
-                    @test x * P[xy, 4] ≈ P[xy,3:2:7]' * R[2,2:4]
-                    @test x * P[xy, 5] ≈ P[xy,2:2:6]' * R[1:3,3]
-                    @test y * P[xy, 1] ≈ P[xy,1:2:3]' * X̃_T[1:2, 1]
-                    @test y * P[xy, 2] ≈ P[xy,2:2:4]' * X̃_U[1:2, 1]
-                    @test y * P[xy, 3] ≈ P[xy,1:2:5]' * X̃_T[1:3, 2]
-                    @test y * P[xy, 4] ≈ P[xy,2:2:6]' * X̃_U[1:3, 2]
+                    @test x * P[𝐱, 1] ≈ P[𝐱,2] * R[1,1]
+                    @test x * P[𝐱, 2] ≈ P[𝐱,1:2:5]' * R[1,1:3]
+                    @test x * P[𝐱, 3] ≈ P[𝐱,2:2:4]' * R[1:2,2]
+                    @test x * P[𝐱, 4] ≈ P[𝐱,3:2:7]' * R[2,2:4]
+                    @test x * P[𝐱, 5] ≈ P[𝐱,2:2:6]' * R[1:3,3]
+                    @test y * P[𝐱, 1] ≈ P[𝐱,1:2:3]' * X̃_T[1:2, 1]
+                    @test y * P[𝐱, 2] ≈ P[𝐱,2:2:4]' * X̃_U[1:2, 1]
+                    @test y * P[𝐱, 3] ≈ P[𝐱,1:2:5]' * X̃_T[1:3, 2]
+                    @test y * P[𝐱, 4] ≈ P[𝐱,2:2:6]' * X̃_U[1:3, 2]
 
 
                     X = jacobimatrix(Val(1), P)
@@ -63,16 +63,16 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                     @test X[Block(1,1)] == zeros(1,1)
                     @test X[Block(2,1)] isa Matrix
                     @test issymmetric(X[1:10,1:10])
-                    @test P[xy,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)] ≈ x * P[xy,Block.(1:5)]'
-                    @test P[xy,Block.(1:6)]' * Y[Block.(1:6),Block.(1:5)] ≈ y * P[xy,Block.(1:5)]'
+                    @test P[𝐱,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)] ≈ x * P[𝐱,Block.(1:5)]'
+                    @test P[𝐱,Block.(1:6)]' * Y[Block.(1:6),Block.(1:5)] ≈ y * P[𝐱,Block.(1:5)]'
 
                     @testset "nice syntax" begin
                         P = UltrasphericalArc()
-                        xy = axes(P,1)
-                        x,y = first.(xy),last.(xy)
+                        𝐱 = axes(P,1)
+                        x,y = first.(𝐱),last.(𝐱)
                         X = (x .* P).args[2]
                         @test MemoryLayout(X) isa LazyBandedMatrices.LazyBlockBandedLayout
-                        Base.BroadcastStyle(typeof(X))
+                        
                         X = P \ (x .* P)
                         Y = P \ (y .* P)
                         # TODO: overload broadcasted(*, ::Ones, ...) for this case
@@ -84,7 +84,7 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
             @testset "a = 1" begin
                 P = UltrasphericalArc()
                 U = UltrasphericalArc(2)
-                @test norm((U \ P[:,10])[Block.(1:3)]) ≤ 100eps()
+                @test norm((U \ P[:,10])[Block.(1:3)]) ≤ 100eps()
             end
         end
 
@@ -108,7 +108,7 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
             y = z -> Ay + (By/z + By'*z)
             @test x(1) ≈ I(2)
             @test norm(y(1)) ≤ 10eps()
-            @test norm(x(-1)) ≤ 10eps()
+            @test norm(x(-1)) ≤ 10eps()
             @test y(-1) ≈ [0 -1; -1 0]
             @test eigvals(y(-1)) ≈ [-1,1]
 
@@ -181,9 +181,9 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
                     J = ForwardDiff.jacobian(F_circle,p); p = p - (J \ F_circle(p))
                 end
                 Ax,Bx,Ay,By = unroll(p)
-                @test norm(Ax) ≤ 10eps()
+                @test norm(Ax) ≤ 10eps()
                 @test Bx ≈ [0.5 0; 0 0.5]
-                @test norm(Ay) ≤ 10eps()
+                @test norm(Ay) ≤ 10eps()
                 @test By ≈ [0 0.5; -0.5 0]
             end
             @testset "semicircle" begin
@@ -236,10 +236,10 @@ import ClassicalOrthogonalPolynomials: jacobimatrix
         X = jacobimatrix(Val(1), P);
         Y = jacobimatrix(Val(2), P);
 
-        xy = CircleCoordinate(0.4)
-        x,y = xy
-        @test P[xy,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)] ≈ x * P[xy,Block.(1:5)]'
-        @test P[xy,Block.(1:6)]' * Y[Block.(1:6),Block.(1:5)] ≈ y * P[xy,Block.(1:5)]'
+        𝐱 = CircleCoordinate(0.4)
+        x,y = 𝐱
+        @test P[𝐱,Block.(1:6)]' * X[Block.(1:6),Block.(1:5)] ≈ x * P[𝐱,Block.(1:5)]'
+        @test P[𝐱,Block.(1:6)]' * Y[Block.(1:6),Block.(1:5)] ≈ y * P[𝐱,Block.(1:5)]'
 
         @test (X^2 + Y^2)[Block.(1:5), Block.(1:5)] ≈ I
     end
