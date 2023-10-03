@@ -9,3 +9,4 @@ include("test_hermlaurent.jl")
 
 
 include("circle_perturbed_symbol.jl")
+include("test_twoband.jl")

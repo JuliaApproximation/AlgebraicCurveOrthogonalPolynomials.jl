@@ -105,9 +105,9 @@ end
 const ConvKernel2{T,D1,D2} = BroadcastQuasiMatrix{T,typeof(-),Tuple{D1,QuasiAdjoint{T,D2}}}
 const Hilbert2{T,D1,D2} = BroadcastQuasiMatrix{T,typeof(inv),Tuple{ConvKernel2{T,Inclusion{T,D1},Inclusion{T,D2}}}}
 
-function stieltjes(w::TwoBandWeight)
-    if 2w.a == 2w.b == -1 && 2w.c == 1 && axes(H,2) == axes(w,1) && axes(H,1).domain ⊆ twoband_0(w.ρ)
-        zeros(promote_type(eltype(H),eltype(w)), axes(H,1))
+function stieltjes(w::TwoBandWeight, x::Inclusion=Inclusion(twoband_0(w.ρ)))
+    if 2w.a == 2w.b == -1 && 2w.c == 1 && x.domain ⊆ twoband_0(w.ρ)
+        zeros(eltype(w), x)
     else
        error("Not Implemented")
     end
@@ -182,13 +182,12 @@ end
 # Derivatives
 ##
 
-function divmul(R::TwoBandJacobi, D::Derivative, P::TwoBandJacobi)
+function diffmat(R::TwoBandJacobi, P::TwoBandJacobi)
     T = promote_type(eltype(R), eltype(P))
     ρ = convert(T,R.ρ); t=inv(one(T)-ρ^2)
-    x = axes(R.Q, 1)
 
-    Dₑ = -T(2) * t .* (R.Q \ (Derivative(x)*P.P))
-    Dₒ = -T(2) .* (HalfWeighted{:c}(R.P) \ (Derivative(x)* HalfWeighted{:c}(P.Q)))
+    Dₑ = -T(2) * t .* (R.Q \ diff(P.P))
+    Dₒ = -T(2) .* (HalfWeighted{:c}(R.P) \ diff(HalfWeighted{:c}(P.Q)))
     d = Dₑ.args[1][1,1] .* Dₑ.args[2].parent.data
     (dₑ, dlₑ) = d[1,:], d[2, :]
     (dₒ, dlₒ) = Vcat(-one(T),Dₒ[band(1)]), Dₒ[band(0)]
@@ -196,12 +195,12 @@ function divmul(R::TwoBandJacobi, D::Derivative, P::TwoBandJacobi)
 end
 
 # double weighted TwoBandJacobi
-function divmul(R::TwoBandJacobi, D::Derivative, HP::HalfWeighted{:ab,<:Any,<:TwoBandJacobi})
+function diffmat(R::TwoBandJacobi, HP::HalfWeighted{:ab,<:Any,<:TwoBandJacobi})
     T = promote_type(eltype(R), eltype(HP))
     ρ=convert(T,R.ρ); t=inv(one(T)-ρ^2)
 
-    Dₑ = -2*(one(T)-ρ^2) .* (R.Q \ (Derivative(axes(R.Q,1))*HalfWeighted{:ab}(HP.P.P)))
-    D₀ = -2*(one(T)-ρ^2)^2 .* (Weighted(R.P) \ (Derivative(axes(R.P,1))*Weighted(HP.P.Q)))
+    Dₑ = -2*(one(T)-ρ^2) .* (R.Q \ diff(HalfWeighted{:ab}(HP.P.P)))
+    D₀ = -2*(one(T)-ρ^2)^2 .* (Weighted(R.P) \ diff(Weighted(HP.P.Q)))
 
     (dₑ, dlₑ, d₀, dl₀) = Dₑ[band(0)], Dₑ[band(-1)], D₀[band(-1)], D₀[band(-2)]
     BandedMatrix(-1=>Interlace(dₑ, -d₀), -3=>Interlace(-dlₑ, dl₀))
@@ -213,15 +212,15 @@ function diff(HP::HalfWeighted{:ab,<:Any,<:TwoBandJacobi}; dims=1)
     @assert P.a == 1 && P.b == 1 && P.c == 0
 
     R = TwoBandJacobi(ρ, P.a-1,P.b-1,P.c)
-    R * divmul(R, D, HP)
+    R * diffmat(R, HP)
 end
 
-@simplify function *(D::Derivative, P::TwoBandJacobi)
+function diff(P::TwoBandJacobi; dims=1)
     ρ = P.ρ
     @assert P.a == 0 && P.b == 0 && P.c == 0
 
     R = TwoBandJacobi(ρ, P.a+1,P.b+1,P.c)
-    R * divmul(R, D, P)
+    R * diffmat(R, P)
 end
 
 ###
