@@ -6,21 +6,24 @@ using FastGaussQuadrature, FastTransforms, SpecialFunctions, LinearAlgebra, Bloc
 import ForwardDiff: jacobian
 import ForwardDiff: jacobian, Dual, gradient, value, partials
 import FillArrays: SquareEye
-import LinearAlgebra: eigvals, eigen, isapprox, SymTridiagonal, norm, factorize
+import LinearAlgebra: eigvals, eigen, isapprox, norm, factorize
 import FastGaussQuadrature: jacobimoment
 import QuasiArrays: DefaultQuasiArrayStyle, cardinality, LazyQuasiArrayStyle
-import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto, diff
-import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, ProjectionFactorization, plan_grid_transform, unweighted, weight
-import ClassicalOrthogonalPolynomials: checkpoints, ShuffledR2HC, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace
+import Base: in, axes, getindex, broadcasted, tail, +, -, *, /, \, convert, OneTo, show, summary, ==, oneto, diff, copy, sum, size, axes
+import ContinuumArrays: Weight, grid, ℵ₁, ℵ₀, @simplify, ProjectionFactorization, plan_grid_transform, unweighted, weight, transform_ldiv
+import ClassicalOrthogonalPolynomials: checkpoints, ShuffledR2HC, TransformFactorization, ldiv, paddeddata, jacobimatrix, orthogonalityweight, SetindexInterlace, WeightedBasis, HalfWeighted, plotgrid, golubwelsch, recurrencecoefficients
 import MultivariateOrthogonalPolynomials: BlockOneTo, ModalInterlace, BlockRange1, Plan, ModalTrav
 import BlockArrays: block, blockindex, _BlockedUnitRange, BlockSlice, blockcolsupport
-import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths, _BandedBlockBandedMatrix
-import SemiclassicalOrthogonalPolynomials: divmul, HalfWeighted
+import BlockBandedMatrices: BlockTridiagonal, AbstractBlockBandedMatrix, blockbandwidths, subblockbandwidths, _BandedBlockBandedMatrix, band
+import SemiclassicalOrthogonalPolynomials: HalfWeighted
+import LazyArrays: LazyVector
+import SingularIntegrals: Associated, associated, stieltjes
+import LazyBandedMatrices: Tridiagonal, SymTridiagonal, BandedMatrix
 
 export quarticjacobi, blocksymtricirculant, unroll, randspeccurve, speccurve, specgrid, speccurvemat, symroll, symunroll, spec2alg,
         wedgep, wedgeq, wedger, wedgetransform, plan_wedgetransform, plan_squaretransform, gausswedge, JacobiWedge, LegendreSquare, gausssquare,
         HermLaurent, ImHermLaurent, jointeigen, jointeigvals, BlockTridiagonal, LegendreCircle, UltrasphericalCircle, Block, SVector, CircleCoordinate,
-        UltrasphericalArc, LegendreCubic, ZernikeAnnulus, ComplexZernikeAnnulus, hermlaurent
+        UltrasphericalArc, LegendreCubic, hermlaurent, TwoBandWeight, TwoBandJacobi
 
 
 
@@ -103,10 +106,10 @@ include("wedge.jl")
 include("square.jl")
 include("cubic.jl")
 include("quartic.jl")
-include("annulus.jl")
 
 include("algcurvapprox.jl")
 
 include("hermlaurent.jl")
+include("twoband.jl")
 
 end # module
