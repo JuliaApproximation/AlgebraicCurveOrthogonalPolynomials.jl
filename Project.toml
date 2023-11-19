@@ -1,7 +1,7 @@
 name = "AlgebraicCurveOrthogonalPolynomials"
 uuid = "b2d6dd58-be48-4100-8375-7f7d22241ed8"
 authors = ["Sheehan Olver <solver@mac.com>"]
-version = "0.0.2"
+version = "0.0.3"
 
 [deps]
 ArrayLayouts = "4c555306-a7a7-4459-81d9-ec55ddd5c99a"
@@ -36,8 +36,8 @@ ArrayLayouts = "1.4.2"
 BandedMatrices = "0.17, 1"
 BlockArrays = "0.16"
 BlockBandedMatrices = "0.12"
-ClassicalOrthogonalPolynomials = "0.11"
-ContinuumArrays = "0.16"
+ClassicalOrthogonalPolynomials = "0.11, 0.12"
+ContinuumArrays = "0.16, 0.17"
 DomainSets = "0.5, 0.6, 0.7"
 FastGaussQuadrature = "0.5, 1"
 FastTransforms = "0.15"
